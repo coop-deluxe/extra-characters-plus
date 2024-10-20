@@ -132,7 +132,9 @@ function act_spinjump(m)
     m.marioBodyState.handState = 2
 
     if m.actionTimer == 0 then
-        play_character_sound(m, CHAR_SOUND_WAH2)
+        if not usedSpinJump then
+            play_character_sound(m, CHAR_SOUND_WAH2)
+        end
         play_sound_with_freq_scale(SOUND_ACTION_SIDE_FLIP_UNK, m.marioObj.header.gfx.cameraToObject, 1.9)
         m.marioObj.header.gfx.animInfo.animFrame = 0
 
