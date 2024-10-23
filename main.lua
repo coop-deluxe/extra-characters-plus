@@ -3,7 +3,7 @@
 
 local TEXT_PACK_NAME = "Extra Characters"
 if not _G.charSelectExists then
-    djui_popup_create("\\#ffffa0\\" .. TEXT_PACK_NAME .. "requires\nCharacter Select to be enabled.\n\nPlease rehost with it enabled.", 4)
+    djui_popup_create("\\#ffffa0\\" .. TEXT_PACK_NAME .. " requires\nCharacter Select to be enabled.\n\nPlease rehost with it enabled.", 4)
     return
 end
 

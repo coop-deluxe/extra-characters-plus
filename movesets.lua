@@ -1,3 +1,5 @@
+if not _G.charSelectExists then return end
+
 local princessFloatActs = {
     [ACT_JUMP] = true,
     [ACT_DOUBLE_JUMP] = true,
