@@ -869,6 +869,7 @@ extraCharacters = {
             [CHAR_ANIM_RUNNING] = 'donkey_72_running',
             [CHAR_ANIM_GROUND_THROW] = 'donkey_65_ground_throw',
             [CHAR_ANIM_PLACE_LIGHT_OBJ] = 'donkey_6E_place_light_obj',
+            [CHAR_ANIM_WALKING] = 'donkey_48_walking'
         }
     },
     --------------
@@ -1188,7 +1189,7 @@ local function on_character_select_load()
 
     _G.charSelect.credit_add(TEXT_PACK_NAME, "AngelicMiracles", "Lead Dev")
     _G.charSelect.credit_add(TEXT_PACK_NAME, "Melzinoff", "Models / Animation")
-    _G.charSelect.credit_add(TEXT_PACK_NAME, "Sharen", "Models / Animation")
+    _G.charSelect.credit_add(TEXT_PACK_NAME, "Sharen", "Animation")
     _G.charSelect.credit_add(TEXT_PACK_NAME, "FluffaMario", "Models")
     _G.charSelect.credit_add(TEXT_PACK_NAME, 'Strawberii "Oreo"', "Icons")
     _G.charSelect.credit_add(TEXT_PACK_NAME, "Chars_64", "Icons")
@@ -1218,19 +1219,14 @@ end
 
 local function mario_update(m)
     if not CSloaded then return end
+    if m.action == ACT_WALKING and _G.charSelect.character_get_current_number(m.playerIndex) == extraCharacters[8].tablePos then
+        m.marioBodyState.torsoAngle.x = 0
+        m.marioBodyState.torsoAngle.z = 0
+        --results in double step sounds when going at the usual 32 speed (sigh)
+        m.marioObj.header.gfx.animInfo.animAccel = m.marioObj.header.gfx.animInfo.animAccel * 0.85
+    end
     for i = 1, #extraCharacters do
         if _G.charSelect.character_get_voice(m) == extraCharacters[i].voices then return _G.charSelect.voice.snore(m) end
-    end
-    --donkey
-    if _G.charSelect.character_get_current_number(m.playerIndex) == extraCharacters[8].tablePos then
-        if m.action == ACT_WALKING then
-            m.marioBodyState.torsoAngle.x = 0
-            m.marioBodyState.torsoAngle.z = 0
-            --this remains here in case the animation is too fast for how fast dk moves, change the multiplier if it needs adjustment
-            --if m.actionTimer == 3 then
-            --  m.marioObj.header.gfx.animInfo.animAccel = m.marioObj.header.gfx.animInfo.animAccel * 0.8
-            --end
-        end
     end
 end
 
