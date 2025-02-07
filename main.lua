@@ -884,6 +884,7 @@ extraCharacters = {
             [CHAR_ANIM_HEAVY_THROW] = 'donkey_B9_heavy_throw',
             [CHAR_ANIM_SLIDEFLIP_LAND] = 'donkey_BE_sideflip_land',
             [CHAR_ANIM_TRIPLE_JUMP_LAND] = 'donkey_C0_triple_jump_land',
+            [CHAR_ANIM_CROUCHING] = 'donkey_98_crouching',
         }
     },
     --------------
