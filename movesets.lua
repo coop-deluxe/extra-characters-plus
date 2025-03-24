@@ -1464,9 +1464,10 @@ local function on_character_select_load()
     _G.charSelect.character_hook_moveset(CT_BIRDO, HOOK_BEFORE_MARIO_UPDATE, birdo_before_update)
     -- Pauline
     if not _G.OmmEnabled then
-        _G.charSelect.character_hook_moveset(CT_PAULINE, HOOK_ON_SET_MARIO_ACTION, pauline_init_action)
+        hook_event(HOOK_ON_SET_MARIO_ACTION, pauline_init_action) -- Must run for every character
+        _G.charSelect.character_hook_moveset(CT_PAULINE, HOOK_BEFORE_SET_MARIO_ACTION, pauline_before_action)
         _G.charSelect.character_hook_moveset(CT_PAULINE, HOOK_BEFORE_MARIO_UPDATE, pauline_cancel_action)
-        _G.charSelect.character_hook_moveset(CT_PAULINE, HOOK_MARIO_UPDATE, pauline_update)
+        hook_event(HOOK_MARIO_UPDATE, pauline_update) -- Must run for every character
     end
     -- Rosalina
     _G.charSelect.character_hook_moveset(CT_ROSALINA, HOOK_MARIO_UPDATE, rosalina_update)
