@@ -1342,7 +1342,7 @@ local function bhv_axe_attack_loop(o)
         distToTarget = dist_between_objects(m.marioObj, targetM.marioObj)
         axeLength = dist_between_objects(m.marioObj, o)
 
-        if distToTarget >= axeLength then
+        if distToTarget <= axeLength then
             o.oDamageOrCoinValue = 5
             o.oInteractionSubtype = o.oInteractionSubtype | INT_SUBTYPE_BIG_KNOCKBACK
             take_damage_and_knock_back(targetM, o)
