@@ -1456,11 +1456,7 @@ local function act_wapeach_axespin(m)
         --m.forwardVel = m.forwardVel - 0.15
         mario_set_forward_vel(m, m.forwardVel)
     end
-    local gfx = m.marioObj.header.gfx
-    local floorAngle = atan2s(m.floor.normal.z, m.floor.normal.x)
-    local floorSlope = radians_to_sm64(math.acos(m.floor.normal.y))
-    gfx.angle.x = floorSlope * coss(floorAngle - m.faceAngle.y)
-    gfx.angle.z = floorSlope * -sins(floorAngle - m.faceAngle.y)
+
     local step = perform_ground_step(m)
     if m.forwardVel < 20 and m.actionTimer >= 15 then
         set_mario_action(m, ACT_AXESPINDIZZY, 0)
@@ -1471,23 +1467,31 @@ local function act_wapeach_axespin(m)
         m.actionState = 1
     end
     if step == GROUND_STEP_HIT_WALL then
-        mario_bonk_reflection(m, 1)
-        set_mario_action(m, ACT_THROWN_BACKWARD, 0)
+        set_mario_particle_flags(m, PARTICLE_TRIANGLE, 0);
+        mario_bonk_reflection(m, 0)
+        play_sound(SOUND_ACTION_HIT_3, m.marioObj.header.gfx.cameraToObject)
+
+        set_mario_action(m, ACT_AXESPINDIZZY, 0)
     end
     if step == GROUND_STEP_LEFT_GROUND then
         set_mario_action(m, ACT_AXESPINAIR, 0)
     end
-
+    local gfx = m.marioObj.header.gfx
+    local floorAngle = atan2s(m.floor.normal.z, m.floor.normal.x)
+    local floorSlope = radians_to_sm64(math.acos(m.floor.normal.y))
+    local speedTilt = clamp(m.forwardVel * 0x80, -0x500, 0x500)
+    gfx.angle.x = floorSlope * coss(floorAngle - m.faceAngle.y) + speedTilt
+    gfx.angle.z = floorSlope * -sins(floorAngle - m.faceAngle.y)
     m.actionTimer = m.actionTimer + 1
 end
 hook_mario_action(ACT_AXESPIN, act_wapeach_axespin)
 
 local function act_wapeach_axespin_air(m)
+
     update_air_with_turn(m)
     m.vel.y = m.vel.y + 2
     m.marioBodyState.handState = 2
-    m.forwardVel = clamp(m.forwardVel - 0.7, 0, 21)
-    m.forwardVel = m.forwardVel - 0.7
+    m.forwardVel = clamp(m.forwardVel - 0.7, 0, 850)
     mario_set_forward_vel(m, m.forwardVel)
     set_character_anim_with_accel(m, CHAR_ANIM_SLIDE_KICK, clamp(m.forwardVel * 0x500, 0, 0x1F000))
     smlua_anim_util_set_animation(m.marioObj, 'wapeach_axespin')
@@ -1523,6 +1527,8 @@ end
 hook_mario_action(ACT_AXESPINAIR, act_wapeach_axespin_air)
 
 local function act_wapeach_axespin_dizzy(m)
+
+
     m.marioBodyState.handState = 2
     
     if m.actionTimer == 0 then
@@ -1537,7 +1543,8 @@ local function act_wapeach_axespin_dizzy(m)
         play_character_sound(m, CHAR_SOUND_OOOF2)
         end
         if m.actionTimer > 52 and m.actionTimer < 111 then
-            m.forwardVel = m.forwardVel-0.3
+            apply_slope_accel(m)
+            m.forwardVel = m.forwardVel*0.95
             mario_set_forward_vel(m, m.forwardVel)
             if m.forwardVel <= 0 then
                 m.forwardVel = 0
@@ -1556,6 +1563,7 @@ local function act_wapeach_axespin_dizzy(m)
         end
     end
     else
+        apply_slope_accel(m)
         m.forwardVel = clamp(m.forwardVel, 0, 21)
         mario_set_forward_vel(m, m.forwardVel)
         if is_anim_past_frame(m, 1) ~= 0 then
@@ -1564,16 +1572,18 @@ local function act_wapeach_axespin_dizzy(m)
     set_character_animation(m, CHAR_ANIM_BREAKDANCE)
     smlua_anim_util_set_animation(m.marioObj, 'wapeach_dizzy')
     end
-    apply_slope_accel(m)
-    local gfx = m.marioObj.header.gfx
-    local floorAngle = atan2s(m.floor.normal.z, m.floor.normal.x)
-    local floorSlope = radians_to_sm64(math.acos(m.floor.normal.y))
-    gfx.angle.x = floorSlope * coss(floorAngle - m.faceAngle.y)
-    gfx.angle.z = floorSlope * -sins(floorAngle - m.faceAngle.y)
+    
+
+    
     local step = perform_ground_step(m)
     if step == GROUND_STEP_LEFT_GROUND then
         set_mario_action(m, ACT_THROWN_FORWARD, 0)
     end
+    local gfx = m.marioObj.header.gfx
+    local floorAngle = atan2s(m.floor.normal.z, m.floor.normal.x)
+    local floorSlope = radians_to_sm64(math.acos(m.floor.normal.y))
+    gfx.angle.x = floorSlope * coss(floorAngle - m.faceAngle.y)
+    gfx.angle.z  = floorSlope * -sins(floorAngle - m.faceAngle.y)
 
     m.actionTimer = m.actionTimer + 1
 end
