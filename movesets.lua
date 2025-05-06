@@ -1526,6 +1526,35 @@ local function act_wapeach_axespin_air(m)
 end
 hook_mario_action(ACT_AXESPINAIR, act_wapeach_axespin_air)
 
+E_MODEL_DIZZYCIRCLE = smlua_model_util_get_id("dizzy_circle_geo")
+
+
+---@param o Object
+local function bhv_dizzycircle_init(o)
+    o.oFlags = OBJ_FLAG_UPDATE_GFX_POS_AND_ANGLE -- Allows you to change the position and angle
+end
+
+---@param o Object
+local function bhv_dizzycircle_loop(o)
+    smlua_anim_util_set_animation(o, 'dizzycircle_idle')
+    local m = nearest_mario_state_to_object(o)
+    
+    o.oPosX = m.marioBodyState.headPos.x
+    o.oPosY = m.marioBodyState.headPos.y + 50
+
+    o.oPosZ = m.marioBodyState.headPos.z
+
+
+    pM = gMarioStates[network_local_index_from_global(o.globalPlayerIndex)] -- Parent MarioState
+
+    if o.oTimer > 42 then                                       -- Deletes itself once the action changes
+        obj_mark_for_deletion(o)
+    end
+end
+
+local id_bhvDizzyCircle = hook_behavior(nil, OBJ_LIST_GENACTOR, true, bhv_dizzycircle_init, bhv_dizzycircle_loop)
+
+
 local function act_wapeach_axespin_dizzy(m)
 
 
@@ -1533,6 +1562,12 @@ local function act_wapeach_axespin_dizzy(m)
     
     if m.actionTimer == 0 then
         play_character_sound(m, CHAR_SOUND_WHOA)
+                -- Spawn the spin effect
+                spawn_non_sync_object(id_bhvDizzyCircle, E_MODEL_DIZZYCIRCLE, m.marioBodyState.headPos.x, m.marioBodyState.headPos.y, m.marioBodyState.headPos.z,
+                function(o)
+                    o.parentObj = m.marioObj
+                    o.globalPlayerIndex = m.marioObj.globalPlayerIndex
+                end)
     end
     if m.actionTimer >= 42 then
         m.marioBodyState.eyeState = MARIO_EYES_DEAD
