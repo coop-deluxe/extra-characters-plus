@@ -1339,7 +1339,8 @@ local function bhv_axe_attack_loop(o)
     -- players
     local targetM = nearest_mario_state_to_object(o)
     if targetM and targetM.playerIndex == 0 and targetM.marioObj.globalPlayerIndex ~= o.globalPlayerIndex
-        and targetM.action & ACT_FLAG_INVULNERABLE == 0 and targetM.invincTimer == 0 and obj_check_hitbox_overlap(targetM.marioObj, o) then
+    and targetM.action & ACT_FLAG_INVULNERABLE == 0 and not(targetM.action & ACT_STAR_DANCE_EXIT or targetM.action & ACT_STAR_DANCE_WATER or targetM.action & ACT_STAR_DANCE_NO_EXIT) 
+    and targetM.invincTimer == 0 and obj_check_hitbox_overlap(targetM.marioObj, o) then
         distToTarget = dist_between_objects(m.marioObj, targetM.marioObj)
         axeLength = dist_between_objects(m.marioObj, o)
 
@@ -1592,6 +1593,8 @@ local function act_wapeach_axespin_dizzy(m)
         elseif m.actionTimer >= 111 then
             m.forwardVel = 0
             mario_set_forward_vel(m, m.forwardVel)
+            set_character_animation(m, CHAR_ANIM_LAND_ON_STOMACH)
+            smlua_anim_util_set_animation(m.marioObj, 'wapeach_flop_idle')
             if m.controller.buttonPressed & B_BUTTON ~= 0 or m.controller.buttonPressed & A_BUTTON ~= 0 then
                 set_mario_action(m, ACT_FORWARD_ROLLOUT, 0)
             end
