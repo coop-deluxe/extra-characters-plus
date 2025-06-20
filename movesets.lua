@@ -1915,7 +1915,8 @@ local function bhv_axe_attack_loop(o)
     -- players
     local targetM = nearest_mario_state_to_object(o)
     if targetM and targetM.playerIndex == 0 and targetM.marioObj.globalPlayerIndex ~= o.globalPlayerIndex
-        and targetM.action & ACT_FLAG_INVULNERABLE == 0 and targetM.invincTimer == 0 and obj_check_hitbox_overlap(targetM.marioObj, o) then
+    and targetM.action & ACT_FLAG_INVULNERABLE == 0 and not(targetM.action & ACT_STAR_DANCE_EXIT or targetM.action & ACT_STAR_DANCE_WATER or targetM.action & ACT_STAR_DANCE_NO_EXIT) 
+    and targetM.invincTimer == 0 and obj_check_hitbox_overlap(targetM.marioObj, o) then
         distToTarget = dist_between_objects(m.marioObj, targetM.marioObj)
         axeLength = dist_between_objects(m.marioObj, o)
 
@@ -2134,16 +2135,21 @@ local id_bhvDizzyCircle = hook_behavior(nil, OBJ_LIST_GENACTOR, true, bhv_dizzyc
 
 
 local function act_wapeach_axespin_dizzy(m)
+    if m.playerIndex == 0 then
     m.marioBodyState.handState = 2
+    end
 
     if m.actionTimer == 0 then
         play_character_sound(m, CHAR_SOUND_WHOA)
                 -- Spawn the spin effect
+                if m.playerIndex == 0 then
+
                 spawn_non_sync_object(id_bhvDizzyCircle, E_MODEL_DIZZYCIRCLE, m.marioBodyState.headPos.x, m.marioBodyState.headPos.y, m.marioBodyState.headPos.z,
                 function(o)
                     o.parentObj = m.marioObj
                     o.globalPlayerIndex = m.marioObj.globalPlayerIndex
                 end)
+            end
     end
     if m.actionTimer >= 42 then
         m.marioBodyState.eyeState = MARIO_EYES_DEAD
@@ -2168,6 +2174,8 @@ local function act_wapeach_axespin_dizzy(m)
         elseif m.actionTimer >= 111 then
             m.forwardVel = 0
             mario_set_forward_vel(m, m.forwardVel)
+            set_character_animation(m, CHAR_ANIM_LAND_ON_STOMACH)
+            smlua_anim_util_set_animation(m.marioObj, 'wapeach_flop_idle')
             if m.controller.buttonPressed & B_BUTTON ~= 0 or m.controller.buttonPressed & A_BUTTON ~= 0 then
                 set_mario_action(m, ACT_FORWARD_ROLLOUT, 0)
             end
