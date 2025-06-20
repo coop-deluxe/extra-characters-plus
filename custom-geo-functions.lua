@@ -33,6 +33,7 @@ local sWapeachAxeActs = {
 --- Switches Wapeach's Hands when using her moveset.
 function geo_custom_hand_switch(n)
     local switch = cast_graph_node(n)
+    local m = geo_get_mario_state()
     if sWapeachAxeActs[m.action] then
         switch.selectedCase = 1
     else
