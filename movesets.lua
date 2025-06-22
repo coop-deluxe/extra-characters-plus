@@ -1792,25 +1792,23 @@ local function act_spin_jump(m)
 
     m.vel.y = math.max(m.vel.y - 2, -75)
 
-    if (m.input & INPUT_Z_PRESSED) ~= 0 then
-        return set_mario_action(m, ACT_GROUND_POUND, 0)
-    end
-
     play_mario_sound(m, SOUND_ACTION_TERRAIN_JUMP, 0)
 
-    local stepResult
-
-    if m.prevAction == ACT_SPIN_DASH and math.abs(m.forwardVel) > 32 then
-        stepResult = common_air_action_step(m, ACT_SPIN_DASH, CHAR_ANIM_A_POSE, AIR_STEP_CHECK_LEDGE_GRAB | AIR_STEP_CHECK_HANG)
-    else
-        stepResult = common_air_action_step(m, ACT_JUMP_LAND, CHAR_ANIM_A_POSE, AIR_STEP_CHECK_LEDGE_GRAB | AIR_STEP_CHECK_HANG)
-    end
+    local stepResult = common_air_action_step(m, ACT_JUMP_LAND, CHAR_ANIM_A_POSE, AIR_STEP_CHECK_LEDGE_GRAB | AIR_STEP_CHECK_HANG)
 
     if stepResult ~= AIR_STEP_NONE then
         m.faceAngle.x = 0
     else
         m.faceAngle.x = m.faceAngle.x + 0x2000
         m.marioObj.header.gfx.angle.x = m.faceAngle.x
+    end
+
+    if (m.controller.buttonDown & Z_TRIG) ~= 0 then
+        if stepResult == AIR_STEP_LANDED then
+            set_mario_action(m, ACT_SPIN_DASH, 0)
+        elseif (m.controller.buttonPressed & B_BUTTON) ~= 0 then
+            return set_mario_action(m, ACT_GROUND_POUND, 0)
+        end
     end
 
     m.actionTimer = m.actionTimer + 1
@@ -1880,9 +1878,15 @@ local function before_set_sonic_action(m, action)
         end
         return sonicActionOverride[action]
     end
+end
 
-    if m.action == ACT_CROUCHING and action == ACT_PUNCHING then
-        return ACT_SPIN_DASH_CHARGE
+local function on_set_sonic_action(m)
+    if m.action == ACT_PUNCHING and m.actionArg == 9 then
+        set_mario_action(m, ACT_SPIN_DASH_CHARGE, 0)
+    end
+
+    if m.action == ACT_CROUCH_SLIDE then
+        set_mario_action(m, ACT_SPIN_DASH, 0)
     end
 end
 
@@ -1947,6 +1951,7 @@ local function on_character_select_load()
     character_hook_moveset(CT_DONKEY_KONG, HOOK_BEFORE_PHYS_STEP, before_donkey_kong_phys_step)
     -- Sonic
     character_hook_moveset(CT_SONIC, HOOK_BEFORE_SET_MARIO_ACTION, before_set_sonic_action)
+    character_hook_moveset(CT_SONIC, HOOK_ON_SET_MARIO_ACTION, on_set_sonic_action)
 end
 
 hook_event(HOOK_ON_MODS_LOADED, on_character_select_load)
