@@ -1006,8 +1006,13 @@ extraCharacters = {
         name = "Donkey Kong",
         description = "King of the Apes! Son of the original Donkey Kong who battled Mario in the arcades. No matter which generation, the beef continues!",
         credits = "Coop Team / VA: Tom Schalk",
-        color = {r = 255, g = 129, b = 69},
+<<<<<<< HEAD
+        color = {r = 131, g = 30, b = 20},
         model = smlua_model_util_get_id("dk_geo")--[[smlua_model_util_get_id("dk_geo")]],
+=======
+        color = {r = 255, g = 129, b = 69},
+        model = smlua_model_util_get_id("dk_geo"),
+>>>>>>> 3c698c44e39f03607cb6d0747f949f91db661838
         forceChar = CT_MARIO,
         lifeIcon = get_texture_info("icon-dk"),
         camScale = 1.2,
@@ -1204,26 +1209,34 @@ extraCharacters = {
             [CHAR_SOUND_YAH_WAH_HOO] = { "sonic_yah_wah_hoo1.ogg", "sonic_yah_wah_hoo2.ogg", "sonic_yah_wah_hoo3.ogg"},
             --[CHAR_SOUND_HELLO] = "sonic_hello.ogg"
         },
-        anims = {
-            [CHAR_ANIM_RUNNING] = 'sonic_running',
-            [CHAR_ANIM_IDLE_HEAD_CENTER] = 'sonic_idle_head_center',
-            [CHAR_ANIM_IDLE_HEAD_LEFT] = 'sonic_idle_head_left',
-            [CHAR_ANIM_IDLE_HEAD_RIGHT] = 'sonic_idle_head_right',
-            [CHAR_ANIM_SKID_ON_GROUND] = 'sonic_skid',
-            [CHAR_ANIM_STOP_SKID] = 'sonic_skid_stop',
-            [CHAR_ANIM_SHIVERING_RETURN_TO_IDLE] = 'sonic_shivering_stop',
-            [CHAR_ANIM_STAND_UP_FROM_LAVA_BOOST] = 'sonic_lava_boost_landing',
-            [CHAR_ANIM_BACKWARD_KB] = 'sonic_hard_backward_knockback',
-            [CHAR_ANIM_FORWARD_KB] = 'sonic_hard_forward_knockback',
-            [CHAR_ANIM_TAKE_CAP_OFF_THEN_ON] = 'sonic_star_exit_with_hat',
-            [CHAR_ANIM_PUT_CAP_ON] = 'sonic_putting_on_hat',
-            [CHAR_ANIM_SLOW_LEDGE_GRAB] = 'sonic_ledge_up',
-            [CHAR_ANIM_FAST_LEDGE_GRAB] = 'sonic_quick_ledge_get_up',
-            [CHAR_ANIM_LAND_FROM_DOUBLE_JUMP] = 'sonic_doublejump_landing',
-            [CHAR_ANIM_LAND_FROM_SINGLE_JUMP] = 'sonic_singlejump_landing',
-            [CHAR_ANIM_SLOW_LAND_FROM_DIVE] = 'sonic_stop_sliding', 
-            [CHAR_ANIM_SHIVERING_WARMING_HAND] = "sonic_shivering",
-            [CHAR_ANIM_AIR_KICK] = "sonic_air_kick",
+        anims = {},
+        animsets = {
+            moveset = {
+                [CHAR_ANIM_RUNNING] = 'sonic_running',
+                [CHAR_ANIM_IDLE_HEAD_CENTER] = 'sonic_idle_head_center',
+                [charSelect.CS_ANIM_MENU] = 'sonic_idle_head_center',
+                [CHAR_ANIM_IDLE_HEAD_LEFT] = 'sonic_idle_head_left',
+                [CHAR_ANIM_IDLE_HEAD_RIGHT] = 'sonic_idle_head_right',
+                [CHAR_ANIM_SKID_ON_GROUND] = 'sonic_skid',
+                [CHAR_ANIM_STOP_SKID] = 'sonic_skid_stop',
+                [CHAR_ANIM_SHIVERING_RETURN_TO_IDLE] = 'sonic_shivering_stop',
+                [CHAR_ANIM_STAND_UP_FROM_LAVA_BOOST] = 'sonic_lava_boost_landing',
+                [CHAR_ANIM_BACKWARD_KB] = 'sonic_hard_backward_knockback',
+                [CHAR_ANIM_FORWARD_KB] = 'sonic_hard_forward_knockback',
+                [CHAR_ANIM_TAKE_CAP_OFF_THEN_ON] = 'sonic_star_exit_with_hat',
+                [CHAR_ANIM_PUT_CAP_ON] = 'sonic_putting_on_hat',
+                [CHAR_ANIM_SLOW_LEDGE_GRAB] = 'sonic_ledge_up',
+                [CHAR_ANIM_FAST_LEDGE_GRAB] = 'sonic_quick_ledge_get_up',
+                [CHAR_ANIM_LAND_FROM_DOUBLE_JUMP] = 'sonic_doublejump_landing',
+                [CHAR_ANIM_LAND_FROM_SINGLE_JUMP] = 'sonic_singlejump_landing',
+                [CHAR_ANIM_SLOW_LAND_FROM_DIVE] = 'sonic_stop_sliding', 
+                [CHAR_ANIM_SHIVERING_WARMING_HAND] = "sonic_shivering",
+                [CHAR_ANIM_AIR_KICK] = "sonic_air_kick",
+            },
+            normal = {
+                [CHAR_ANIM_TAKE_CAP_OFF_THEN_ON] = 'sonic_star_exit_with_hat',
+                [CHAR_ANIM_PUT_CAP_ON] = 'sonic_putting_on_hat',
+            }
         }
     },
 }
@@ -1234,13 +1247,13 @@ local TEXT_MOVESET     = " (Movesets)"
 local CSloaded = false
 local function on_character_select_load()
     local _ENV = setmetatable(charSelect, { __index = _ENV }) -- The CS environment
-    for _, char in pairs(extraCharacters) do
+    for i, char in pairs(extraCharacters) do
         local _ENV = setmetatable(char, { __index = _ENV })
         tablePos = character_add(name, description, credits, color, model, forceChar, lifeIcon, camScale, offset, meter)
         -- if caps then charSelect.character_add_caps(model, caps) end
         if voices then character_add_voice(model, voices) end
         if palette then character_add_palette_preset(model, palette) end
-        if anims then character_add_animations(model, anims) end
+        if i ~= 11 and anims then character_add_animations(model, anims) end
         -- if meter then charSelect.character_add_health_meter(model, meter) end
     end
 
@@ -1289,6 +1302,19 @@ local function mario_update(m)
     if not CSloaded then return end
 
     local _ENV = setmetatable(charSelect, { __index = _ENV }) -- The CS environment
+
+    do -- `do` to contain the sonic environment here
+        
+        local _ENV = setmetatable(extraCharacters[11], { __index = _ENV }) -- Sonic's enviroment
+        if get_options_status(6) ~= 0 and (not are_movesets_restricted()) then
+            anims = animsets.moveset
+        else
+            anims = animsets.normal
+        end
+
+        if anims then character_add_animations(model, anims) end
+
+    end
 
     for _, char in pairs(extraCharacters) do
         local _ENV = setmetatable(char, { __index = _ENV })
