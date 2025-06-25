@@ -32,11 +32,15 @@ for i = 0, (MAX_PLAYERS - 1) do
     e.spinInput = 0
     e.lastIntendedMag = 0
     e.swims = 0
+
     -- birdo
     e.spitTimer = 0
     e.framesSinceShoot = 255
     e.flameCharge = 0
+
+    -- Sonic
     e.spinCharge = 0
+    e.groundYVel = 0
 end
 
 local princessFloatActs = {
@@ -90,6 +94,22 @@ end
 --- Converts any integer to an unsigned integer
 local function tounsigned_integer(x, size)
     return math.floor(x) & (1 << size) - 1
+end
+
+local function convert_s16(num)
+    local min = -32768
+    local max = 32767
+    while (num < min) do
+        num = max + (num - min)
+    end
+    while (num > max) do
+        num = min + (num - max)
+    end
+    return num
+end
+
+local function limit_angle(a)
+    return (a + 0x8000) % 0x10000 - 0x8000
 end
 
 local SOUND_SPIT = audio_sample_load("spit.ogg") -- Load audio sample
@@ -1646,13 +1666,67 @@ Updates Sonic's spin dashing state each frame, applying additional friction or a
 Also checks if speed has slowed below a threshold to end the slide.
 Returns `true` if spin dashing has stopped
 ]]
+
+
+-- Not used yet.
+local function update_spin_dash_angle(m, accel, lossFactor)
+    local newFacingDYaw
+    local facingDYaw
+
+    local floor = m.floor
+    local slopeAngle = atan2s(floor.normal.z, floor.normal.x)
+    local steepness = math.sqrt(floor.normal.x ^ 2 + floor.normal.z ^ 2)
+
+    m.slideVelX = m.slideVelX + accel * steepness * sins(slopeAngle)
+    m.slideVelZ = m.slideVelZ + accel * steepness * coss(slopeAngle)
+
+    m.slideVelX = m.slideVelX * lossFactor
+    m.slideVelZ = m.slideVelZ * lossFactor
+
+    m.slideYaw = atan2s(m.slideVelZ, m.slideVelX)
+
+    facingDYaw = limit_angle(m.faceAngle.y - m.slideYaw)
+    newFacingDYaw = facingDYaw
+
+    --! -0x4000 not handled - can slide down a slope while facing perpendicular to it
+    if newFacingDYaw > 0 and newFacingDYaw <= 0x8000 then
+        newFacingDYaw = newFacingDYaw - 0x800
+        if newFacingDYaw < 0 then newFacingDYaw = 0 end
+
+    elseif newFacingDYaw >= -0x8000 and newFacingDYaw < 0 then
+        newFacingDYaw = newFacingDYaw + 0x800
+        if newFacingDYaw > 0 then newFacingDYaw = 0 end
+    end
+
+    m.faceAngle.y = m.slideYaw + newFacingDYaw
+
+    m.vel.x = m.slideVelX
+    m.vel.y = 0.0
+    m.vel.z = m.slideVelZ
+
+    mario_update_moving_sand(m)
+    mario_update_windy_ground(m)
+
+    --! Speed is capped a frame late (butt slide HSG)
+    m.forwardVel = math.sqrt(m.slideVelX ^ 2 + m.slideVelZ ^2)
+    if m.forwardVel > 100.0 then -- might remove
+        m.slideVelX = m.slideVelX * 100.0 / m.forwardVel
+        m.slideVelZ = m.slideVelZ * 100.0 / m.forwardVel
+    end
+
+    if (newFacingDYaw < -0x4000 or newFacingDYaw > 0x4000) then
+        m.forwardVel = m.forwardVel * -1.0
+    end
+end
+
+
 function update_spin_dashing(m, stopSpeed)
     local lossFactor
     local accel
     local oldSpeed
     local newSpeed
 
-    local stopped = false
+    local stopped = 0
 
     local intendedDYaw = m.intendedYaw - m.slideYaw
     local forward = coss(intendedDYaw)
@@ -1682,17 +1756,218 @@ function update_spin_dashing(m, stopSpeed)
 
     update_sliding_angle(m, accel, lossFactor)
 
-    if (m.playerIndex == 0 and not mario_floor_is_slope(m) and math.abs(m.forwardVel) < stopSpeed) then
+    if (m.playerIndex == 0 and mario_floor_is_slope(m) == 0 and math.abs(m.forwardVel) < stopSpeed) then
         mario_set_forward_vel(m, 0.0)
-        stopped = true
+        stopped = 1
     end
 
     return stopped
 end
 
+local function sonic_update_air(m)
+    local sidewaysSpeed = 0.0
+    local dragThreshold = 32
+    local speedAngle = atan2s(m.vel.z, m.vel.x)
+
+
+    local accel = 2
+    local targetSpeed = dragThreshold
+    local trueFVel = math.sqrt(m.vel.x ^ 2 + m.vel.z ^ 2)
+
+    local airDrag = (trueFVel / 0.32) / 512
+
+    local intendedDYaw = m.faceAngle.y - speedAngle
+    local intendedMag = m.intendedMag / 32
+        
+    m.forwardVel = trueFVel
+
+    if intendedDYaw < -0x4000 or intendedDYaw > 0x4000 then
+        m.forwardVel = m.forwardVel * -1
+    end
+
+    if (check_horizontal_wind(m)) == 0 then
+
+        
+        if (m.input & INPUT_NONZERO_ANALOG) ~= 0 then
+            m.faceAngle.y = m.intendedYaw
+            if m.vel.y < 0 and m.vel.y > -8 then
+                targetSpeed = 0
+                accel = airDrag
+            else
+                if trueFVel > dragThreshold then
+                    targetSpeed = trueFVel
+                else
+                    targetSpeed = dragThreshold
+                end
+            end
+
+
+            m.vel.x = approach_f32_symmetric(m.vel.x, targetSpeed * sins(m.intendedYaw) * intendedMag, accel)
+            m.vel.z = approach_f32_symmetric(m.vel.z, targetSpeed * coss(m.intendedYaw) * intendedMag, accel)
+        end
+
+    --djui_chat_message_create(tostring(math.abs(speed) * sins(m.intendedYaw) * intendedMag))
+    end
+end
+
+local function update_sonic_running_speed(m)
+    local e = gStateExtras[m.playerIndex]
+    local maxTargetSpeed = 0
+    local targetSpeed = 0
+    local accel = 1.05
+
+    if (m.floor ~= nil and m.floor.type == SURFACE_SLOW) then
+        maxTargetSpeed = 48
+    else
+        maxTargetSpeed = 64
+    end
+
+    if m.intendedMag < 24 then
+        targetSpeed = m.intendedMag
+    else
+        targetSpeed = maxTargetSpeed
+    end
+
+    if (m.quicksandDepth > 10.0) then
+        targetSpeed = targetSpeed * (6.25 / m.quicksandDepth)
+    end
+
+    if (m.forwardVel <= 0.0) then
+        m.forwardVel = m.forwardVel + accel
+    elseif (m.forwardVel <= targetSpeed) then
+        m.forwardVel = m.forwardVel + (accel - m.forwardVel / targetSpeed)
+        --elseif (m.floor ~= nil and m.floor.normal.y >= 0.95) then
+        --m.forwardVel = m.forwardVel - 1.0
+    end
+
+    if m.forwardVel > 250 then
+        m.forwardVel = 250
+    end
+
+    m.faceAngle.y = m.intendedYaw - approach_s32(convert_s16(m.intendedYaw - m.faceAngle.y), 0, 0x800, 0x800)
+
+    apply_slope_accel(m)
+    
+end
+
+
+function set_sonic_jump_vel(m, jumpForce, initialVelY)
+    local velY = 0
+	
+	if initialVelY ~= nil then velY = initialVelY end
+	
+    m.vel.x = m.vel.x + jumpForce * m.floor.normal.x
+    m.vel.z = m.vel.z + jumpForce * m.floor.normal.z
+
+    m.vel.y = velY + jumpForce * m.floor.normal.y
+end
+-- mfw align_with_floor(m) aligns with walls
+local function align_with_floor_but_better(m)
+    if m.floor == nil then return end
+    m.marioObj.header.gfx.angle.x = find_floor_slope(m, 0x8000)
+    m.marioObj.header.gfx.angle.z = find_floor_slope(m, 0x4000)
+end
+
+local function sonic_anim_and_audio_for_walk(m, walkCap, runCap)
+
+    local val14 = 0
+    local marioObj = m.marioObj
+    local val0C = true
+    local targetPitch = 0
+    local val04 = 4.0
+
+    if val14 < 4 then
+        val14 = 4
+    end
+
+    if m.forwardVel > 2 then
+        val04 = math.abs(m.forwardVel)
+    else
+        val04 = 5
+    end
+
+    if (m.quicksandDepth > 50.0) then
+        val14 = (val04 / 4.0 * 0x10000)
+        set_mario_anim_with_accel(m, MARIO_ANIM_MOVE_IN_QUICKSAND, val14)
+        play_step_sound(m, 19, 93)
+        m.actionTimer = 0
+    else
+        if val0C == true then
+            if m.actionTimer == 0 then
+                if (val04 > 8.0) then
+                    m.actionTimer = 2
+                else
+                    --(Speed Crash) If Mario's speed is more than 2^17.
+                    if (val14 < 0x1000) then
+                        val14 = 0x1000
+                    else
+                        val14 = (val04 / 4.0 * 0x10000)
+                    end
+                    set_mario_animation(m, MARIO_ANIM_START_TIPTOE)
+                    play_step_sound(m, 7, 22)
+                    if (is_anim_past_frame(m, 23)) then
+                        m.actionTimer = 2
+                    end
+
+                    val0C = false
+                end
+            elseif m.actionTimer == 1 then
+                if (val04 > 8.0) or m.intendedMag > 8.0 then
+                    m.actionTimer = 2
+                else
+                    -- (Speed Crash) If Mario's speed is more than 2^17.
+                    if (val14 < 0x1000) then
+                        val14 = 0x1000
+                    else
+                        val14 = (val04 / 4.0 * 0x10000)
+                    end
+                    set_mario_animation(m, MARIO_ANIM_TIPTOE)
+                    play_step_sound(m, 14, 72)
+
+                    val0C = false
+                end
+            elseif m.actionTimer == 2 then
+                if (val04 < 5.0) then
+                    m.actionTimer = 1
+                elseif (val04 > walkCap) then
+                    m.actionTimer = 3
+                else
+                    -- (Speed Crash) If Mario's speed is more than 2^17.
+                    val14 = (val04 / 4.0 * 0x10000)
+                    set_mario_anim_with_accel(m, MARIO_ANIM_WALKING, val14)
+                    play_step_sound(m, 10, 49)
+
+                    val0C = false
+                end
+            elseif m.actionTimer == 3 then
+                if (val04 <= walkCap) then
+                    m.actionTimer = 2
+                else
+                    -- (Speed Crash) If Mario's speed is more than 2^17.
+                    if m.forwardVel > runCap then
+                        val14 = (val04 / 3.0 * 0x10000)
+                        set_mario_anim_with_accel(m, MARIO_ANIM_RUNNING_UNUSED, val14)
+                    else
+                        val14 = (val04 / 4.0 * 0x10000)
+                        set_mario_anim_with_accel(m, MARIO_ANIM_RUNNING, val14)
+                    end
+                    play_step_sound(m, 9, 45)
+                    targetPitch = tilt_body_running(m)
+
+                    val0C = false
+                end
+            end
+        end
+    end
+
+    --marioObj.oMarioWalkingPitch = convert_s16(approach_s32(marioObj.oMarioWalkingPitch, find_floor_slope(m, 0x8000), 0x800, 0x800))
+    align_with_floor_but_better(m)
+end
+
 _G.ACT_SPIN_JUMP        = allocate_mario_action( ACT_FLAG_ALLOW_VERTICAL_WIND_ACTION | ACT_FLAG_CONTROL_JUMP_HEIGHT | ACT_FLAG_AIR | ACT_GROUP_AIRBORNE | ACT_FLAG_ATTACKING )
 _G.ACT_SPIN_DASH_CHARGE = allocate_mario_action( ACT_FLAG_STATIONARY | ACT_GROUP_STATIONARY | ACT_FLAG_SHORT_HITBOX )
 _G.ACT_SPIN_DASH        = allocate_mario_action( ACT_FLAG_MOVING | ACT_GROUP_MOVING | ACT_FLAG_SHORT_HITBOX | ACT_FLAG_ATTACKING )
+_G.ACT_SONIC_RUNNING    = allocate_mario_action( ACT_FLAG_MOVING | ACT_GROUP_MOVING)
 
 local sonicActionOverride = {
     [ACT_JUMP]        = ACT_SPIN_JUMP,
@@ -1706,17 +1981,31 @@ local sonicActionOverride = {
 
 ---@param m MarioState
 local function act_spin_jump(m)
+    local spinSpeed =  math.max(0.5, m.forwardVel / 32)
+
+    if m.actionTimer == 0 then
+        play_character_sound_if_no_flag(m, CHAR_SOUND_YAH_WAH_HOO, MARIO_ACTION_SOUND_PLAYED)
+        play_mario_sound(m, SOUND_ACTION_TERRAIN_JUMP, 0)
+    end
 
     m.vel.y = math.max(m.vel.y - 2, -75)
 
-    play_mario_sound(m, SOUND_ACTION_TERRAIN_JUMP, 0)
-
-    local stepResult = common_air_action_step(m, ACT_JUMP_LAND, CHAR_ANIM_A_POSE, AIR_STEP_CHECK_LEDGE_GRAB | AIR_STEP_CHECK_HANG)
-
+    set_character_animation(m, CHAR_ANIM_A_POSE)
+    
+    local stepResult = perform_air_step(m, 0)
+    sonic_update_air(m)
+	
     if stepResult ~= AIR_STEP_NONE then
         m.faceAngle.x = 0
+        if stepResult == AIR_STEP_LANDED then
+            if m.forwardVel ~= 0 then
+                m.faceAngle.y = atan2s(m.vel.z, m.vel.x)
+                mario_set_forward_vel(m, math.sqrt(m.vel.x ^ 2 + m.vel.z ^ 2))
+            end
+        set_mario_action(m, ACT_SONIC_RUNNING, 0)
+        end
     else
-        m.faceAngle.x = m.faceAngle.x + 0x2000
+        m.faceAngle.x = m.faceAngle.x + (0x2000 * spinSpeed)
         m.marioObj.header.gfx.angle.x = m.faceAngle.x
     end
 
@@ -1736,11 +2025,11 @@ local function act_spin_dash_charge(m)
 
     local e = gStateExtras[m.playerIndex]
     local MINDASH = 4
-    local MAXDASH = 128
+    local MAXDASH = 256
     local decel = (e.spinCharge / 0.32) / 512
     
     if (m.controller.buttonPressed & B_BUTTON) ~= 0 then
-        e.spinCharge = math.min(e.spinCharge + 8, MAXDASH)
+        e.spinCharge = math.min(e.spinCharge + 16, MAXDASH)
     else
         e.spinCharge = approach_f32_symmetric(e.spinCharge, MINDASH, decel)
     end
@@ -1784,9 +2073,9 @@ local function act_spin_dash(m)
 
 
     -- This ain't doin' shit. Needs to be looked into more.
-    local spinPhys = update_spin_dashing(m, 0)
+    local spinPhys = update_spin_dashing(m, 3)
 
-    if spinPhys ~= false then
+    if spinPhys ~= 0 then
         return set_mario_action(m, ACT_CROUCHING, 0)
     end
 
@@ -1798,15 +2087,78 @@ local function act_spin_dash(m)
     m.actionTimer = m.actionTimer + 1
 end
 
+local function act_sonic_running(m)
+    local e = gStateExtras[m.playerIndex]
+    local startYaw = m.faceAngle.x
+    mario_drop_held_object(m)
+
+    m.actionState = 0
+    update_sonic_running_speed(m)
+    local stepResult = perform_ground_step(m)
+    
+
+    if stepResult == GROUND_STEP_LEFT_GROUND then
+        m.vel.y = e.groundYVel
+        set_mario_action(m, ACT_FREEFALL, 0)
+        set_mario_animation(m, MARIO_ANIM_GENERAL_FALL)
+    elseif stepResult == GROUND_STEP_NONE then
+        sonic_anim_and_audio_for_walk(m, 26, 54)
+        if (m.intendedMag - m.forwardVel) > 16 then
+            set_mario_particle_flags(m, PARTICLE_DUST, false)
+        end
+    elseif stepResult == GROUND_STEP_HIT_WALL then
+        push_or_sidle_wall(m, m.pos)
+        m.actionTimer = 0
+    end
+    
+    check_ledge_climb_down(m)
+    tilt_body_walking(m, startYaw)
+    
+    if should_begin_sliding(m) ~= 0 then
+        return set_mario_action(m, ACT_BEGIN_SLIDING, 0)
+    end
+
+    if (m.input & INPUT_Z_PRESSED) ~= 0 then
+        return set_mario_action(m, ACT_CROUCH_SLIDE, 0)
+    end
+
+    if (m.input & INPUT_FIRST_PERSON) ~= 0 then
+        return begin_braking_action(m)
+    end
+
+    if (m.input & INPUT_A_PRESSED) ~= 0 then
+        return set_jump_from_landing(m)
+    end
+
+    if (check_ground_dive_or_punch(m)) ~= 0 then
+        return true
+    end
+
+    if (m.input & INPUT_ZERO_MOVEMENT) ~= 0 then
+        mario_set_forward_vel(m, approach_f32_symmetric(m.forwardVel, 0, 1))
+        if m.forwardVel <= 0 then
+            set_mario_action(m, ACT_IDLE, 0)
+        end
+    end
+
+    if analog_stick_held_back(m) ~= 0 then
+        return set_mario_action(m, ACT_TURNING_AROUND, 0)
+    end
+    
+    return 0
+end
+
 ---@param m MarioState
 ---@param action integer
 local function before_set_sonic_action(m, action)
+    local e = gStateExtras[m.playerIndex]
+
     if sonicActionOverride[action] then
         if action == ACT_LONG_JUMP then
-            set_mario_y_vel_based_on_fspeed(m, 64, 0.25)
+            set_sonic_jump_vel(m, 64, e.groundYVel)
             mario_set_forward_vel(m, 48)
         else
-            set_mario_y_vel_based_on_fspeed(m, 72, 0.25)
+            set_sonic_jump_vel(m, 64, e.groundYVel)
         end
         return sonicActionOverride[action]
     end
@@ -1820,11 +2172,39 @@ local function on_set_sonic_action(m)
     if m.action == ACT_CROUCH_SLIDE then
         set_mario_action(m, ACT_SPIN_DASH, 0)
     end
+
+    if m.action == ACT_WALKING then
+        set_mario_action(m, ACT_SONIC_RUNNING, 0)
+    end
+end
+
+local function sonic_update(m)
+    local e = gStateExtras[m.playerIndex]
+
+    if m.action == ACT_SONIC_RUNNING or m.action == ACT_SPIN_DASH then    
+        e.groundYVel = -math.sqrt(m.vel.x ^ 2 + m.vel.z ^ 2) * sins(find_floor_slope(m, 0x8000))
+    else
+        e.groundYVel = 0
+    end
+end
+
+local function sonic_on_interact(m, o, intType)
+
+    if (m.action == ACT_SONIC_RUNNING) and m.heldObj == nil then
+        if obj_has_behavior_id(o, id_bhvDoorWarp) ~= 0 then
+            set_mario_action(m, ACT_DECELERATING, 0)
+            interact_warp_door(m, 0, o)
+        elseif obj_has_behavior_id(o, id_bhvDoor) ~= 0 or obj_has_behavior_id(o, id_bhvStarDoor) ~= 0 then
+            set_mario_action(m, ACT_DECELERATING, 0)
+            interact_door(m, 0, o)
+        end
+    end
 end
 
 hook_mario_action(ACT_SPIN_JUMP,        act_spin_jump)
 hook_mario_action(ACT_SPIN_DASH_CHARGE, act_spin_dash_charge)
 hook_mario_action(ACT_SPIN_DASH,        act_spin_dash)
+hook_mario_action(ACT_SONIC_RUNNING,    act_sonic_running)
 
 ------------
 --  Main  --
@@ -1884,6 +2264,8 @@ local function on_character_select_load()
     -- Sonic
     character_hook_moveset(CT_SONIC, HOOK_BEFORE_SET_MARIO_ACTION, before_set_sonic_action)
     character_hook_moveset(CT_SONIC, HOOK_ON_SET_MARIO_ACTION, on_set_sonic_action)
+    character_hook_moveset(CT_SONIC, HOOK_ON_INTERACT, sonic_on_interact)
+    character_hook_moveset(CT_SONIC, HOOK_MARIO_UPDATE, sonic_update)
 end
 
 hook_event(HOOK_ON_MODS_LOADED, on_character_select_load)
