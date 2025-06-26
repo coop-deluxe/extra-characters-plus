@@ -1,8 +1,10 @@
 -- name: [CS] Extra Characters DEV
 -- description: [CS] Extra Characters Dev version\nBy: \\#00ff00\\ULTRA BROS TEAM\n\n\\#ffff00\\Ultra Bros Team:\n\\#ffffff\\FunkyLion\nMelzinoff\nFluffaMario\nSharen\nSquishy\n\n\\#f54e59\\Characters:\n\\#ffffff\\Toadette\nPeach\nDaisy\nYoshi\nBirdo\nForeman Spike\nPauline\nRosalina\nWaPeach
+-- category: cs
 
 local charSelect = charSelect
 
+local TEXT_VANILLA_CAST = "CoopDX Characters"
 local TEXT_PACK_NAME = "Extra Characters"
 
 if not charSelect then
@@ -1010,7 +1012,7 @@ extraCharacters = {
         model = smlua_model_util_get_id("dk_geo")--[[smlua_model_util_get_id("dk_geo")]],
         forceChar = CT_MARIO,
         lifeIcon = get_texture_info("icon-dk"),
-        camScale = 1.2,
+        camScale = 1.4,
         offset = 0,
         caps = {
             normal = smlua_model_util_get_id("dk_cap_geo"),
@@ -1137,8 +1139,8 @@ extraCharacters = {
     -------------
     {
         name = "Sonic",
-        description = "Who is this?! A Princess Peach imposter?! A very angsty girl who holds a very large axe for neferious purposes! How did she get here?! And why?",
-        credits = "Coop Team / VA: SlashOLantern",
+        description = "A rebellious teenage hedgehog with a blue of attitude, originating from Christmas Island. How'd he got here is anyone's guess.",
+        credits = "Coop Team / VA: ReeseiMental",
         color = {r = 0, g = 0, b = 255},
         model = smlua_model_util_get_id("sonic_geo"),
         forceChar = CT_MARIO,
@@ -1246,21 +1248,35 @@ local function on_character_select_load()
     for i, char in pairs(extraCharacters) do
         local _ENV = setmetatable(char, { __index = _ENV })
         tablePos = character_add(name, description, credits, color, model, forceChar, lifeIcon, camScale, offset, meter)
-        -- if caps then charSelect.character_add_caps(model, caps) end
+        if caps then charSelect.character_add_caps(model, caps) end
         if voices then character_add_voice(model, voices) end
         if palette then character_add_palette_preset(model, palette) end
         if i ~= 11 and anims then character_add_animations(model, anims) end
         -- if meter then charSelect.character_add_health_meter(model, meter) end
     end
 
-    credit_add(TEXT_PACK_NAME, "FunkyLion", "Lead Dev")
-    credit_add(TEXT_PACK_NAME, "Melzinoff", "Models / Animation")
-    credit_add(TEXT_PACK_NAME, "Sharen", "Animation")
-    credit_add(TEXT_PACK_NAME, "FluffaMario", "Models")
-    credit_add(TEXT_PACK_NAME, 'Strawberii "Oreo"', "Icons")
-    credit_add(TEXT_PACK_NAME, "Chars_64", "Icons")
-    credit_add(TEXT_PACK_NAME, "WaterVapor", "Icons")
-    credit_add(TEXT_PACK_NAME, "Squishy6094", "Code Rewrite")
+    -- CoopDX Characters Voice Cast
+    credit_add(TEXT_VANILLA_CAST..TEXT_VOICE_ACTOR, "Charles Martinet", "Mario")
+    credit_add(TEXT_VANILLA_CAST..TEXT_VOICE_ACTOR, "AndratVA", "Luigi")
+    credit_add(TEXT_VANILLA_CAST..TEXT_VOICE_ACTOR, "Ninten_King", "Toad")
+    credit_add(TEXT_VANILLA_CAST..TEXT_VOICE_ACTOR, "AndratVA", "Waluigi")
+    credit_add(TEXT_VANILLA_CAST..TEXT_VOICE_ACTOR, "ZephyrDark", "Wario")
+
+    -- Ultra Bros Team
+    credit_add(TEXT_PACK_NAME, "FunkyLion",         "Lead Dev")
+    credit_add(TEXT_PACK_NAME, "Melzinoff",         "Models / Animation / Moveset")
+    credit_add(TEXT_PACK_NAME, "Sharen",            "Animation")
+    credit_add(TEXT_PACK_NAME, "FluffaMario",       "Models")
+    credit_add(TEXT_PACK_NAME, "EmilyEmmi",         "Moveset")
+    credit_add(TEXT_PACK_NAME, "Wibblus",           "Moveset")
+    credit_add(TEXT_PACK_NAME, "steven3004",        "Moveset")
+    credit_add(TEXT_PACK_NAME, "Squishy6094",       "CS Code / Optimization")
+    credit_add(TEXT_PACK_NAME, "xLuigiGamerx",      "Moveset / Optimization")
+    credit_add(TEXT_PACK_NAME, 'Strawberii "Oreo"', "Render Icons")
+    credit_add(TEXT_PACK_NAME, "Chars_64",          "Render Icons")
+    credit_add(TEXT_PACK_NAME, "WaterVapor",        "Render Icons")
+
+    -- Extra Characters Voice Cast
     credit_add(TEXT_PACK_NAME..TEXT_VOICE_ACTOR, "MelissaMekrose", "Toadette")
     credit_add(TEXT_PACK_NAME..TEXT_VOICE_ACTOR, "SuperKirbyLover", "Peach")
     credit_add(TEXT_PACK_NAME..TEXT_VOICE_ACTOR, "MorphiGalaxi", "Daisy")
@@ -1269,14 +1285,9 @@ local function on_character_select_load()
     credit_add(TEXT_PACK_NAME..TEXT_VOICE_ACTOR, "VinnyVinesauce", "Spike")
     credit_add(TEXT_PACK_NAME..TEXT_VOICE_ACTOR, "BeckyVO", "Pauline")
     credit_add(TEXT_PACK_NAME..TEXT_VOICE_ACTOR, "GauntletQueen", "Rosalina")
-    credit_add(TEXT_PACK_NAME..TEXT_MOVESET, "xLuigiGamerx", "Toadette")
-    credit_add(TEXT_PACK_NAME..TEXT_MOVESET, "Wibblus", "Peach")
-    credit_add(TEXT_PACK_NAME..TEXT_MOVESET, "Wibblus", "Daisy")
-    credit_add(TEXT_PACK_NAME..TEXT_MOVESET, "xLuigiGamerx", "Yoshi")
-    credit_add(TEXT_PACK_NAME..TEXT_MOVESET, "EmilyEmmi", "Birdo")
-    credit_add(TEXT_PACK_NAME..TEXT_MOVESET, "PeachyPeach", "Pauline")
-    credit_add(TEXT_PACK_NAME..TEXT_MOVESET, "Wibblus", "Rosalina")
-    credit_add(TEXT_PACK_NAME..TEXT_MOVESET, "Melzinoff", "WaPeach")
+    credit_add(TEXT_PACK_NAME..TEXT_VOICE_ACTOR, "SlashOLantern", "WaPeach")
+    credit_add(TEXT_PACK_NAME..TEXT_VOICE_ACTOR, "TomSchalk", "Donkey Kong")
+    credit_add(TEXT_PACK_NAME..TEXT_VOICE_ACTOR, "ReeseiMental", "Sonic")
 
     CSloaded = true
 end
