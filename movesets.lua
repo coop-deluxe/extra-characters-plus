@@ -42,6 +42,8 @@ for i = 0, (MAX_PLAYERS - 1) do
     e.spinCharge = 0
     e.groundYVel = 0
     e.lastForwardVel = 0
+    e.sonicPeakHeight = 0
+    e.AActionDone = 0
 end
 
 local princessFloatActs = {
@@ -2126,8 +2128,86 @@ function move_with_current(m)
     m.pos.z = m.pos.z + step.z
 end
 
+function sonic_air_action_step(m, landAction, animation, stepArg, bonking)
+    local stepResult = perform_air_step(m, stepArg)
+
+    if (m.action == ACT_BUBBLED and stepResult == AIR_STEP_HIT_LAVA_WALL) then
+        stepResult = AIR_STEP_HIT_WALL
+    end
+
+    if stepResult == AIR_STEP_NONE then
+        set_mario_animation(m, animation)
+    end
+    
+    if stepResult == AIR_STEP_LANDED then
+
+        if (check_fall_damage_or_get_stuck(m, ACT_HARD_BACKWARD_GROUND_KB) == 0) then
+            if math.abs(m.forwardVel) > 1 then
+                m.faceAngle.y = atan2s(m.vel.z, m.vel.x)
+                mario_set_forward_vel(m, math.sqrt(m.vel.x ^ 2 + m.vel.z ^ 2))
+                return set_mario_action(m, ACT_SONIC_RUNNING, 0)
+            else
+                m.faceAngle.y = m.faceAngle.y
+                set_mario_action(m, landAction, 0)
+            end
+        end
+        
+    elseif stepResult == AIR_STEP_HIT_WALL and bonking == true then
+        set_mario_animation(m, animation)
+
+        if (m.forwardVel > 16.0) then
+            queue_rumble_data_mario(m, 5, 40)
+            mario_bonk_reflection(m, false)
+            m.faceAngle.y = m.faceAngle.y + 0x8000
+
+            if (m.wall ~= nil) then
+                set_mario_action(m, ACT_AIR_HIT_WALL, 0)
+            else
+                if (m.vel.y > 0.0) then
+                    m.vel.y = 0.0
+                end
+
+                --! Hands-free holding. Bonking while no wall is referenced
+                -- sets Mario's action to a non-holding action without
+                -- dropping the object, causing the hands-free holding
+                -- glitch. This can be achieved using an exposed ceiling,
+                -- out of bounds, grazing the bottom of a wall while
+                -- falling such that the final quarter step does not find a
+                -- wall collision, or by rising into the top of a wall such
+                -- that the final quarter step detects a ledge, but you are
+                -- not able to ledge grab it.
+                if (m.forwardVel >= 38.0) then
+                    set_mario_particle_flags(m, PARTICLE_VERTICAL_STAR, false)
+                    set_mario_action(m, ACT_BACKWARD_AIR_KB, 0)
+                else
+                    if (m.forwardVel > 8.0) then
+                        m.forwardVel = -8.0
+                    end
+                    return set_mario_action(m, ACT_SOFT_BONK, 0)
+                end
+            end
+        else
+            m.forwardVel = 0.0
+        end
+    elseif stepResult == AIR_STEP_GRABBED_LEDGE then
+        set_mario_animation(m, MARIO_ANIM_IDLE_ON_LEDGE)
+        drop_and_set_mario_action(m, ACT_LEDGE_GRAB, 0)
+    elseif stepResult == AIR_STEP_GRABBED_CEILING then
+        set_mario_action(m, ACT_START_HANGING, 0)
+    elseif stepResult == AIR_STEP_HIT_LAVA_WALL then
+        lava_boost_on_wall(m)
+    end
+
+    sonic_update_air(m)
+
+    return stepResult
+end
+
 _G.ACT_SPIN_JUMP          = allocate_mario_action(ACT_FLAG_ALLOW_VERTICAL_WIND_ACTION | ACT_FLAG_CONTROL_JUMP_HEIGHT |
 ACT_FLAG_AIR | ACT_GROUP_AIRBORNE | ACT_FLAG_ATTACKING)
+_G.ACT_SONIC_FALL         = allocate_mario_action(ACT_FLAG_ALLOW_VERTICAL_WIND_ACTION | ACT_FLAG_AIR | ACT_GROUP_AIRBORNE)
+_G.ACT_AIR_SPIN           = allocate_mario_action(ACT_FLAG_ALLOW_VERTICAL_WIND_ACTION | ACT_FLAG_AIR | ACT_FLAG_ATTACKING | ACT_GROUP_AIRBORNE)
+_G.ACT_HOMING_ATTACK          = allocate_mario_action(ACT_FLAG_ALLOW_VERTICAL_WIND_ACTION | ACT_FLAG_AIR | ACT_FLAG_ATTACKING | ACT_GROUP_AIRBORNE)
 _G.ACT_SPIN_DASH_CHARGE   = allocate_mario_action(ACT_FLAG_STATIONARY | ACT_GROUP_STATIONARY | ACT_FLAG_SHORT_HITBOX)
 _G.ACT_SPIN_DASH          = allocate_mario_action(ACT_FLAG_MOVING | ACT_GROUP_MOVING | ACT_FLAG_SHORT_HITBOX |
 ACT_FLAG_ATTACKING)
@@ -2137,9 +2217,14 @@ local SOUND_SPIN_JUMP     = audio_sample_load("spinjump.ogg")   -- Load audio sa
 local SOUND_SPIN_CHARGE   = audio_sample_load("spincharge.ogg") -- Load audio sample
 local SOUND_SPIN_RELEASE  = audio_sample_load("spinrelease.ogg") -- Load audio sample
 local SOUND_ROLL          = audio_sample_load("spinroll.ogg")   -- Load audio sample
+local SOUND_SONIC_BOUNCE  = audio_sample_load("sonicbounce.ogg")   -- Load audio sample
 
 local prevVelY
 local prevHeight
+
+local randomTimer = 0
+local lastforwardPos = {x = 0, z = 0}
+local realFVel -- Velocity calculated in realtime so that walls count.
 
 local sonicActionOverride = {
     [ACT_JUMP]        = ACT_SPIN_JUMP,
@@ -2156,6 +2241,9 @@ local function act_spin_jump(m)
     local e = gStateExtras[m.playerIndex]
     if m.actionTimer == 0 then
         audio_sample_play(SOUND_SPIN_JUMP, m.pos, 1)
+        local soundRng = math.floor(math.random(1,2))
+        play_character_sound_if_no_flag(m, CHAR_SOUND_YAH_WAH_HOO, MARIO_ACTION_SOUND_PLAYED)
+
         e.lastForwardVel = m.forwardVel
     end
 
@@ -2163,24 +2251,10 @@ local function act_spin_jump(m)
 
     set_character_animation(m, CHAR_ANIM_A_POSE)
 
-    local stepResult = perform_air_step(m, 0)
-    sonic_update_air(m)
+    local stepResult = sonic_air_action_step(m, ACT_DOUBLE_JUMP_LAND, CHAR_ANIM_A_POSE, AIR_STEP_CHECK_HANG)
 
-    if stepResult ~= AIR_STEP_NONE then
-        m.faceAngle.x = 0
-        if stepResult == AIR_STEP_LANDED then
-            if m.forwardVel ~= 0 then
-                set_mario_action(m, ACT_SONIC_RUNNING, 0)
-                m.faceAngle.y = atan2s(m.vel.z, m.vel.x)
-                mario_set_forward_vel(m, math.sqrt(m.vel.x ^ 2 + m.vel.z ^ 2))
-            else
-                set_mario_action(m, ACT_DOUBLE_JUMP_LAND, 0)
-            end
-        end
-    else
-        m.faceAngle.x = m.faceAngle.x + (0x2000 * spinSpeed)
-        m.marioObj.header.gfx.angle.x = m.faceAngle.x
-    end
+    m.faceAngle.x = m.faceAngle.x + (0x2000 * spinSpeed)
+    m.marioObj.header.gfx.angle.x = m.faceAngle.x
 
     if (m.controller.buttonDown & Z_TRIG) ~= 0 then
         if stepResult == AIR_STEP_LANDED then
@@ -2191,7 +2265,122 @@ local function act_spin_jump(m)
         end
     end
 
+    if (m.controller.buttonPressed & A_BUTTON) ~= 0 and m.actionTimer > 0 then
+        if m.pos.y < m.waterLevel then
+            m.vel.y = 30
+        else
+            return set_mario_action(m, ACT_AIR_SPIN, 1)
+        end
+    end
+    
+
     m.actionTimer = m.actionTimer + 1
+end
+
+-- The air dash and air roll are grouped into this.
+local function act_air_spin(m)
+    local e = gStateExtras[m.playerIndex]
+
+    local spinSpeed = math.max(0.5, e.lastForwardVel / 32)
+
+    set_character_animation(m, CHAR_ANIM_A_POSE)
+
+    local stepResult = sonic_air_action_step(m, ACT_DOUBLE_JUMP_LAND, CHAR_ANIM_A_POSE, AIR_STEP_CHECK_HANG)
+
+    m.faceAngle.x = m.faceAngle.x + (0x2000 * spinSpeed)
+    m.marioObj.header.gfx.angle.x = m.faceAngle.x
+
+    if (m.input & INPUT_A_PRESSED) ~= 0 and m.actionTimer > 0 then
+        if m.pos.y < m.waterLevel then
+            m.action = ACT_SPIN_JUMP
+            m.vel.y = 20
+        else
+            return set_mario_action(m, ACT_AIR_SPIN, 1)
+        end
+    end
+
+    if (m.controller.buttonDown & Z_TRIG) ~= 0 then
+        if stepResult == AIR_STEP_LANDED then
+            audio_sample_play(SOUND_ROLL, m.pos, 1)
+            set_mario_action(m, ACT_SPIN_DASH, 0)
+        elseif (m.controller.buttonPressed & B_BUTTON) ~= 0 then
+            return set_mario_action(m, ACT_GROUND_POUND, 0)
+        end
+    end
+    
+    if m.actionArg == 1 then -- Air dash and wall bounce.
+        if e.AActionDone == 0 then
+            e.lastForwardVel = m.forwardVel
+            audio_sample_play(SOUND_SPIN_RELEASE, m.pos, 1)
+            m.vel.y = 0
+        
+            if m.forwardVel < 0 then
+                m.vel.x = m.vel.x + 30 * sins(m.faceAngle.y)
+                m.vel.z = m.vel.z + 30 * coss(m.faceAngle.y)
+            elseif m.forwardVel < 72 then
+                m.vel.x = m.vel.x + 20 * sins(m.faceAngle.y)
+                m.vel.z = m.vel.z + 20 * coss(m.faceAngle.y)
+            end
+            
+            m.particleFlags = m.particleFlags + PARTICLE_VERTICAL_STAR
+            e.AActionDone = 1
+        end
+        
+        if m.actionTimer < 10 then
+    
+            local dist = 80
+            local ray = collision_find_surface_on_ray(m.pos.x, m.pos.y + 30, m.pos.z,
+            sins(m.faceAngle.y) * dist, 0, coss(m.faceAngle.y) * dist)
+        
+            if ray.surface ~= nil and ray.surface.normal.y <= 0.01 then
+            
+                local wallAngle = wall_bounce(m, ray.surface.normal)
+                audio_sample_play(SOUND_SONIC_BOUNCE, m.pos, 1)
+                
+                if m.actionTimer < 2 then
+                    m.vel.y = 30 * math.abs(realFVel) / 24
+
+                    m.vel.x = math.abs(realFVel / 2) * sins(wallAngle)
+                    m.vel.z = math.abs(realFVel / 2) * coss(wallAngle)
+                else
+                    m.vel.y = 20 * math.abs(realFVel) / 32
+
+                    m.vel.x = math.abs(realFVel) * sins(wallAngle)
+                    m.vel.z = math.abs(realFVel) * coss(wallAngle)
+                end
+                
+                m.actionArg = 0
+                e.AActionDone = 0
+            end
+            
+        end    
+
+    end
+    
+    m.actionTimer = m.actionTimer + 1
+end
+
+-- Code nabbed from Shell Rush.
+function wall_bounce(m, normal)
+    -- figure out direction
+    local v = {
+        x = m.vel.x,
+        y = 0,
+        z = m.vel.z
+    }
+
+    -- projection
+    local parallel = vec3f_project({x = 0, y = 0, z = 0}, v, normal)
+    local perpendicular = {x = v.x - parallel.x, y = v.y - parallel.y, z = v.z - parallel.z}
+
+    -- reflect velocity along normal
+    local reflect = {
+        x = perpendicular.x - parallel.x,
+        y = perpendicular.y - parallel.y,
+        z = perpendicular.z - parallel.z
+    }
+
+    return atan2s(reflect.z, reflect.x)
 end
 
 ---@param m MarioState
@@ -2244,7 +2433,7 @@ local function act_spin_dash(m)
         end
     elseif stepResult == GROUND_STEP_LEFT_GROUND then
         m.vel.y = e.groundYVel
-        m.action = ACT_SPIN_JUMP
+        set_mario_action(m, ACT_AIR_SPIN, 0)
     end
 
     local spinPhys = update_spin_dashing(m, 3)
@@ -2323,6 +2512,47 @@ local function act_sonic_running(m)
     return 0
 end
 
+function act_sonic_fall(m)
+    local e = gStateExtras[m.playerIndex]
+    local animation = 0
+    local landAction = 0
+
+    if (m.input & INPUT_A_PRESSED) ~= 0 then
+        if m.pos.y < m.waterLevel then
+            m.action = ACT_SPIN_JUMP
+            m.vel.y = 20
+        else
+            return set_mario_action(m, ACT_AIR_SPIN, 1)
+        end
+    end
+
+    if (m.input & INPUT_Z_PRESSED) ~= 0 then
+        return drop_and_set_mario_action(m, ACT_GROUND_POUND, 0)
+    end
+    if m.heldObj == nil then
+        if m.actionArg == 0 then
+            animation = CHAR_ANIM_GENERAL_FALL
+            m.faceAngle.x = 0
+        elseif m.actionArg == 1 then
+            animation = CHAR_FALL_FROM_SLIDE
+            m.faceAngle.x = 0
+        elseif m.actionArg == 2 then
+            animation = CHAR_ANIM_FALL_FROM_SLIDE_KICK
+            m.faceAngle.x = 0
+        end
+        landAction = ACT_FREEFALL_LAND
+    else
+        animation = MARIO_ANIM_FALL_WITH_LIGHT_OBJ
+        landAction = ACT_HOLD_FREEFALL_LAND
+    end
+
+    sonic_air_action_step(m, landAction, animation, AIR_STEP_CHECK_LEDGE_GRAB, true, true)
+    
+    m.actionTimer = m.actionTimer + 1
+
+    return 0
+end
+
 ---@param m MarioState
 ---@param action integer
 local function before_set_sonic_action(m, action)
@@ -2348,6 +2578,10 @@ local function on_set_sonic_action(m)
     if m.action == ACT_WALKING then
         set_mario_action(m, ACT_SONIC_RUNNING, 0)
     end
+
+    if m.action == ACT_FREEFALL then
+        set_mario_action(m, ACT_SONIC_FALL, m.actionArg)
+    end
 end
 
 local function sonic_update(m)
@@ -2363,6 +2597,10 @@ local function sonic_update(m)
         if m.vel.y >= 0 then
             prevHeight = m.pos.y
         end
+    end
+
+    if (m.action & ACT_FLAG_AIR) == 0 then
+        e.AActionDone = 0
     end
 
     if m.action == ACT_WALKING then -- Failsafe.
@@ -2385,6 +2623,20 @@ local function sonic_update(m)
         m.action = ACT_SPIN_JUMP
     end
 
+    -- Splash.
+    if m.pos.y <= m.waterLevel and m.pos.y >= m.waterLevel - math.abs(m.vel.y) then
+        if math.abs(m.vel.y) > 40 then
+            m.particleFlags = m.particleFlags + PARTICLE_WATER_SPLASH
+            play_sound(SOUND_ACTION_UNKNOWN430, m.marioObj.header.gfx.cameraToObject)
+        elseif math.abs(m.vel.y) > 0 then
+            m.particleFlags = m.particleFlags + PARTICLE_SHALLOW_WATER_SPLASH
+        end
+    end
+    
+    -- Fall damage delay.
+    if e.sonicPeakHeight - m.pos.y < 2000 then m.peakHeight = m.pos.y end
+    if m.vel.y >= 0 or m.pos.y == floorHeight then e.sonicPeakHeight = m.pos.y end
+    
     -- Drowning. Should it be added back?
     --[[if m.pos.y < m.waterLevel then
         m.health = m.health - 1
@@ -2436,12 +2688,31 @@ local function sonic_before_phys_step(m)
             m.vel.y = m.vel.y + 2
         end
     end
+    
+    if randomTimer > 0 then
+        realFVel = math.sqrt((m.pos.x - lastforwardPos.x) ^ 2 + (m.pos.z - lastforwardPos.z) ^ 2)
+        local speedAngle = atan2s(m.vel.z, m.vel.x)
+        local intendedDYaw = m.faceAngle.y - speedAngle
+
+        if intendedDYaw < -0x4000 or intendedDYaw > 0x4000 then
+            realFVel = realFVel * -1
+        end
+
+        djui_chat_message_create(tostring(realFVel))
+        lastforwardPos = {x = m.pos.x, z = m.pos.z}
+
+        randomTimer = 0
+    end
+    
+    randomTimer = randomTimer + 1
 end
 
 hook_mario_action(ACT_SPIN_JUMP, act_spin_jump)
-hook_mario_action(ACT_SPIN_DASH_CHARGE, act_spin_dash_charge)
-hook_mario_action(ACT_SPIN_DASH, act_spin_dash)
+hook_mario_action(ACT_SPIN_DASH_CHARGE, act_spin_dash_charge, INT_FAST_ATTACK_OR_SHELL)
+hook_mario_action(ACT_SPIN_DASH, act_spin_dash, INT_FAST_ATTACK_OR_SHELL)
 hook_mario_action(ACT_SONIC_RUNNING, act_sonic_running)
+hook_mario_action(ACT_SONIC_FALL, act_sonic_fall)
+hook_mario_action(ACT_AIR_SPIN, act_air_spin)
 
 ------------
 --  Main  --
