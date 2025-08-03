@@ -1215,10 +1215,12 @@ extraCharacters = {
                 [CHAR_ANIM_TAKE_CAP_OFF_THEN_ON] = 'sonic_star_exit_with_hat',
                 [CHAR_ANIM_PUT_CAP_ON] = 'sonic_putting_on_hat',
                 [CHAR_ANIM_RUNNING_UNUSED] = "sonic_running3",
+                [CS_ANIM_MENU] = 'sonic_idle_head_center',
             },
             normal = {
                 [CHAR_ANIM_TAKE_CAP_OFF_THEN_ON] = 'sonic_star_exit_with_hat',
                 [CHAR_ANIM_PUT_CAP_ON] = 'sonic_putting_on_hat',
+                [CS_ANIM_MENU] = 'sonic_idle_head_center',
             }
         }
     },

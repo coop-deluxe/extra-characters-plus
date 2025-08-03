@@ -2052,7 +2052,7 @@ local function sonic_anim_and_audio_for_walk(m, walkCap, jogCap, runCap)
                         play_custom_anim(m, CUSTOM_CHAR_ANIM_SONIC_RUN, m.forwardVel/8 * 0x8000)
                     else
                         play_step_sound(m, 26, 58)
-                        set_mario_anim_with_accel(m, MARIO_ANIM_RUNNING, 5.0 * 0x10000)
+                        set_mario_anim_with_accel(m, MARIO_ANIM_RUNNING, 7.0 * 0x10000)
                     end
                     if jogCap - val04 <= 30 and math.sign(jogCap - val04) == 1 then
                         m.marioBodyState.allowPartRotation = true
