@@ -1145,7 +1145,7 @@ extraCharacters = {
         description = "A rebellious teenage hedgehog with a blue of attitude, originating from Christmas Island. How'd he got here is anyone's guess.",
         credits = "Coop Team / VA: ReeseiMental",
         color = {r = 0, g = 0, b = 255},
-        model = smlua_model_util_get_id("sonic_geo"),
+        model = smlua_model_util_get_id("segasonic_geo"),
         forceChar = CT_MARIO,
         lifeIcon = gTextures.coin,
         camScale = 1,
