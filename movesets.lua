@@ -1748,6 +1748,13 @@ end
 -- Sonic Moveset --
 -------------------
 
+local prevVelY
+local prevHeight
+
+local randomTimer = 0
+local lastforwardPos = {x = 0, z = 0}
+local realFVel = 0 -- Velocity calculated in realtime so that walls count.
+
 --- @param m MarioState
 --- @param accel number
 --- @param lossFactor number
@@ -1866,18 +1873,13 @@ local function sonic_update_air(m)
 
     local accel = 2
     local targetSpeed = dragThreshold
-    local trueFVel = math.sqrt(m.vel.x ^ 2 + m.vel.z ^ 2)
 
-    local airDrag = (trueFVel / 0.32) / 512
+    local airDrag = (realFVel / 0.32) / 512
 
     local intendedDYaw = m.faceAngle.y - speedAngle
     local intendedMag = m.intendedMag / 32
 
-    m.forwardVel = trueFVel
-
-    if math.abs(intendedDYaw) > 0x4000 then
-        m.forwardVel = m.forwardVel * -1
-    end
+    m.forwardVel = realFVel
 
     if m.pos.y < m.waterLevel then
         accel = 1
@@ -1890,8 +1892,8 @@ local function sonic_update_air(m)
                 targetSpeed = 0
                 accel = airDrag
             else
-                if trueFVel > dragThreshold then
-                    targetSpeed = trueFVel
+                if realFVel > dragThreshold then
+                    targetSpeed = realFVel
                 else
                     targetSpeed = dragThreshold
                 end
@@ -2198,13 +2200,6 @@ local SOUND_SPIN_RELEASE  = audio_sample_load("spinrelease.ogg") -- Load audio s
 local SOUND_ROLL          = audio_sample_load("spinroll.ogg")   -- Load audio sample
 local SOUND_SONIC_BOUNCE  = audio_sample_load("sonicbounce.ogg")   -- Load audio sample
 
-local prevVelY
-local prevHeight
-
-local randomTimer = 0
-local lastforwardPos = {x = 0, z = 0}
-local realFVel -- Velocity calculated in realtime so that walls count.
-
 local sonicActionOverride = {
     [ACT_JUMP]         = ACT_SPIN_JUMP,
     [ACT_DOUBLE_JUMP]  = ACT_SPIN_JUMP,
@@ -2319,15 +2314,15 @@ local function act_air_spin(m)
                 audio_sample_play(SOUND_SONIC_BOUNCE, m.pos, 1)
 
                 if m.actionTimer < 2 then
-                    m.vel.y = 30 * math.abs(realFVel) / 24
+                    m.vel.y = 30 * math.abs(m.forwardVel) / 24
 
-                    m.vel.x = math.abs(realFVel / 2) * sins(wallAngle)
-                    m.vel.z = math.abs(realFVel / 2) * coss(wallAngle)
+                    m.vel.x = math.abs(m.forwardVel / 2) * sins(wallAngle)
+                    m.vel.z = math.abs(m.forwardVel / 2) * coss(wallAngle)
                 else
-                    m.vel.y = 20 * math.abs(realFVel) / 32
+                    m.vel.y = 20 * math.abs(m.forwardVel) / 32
 
-                    m.vel.x = math.abs(realFVel) * sins(wallAngle)
-                    m.vel.z = math.abs(realFVel) * coss(wallAngle)
+                    m.vel.x = math.abs(m.forwardVel) * sins(wallAngle)
+                    m.vel.z = math.abs(m.forwardVel) * coss(wallAngle)
                 end
 
                 m.actionArg = 0
