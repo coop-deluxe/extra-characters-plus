@@ -1752,7 +1752,7 @@ local prevVelY
 local prevHeight
 
 local randomTimer = 0
-local lastforwardPos = {x = 0, z = 0}
+local lastforwardPos = gVec3fZero()
 local realFVel = 0 -- Velocity calculated in realtime so that walls count.
 
 --- @param m MarioState
@@ -2064,8 +2064,6 @@ local function sonic_anim_and_audio_for_walk(m, walkCap, jogCap, runCap)
                         m.marioBodyState.allowPartRotation = false
                     end
 
-                    
-
                     val0C = false
                 end
             end
@@ -2217,7 +2215,6 @@ local function act_spin_jump(m)
     local e = gStateExtras[m.playerIndex]
     if m.actionTimer == 0 then
         audio_sample_play(SOUND_SPIN_JUMP, m.pos, 1)
-        local soundRng = math.floor(math.random(1,2))
         play_character_sound_if_no_flag(m, CHAR_SOUND_YAH_WAH_HOO, MARIO_ACTION_SOUND_PLAYED)
 
         e.lastForwardVel = m.forwardVel
@@ -2226,8 +2223,8 @@ local function act_spin_jump(m)
     local spinSpeed = math.max(0.5, e.lastForwardVel / 32)
 
     set_character_animation(m, CHAR_ANIM_A_POSE)
-
     local stepResult = sonic_air_action_step(m, ACT_DOUBLE_JUMP_LAND, CHAR_ANIM_A_POSE, AIR_STEP_CHECK_HANG)
+    m.marioObj.header.gfx.animInfo.animID = -1
 
     m.faceAngle.x = m.faceAngle.x + (0x2000 * spinSpeed)
     m.marioObj.header.gfx.angle.x = m.faceAngle.x
@@ -2260,8 +2257,8 @@ local function act_air_spin(m)
     local spinSpeed = math.max(0.5, e.lastForwardVel / 32)
 
     set_character_animation(m, CHAR_ANIM_A_POSE)
-
     local stepResult = sonic_air_action_step(m, ACT_DOUBLE_JUMP_LAND, CHAR_ANIM_A_POSE, AIR_STEP_CHECK_HANG)
+    m.marioObj.header.gfx.animInfo.animID = -1
 
     m.faceAngle.x = m.faceAngle.x + (0x2000 * spinSpeed)
     m.marioObj.header.gfx.angle.x = m.faceAngle.x
@@ -2372,6 +2369,7 @@ local function act_spin_dash_charge(m)
     end
 
     set_mario_animation(m, CHAR_ANIM_A_POSE)
+    m.marioObj.header.gfx.animInfo.animID = -1
     stationary_ground_step(m)
 
     m.faceAngle.x = m.faceAngle.x + 0x500 * e.spinCharge
@@ -2396,6 +2394,7 @@ local function act_spin_dash(m)
     end
 
     set_mario_animation(m, CHAR_ANIM_A_POSE)
+    m.marioObj.header.gfx.animInfo.animID = -1
     local stepResult = perform_ground_step(m)
 
     if stepResult == GROUND_STEP_HIT_WALL then
@@ -2427,7 +2426,6 @@ end
 --- @param m MarioState
 local function act_sonic_running(m)
     local e = gStateExtras[m.playerIndex]
-    local startYaw = m.faceAngle.x
     mario_drop_held_object(m)
 
     m.actionState = 0
@@ -2449,7 +2447,6 @@ local function act_sonic_running(m)
     end
 
     check_ledge_climb_down(m)
-    -- tilt_body_walking(m, startYaw)
 
     if should_begin_sliding(m) ~= 0 then
         return set_mario_action(m, ACT_BEGIN_SLIDING, 0)
@@ -2544,7 +2541,7 @@ local waterActions = {
 
 ---@param m MarioState
 ---@param action integer
-local function before_set_sonic_action(m, action)
+local function before_set_sonic_action(m, action, actionArg)
     local e = gStateExtras[m.playerIndex]
 
     if waterActions[action] then -- Prevent swimming in the air.
@@ -2553,6 +2550,10 @@ local function before_set_sonic_action(m, action)
     if sonicActionOverride[action] then
         set_sonic_jump_vel(m, 64, e.groundYVel)
         return sonicActionOverride[action]
+    end
+
+    if action == ACT_PUNCHING and actionArg == 9 then
+        return ACT_SPIN_DASH_CHARGE
     end
 end
 
@@ -2563,10 +2564,6 @@ local function on_set_sonic_action(m)
 
     if m.marioObj.header.gfx.angle.x ~= 0 then
         m.marioObj.header.gfx.angle.x = 0
-    end
-
-    if m.action == ACT_PUNCHING and m.actionArg == 9 then
-        set_mario_action(m, ACT_SPIN_DASH_CHARGE, 0)
     end
 
     if m.action == ACT_FREEFALL then
@@ -2649,6 +2646,7 @@ local function sonic_on_interact(m, o, intType)
 end
 
 local function sonic_before_phys_step(m)
+    if m.playerIndex ~= 0 then return end
     if m.pos.y < m.waterLevel then
         move_with_current(m)
         if (m.action & ACT_FLAG_AIR) ~= 0 then
@@ -2656,7 +2654,7 @@ local function sonic_before_phys_step(m)
         end
     end
 
-    if randomTimer > 0 and m.playerIndex == 0 then
+    if randomTimer > 0 then
         realFVel = math.sqrt((m.pos.x - lastforwardPos.x) ^ 2 + (m.pos.z - lastforwardPos.z) ^ 2)
         local speedAngle = atan2s(m.vel.z, m.vel.x)
         local intendedDYaw = m.faceAngle.y - speedAngle
@@ -2665,8 +2663,7 @@ local function sonic_before_phys_step(m)
             realFVel = realFVel * -1
         end
 
-        lastforwardPos = {x = m.pos.x, z = m.pos.z}
-        --djui_chat_message_create(tostring(realFVel))
+        vec3f_copy(lastforwardPos, m.pos)
 
         randomTimer = 0
     end
