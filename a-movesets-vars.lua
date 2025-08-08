@@ -36,5 +36,5 @@ for i = 0, (MAX_PLAYERS - 1) do
     e.sonic.groundYVel = 0
     e.sonic.prevForwardVel = 0
     e.sonic.peakHeight = 0
-    e.sonic.actionEnd = false
+    e.sonic.actionADone = false
 end

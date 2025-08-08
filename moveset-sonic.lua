@@ -10,6 +10,7 @@ local prevHeight
 local physTimer = 0
 local lastforwardPos = gVec3fZero()
 local realFVel = 0 -- Velocity calculated in realtime so that walls count.
+local l = gLakituState
 
 --- @param m MarioState
 --- @param accel number
@@ -470,6 +471,7 @@ local SOUND_SPIN_CHARGE   = audio_sample_load("spincharge.ogg") -- Load audio sa
 local SOUND_SPIN_RELEASE  = audio_sample_load("spinrelease.ogg") -- Load audio sample
 local SOUND_ROLL          = audio_sample_load("spinroll.ogg")   -- Load audio sample
 local SOUND_SONIC_BOUNCE  = audio_sample_load("sonicbounce.ogg")   -- Load audio sample
+local SOUND_SONIC_HOMING  = audio_sample_load("sonic_homing_select.ogg")   -- Load audio sample
 
 local sonicActionOverride = {
     [ACT_JUMP]         = ACT_SPIN_JUMP,
@@ -532,7 +534,9 @@ function sonic_find_homing_target(m, distmax)
         while obj do
             if sonic_is_obj_targetable(obj) then
                 local distToObj = math.sqrt((pos.x - obj.oPosX)^2 + (pos.y - obj.oPosY)^2 + (pos.z - obj.oPosZ)^2) - (m.marioObj.hitboxRadius + obj.hitboxRadius)
-                if distToObj < distmin then
+                local angleToObj = obj_angle_to_object(m.marioObj, obj)
+                
+                if distToObj < distmin and math.abs(m.faceAngle.y - angleToObj) < 0x3800 then
                     distmin = distToObj
                     target = obj
                 end
@@ -549,16 +553,19 @@ end
 local function perform_sonic_a_action(m)
     local o = sonic_find_homing_target(m, 1000)
     local dist = dist_between_objects(m.marioObj, o)
+    local e = gCharacterStates[m.playerIndex]
 
     if m.pos.y < m.waterLevel then
         m.action = ACT_SPIN_JUMP
         m.vel.y = 30
     else
-
-        if o and dist < 1000 then
-            return set_mario_action(m, ACT_HOMING_ATTACK, 0)
-        else
-            return set_mario_action(m, ACT_AIR_SPIN, 1)
+    
+        if not e.sonic.actionADone then
+            if o and dist < 1000 then
+                return set_mario_action(m, ACT_HOMING_ATTACK, 0)
+            else
+                return set_mario_action(m, ACT_AIR_SPIN, 1)
+            end
         end
     end
 end
@@ -626,7 +633,7 @@ local function act_air_spin(m)
     end
 
     if m.actionArg == 1 then -- Air dash and wall bounce.
-        if not e.sonic.actionEnd then
+        if not e.sonic.actionADone then
             e.sonic.prevForwardVel = m.forwardVel
             audio_sample_play(SOUND_SPIN_RELEASE, m.pos, 1)
             m.vel.y = 0
@@ -640,7 +647,7 @@ local function act_air_spin(m)
             end
 
             m.particleFlags = m.particleFlags + PARTICLE_VERTICAL_STAR
-            e.sonic.actionEnd = true
+            e.sonic.actionADone = true
         end
 
         if m.actionTimer < 10 then
@@ -667,7 +674,7 @@ local function act_air_spin(m)
                 end
 
                 m.actionArg = 0
-                e.sonic.actionEnd = false
+                e.sonic.actionADone = false
             end
 
         end
@@ -690,6 +697,8 @@ local function act_homing_attack(m)
     end
 
     if m.actionTimer <= 0 then
+        audio_sample_play(SOUND_SPIN_RELEASE, m.pos, 1)
+        m.particleFlags = m.particleFlags + PARTICLE_VERTICAL_STAR
         local totalVel = math.sqrt(m.forwardVel ^ 2 + m.vel.y ^ 2)
 
         if totalVel < 100 then
@@ -706,6 +715,7 @@ local function act_homing_attack(m)
     end
 
     set_character_animation(m, CHAR_ANIM_A_POSE)
+    m.particleFlags = m.particleFlags + PARTICLE_DUST
     m.marioObj.header.gfx.animInfo.animID = -1
 
     local stepResult = perform_air_step(m, 0)
@@ -731,6 +741,11 @@ local function act_homing_attack(m)
         if (m.controller.buttonPressed & B_BUTTON) ~= 0 then
             return set_mario_action(m, ACT_GROUND_POUND, 0)
         end
+    end
+
+    if o == nil then
+        set_mario_action(m, ACT_AIR_SPIN, 0)
+        e.actionADone = true
     end
 
     m.actionTimer = m.actionTimer + 1
@@ -993,7 +1008,7 @@ function sonic_update(m)
     end
 
     if (m.action & ACT_FLAG_AIR) == 0 then
-        e.sonic.actionEnd = false
+        e.sonic.actionADone = false
     end
 
     -- Splash.
@@ -1031,8 +1046,10 @@ function sonic_allow_interact(m, o, intType)
     if bounceTypes[intType] and (o.oInteractionSubtype & INT_SUBTYPE_TWIRL_BOUNCE) == 0 then
         if m.action == ACT_HOMING_ATTACK then
             o.oInteractStatus = ATTACK_GROUND_POUND_OR_TWIRL + (INT_STATUS_INTERACTED | INT_STATUS_WAS_ATTACKED)
+            if m.vel.y < 0 then
+                m.vel.y = math.abs(m.vel.y)
+            end
             set_mario_action(m, ACT_SONIC_FALL, 3)
-            badnik_bounce(m, prevHeight, 4)
             return false
         end
     end
@@ -1097,19 +1114,28 @@ local scaleTimer = 0
 local prevScale = 1
 local prevHudPos = gVec3fZero()
 local hudPos = gVec3fZero()
+local prevTarget
 
 function sonic_homing_hud()
     djui_hud_set_resolution(RESOLUTION_N64)
     local color = network_player_get_palette_color(gNetworkPlayers[0], EMBLEM)
     djui_hud_set_color(color.r, color.g, color.b, 255)
     local m = gMarioStates[0]
-    if homingActs[m.action] then
-        local o = sonic_find_homing_target(m, 1000)
+    local e = gCharacterStates[m.playerIndex]
 
-        if o then
+    if homingActs[m.action] then
+        local o = sonic_find_homing_target(m, 995)
+
+        if o and not e.sonic.actionADone then
             local pos = gVec3fZero()
             local rotation = get_global_timer()
             scaleTimer = scaleTimer + 1
+            
+            if prevTarget ~= o then
+                prevTarget = o
+                audio_sample_play(SOUND_SONIC_HOMING, l.pos, 3)
+            end
+            
             object_pos_to_vec3f(pos, o)
             local onScreen = djui_hud_world_pos_to_screen_pos(pos, hudPos)
             if onScreen then
@@ -1121,9 +1147,11 @@ function sonic_homing_hud()
             end
         else
             scaleTimer = 0
+            prevTarget = nil
         end
     else
         scaleTimer = 0
+        prevTarget = nil
     end
 end
 
@@ -1133,4 +1161,6 @@ hook_mario_action(ACT_SPIN_DASH, act_spin_dash, INT_FAST_ATTACK_OR_SHELL)
 hook_mario_action(ACT_SONIC_RUNNING, act_sonic_running)
 hook_mario_action(ACT_SONIC_FALL, act_sonic_fall)
 hook_mario_action(ACT_AIR_SPIN, act_air_spin)
-hook_mario_action(ACT_HOMING_ATTACK, act_homing_attack, (INT_FAST_ATTACK_OR_SHELL | INT_KICK | INT_HIT_FROM_ABOVE))
+hook_mario_action(ACT_HOMING_ATTACK, 
+                  {every_frame = act_homing_attack, gravity = function () end},
+                  (INT_FAST_ATTACK_OR_SHELL | INT_KICK | INT_HIT_FROM_ABOVE))
