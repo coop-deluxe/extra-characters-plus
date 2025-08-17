@@ -116,8 +116,7 @@ local function act_axe_spin(m)
         m.forwardVel = math.clamp(m.forwardVel + 7, 0, 850)
     end
 
-    set_character_anim_with_accel(m, CHAR_ANIM_SLIDE_KICK, math.clamp(m.forwardVel * 0x500, 0, 0x1F000))
-    play_custom_anim(m, 'wapeach_axespin')
+    play_custom_anim(m, 'wapeach_axespin', math.clamp(m.forwardVel * 0x500, 0, 0x1F000))
     set_mario_particle_flags(m, PARTICLE_DUST, 0)
     if is_anim_past_frame(m, 1) ~= 0 then
         play_sound(SOUND_ACTION_SPIN, m.marioObj.header.gfx.cameraToObject)
@@ -164,8 +163,7 @@ local function act_axe_spin_air(m)
     update_air_with_turn(m)
     m.vel.y = m.vel.y + 2
 
-    set_character_anim_with_accel(m, CHAR_ANIM_SLIDE_KICK, math.clamp(m.forwardVel * 0x500, 0, 0x1F000))
-    play_custom_anim(m.marioObj, 'wapeach_axespin')
+    play_custom_anim(m, 'wapeach_axespin', math.clamp(m.forwardVel * 0x500, 0, 0x1F000))
     if is_anim_past_frame(m, 1) ~= 0 then
         play_sound(SOUND_ACTION_SPIN, m.marioObj.header.gfx.cameraToObject)
     end

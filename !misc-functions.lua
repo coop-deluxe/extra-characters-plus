@@ -40,12 +40,9 @@ function play_custom_anim(m, name, accel)
     m.marioObj.header.gfx.animInfo.animAccel = accel
 
     if (smlua_anim_util_get_current_animation_name(m.marioObj) ~= name or m.marioObj.header.gfx.animInfo.animID ~= -1) then
-        m.marioObj.header.gfx.animInfo.animFrame = 1
+        m.marioObj.header.gfx.animInfo.animID = -1
         set_anim_to_frame(m, 0)
     end
-
-    -- jank may occur without this line
-    m.marioObj.header.gfx.animInfo.animID = -1
 
     smlua_anim_util_set_animation(m.marioObj, name)
 end
