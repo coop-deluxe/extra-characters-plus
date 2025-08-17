@@ -1235,7 +1235,10 @@ extraCharacters = {
                 [CHAR_ANIM_PUT_CAP_ON] = 'sonic_putting_on_hat',
                 [CS_ANIM_MENU] = 'cs_sonic',
             }
-        }
+        },
+        eyes = {
+            [charSelect.CS_ANIM_MENU] = MARIO_EYES_LOOK_RIGHT
+        },
     },
 }
 
@@ -1250,7 +1253,7 @@ local function on_character_select_load()
         if caps then character_add_caps(model, caps) end
         if voices then character_add_voice(model, voices) end
         if palette then character_add_palette_preset(model, palette) end
-        if i ~= 11 and anims then character_add_animations(model, anims) end
+        if i ~= 11 and anims then character_add_animations(model, anims, eyes) end
         -- if meter then character_add_health_meter(model, meter) end
     end
 
@@ -1314,7 +1317,7 @@ local function mario_update(m)
             anims = animsets.normal
         end
 
-        if anims then character_add_animations(model, anims) end
+        if anims then character_add_animations(model, anims, eyes) end
 
     end
     for _, char in pairs(extraCharacters) do
