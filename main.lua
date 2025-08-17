@@ -1235,7 +1235,7 @@ extraCharacters = {
             }
         },
         eyes = {
-            [charSelect.CS_ANIM_MENU] = MARIO_EYES_LOOK_RIGHT
+            [CS_ANIM_MENU] = MARIO_EYES_LOOK_RIGHT
         },
     },
 }
