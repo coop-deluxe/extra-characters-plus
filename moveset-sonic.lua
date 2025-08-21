@@ -832,7 +832,7 @@ local function act_spin_dash_charge(m)
         e.sonic.spindashState = 0
     end
 
-    m.marioObj.header.gfx.pos.y = m.pos.y + 50
+    m.marioObj.header.gfx.pos.y = m.pos.y + 60
 
     if m.input & INPUT_Z_DOWN == 0 then
         audio_sample_play(SOUND_SPIN_RELEASE, m.pos, 1)
@@ -876,7 +876,7 @@ local function act_spin_dash(m)
     m.faceAngle.x = m.faceAngle.x + 0x2000 * m.forwardVel / 32
     m.marioObj.header.gfx.angle.x = m.faceAngle.x
 
-    m.marioObj.header.gfx.pos.y = m.pos.y + 50
+    m.marioObj.header.gfx.pos.y = m.pos.y + 60
 
     m.actionTimer = m.actionTimer + 1
 end
