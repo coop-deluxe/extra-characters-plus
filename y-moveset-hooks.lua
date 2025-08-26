@@ -48,17 +48,17 @@ hook_event(HOOK_ON_SET_MARIO_ACTION, torso_tilt_reset)
 local function on_character_select_load()
     -- Character Types Enum --
 
-    _G.CT_TOADETTE    = extraCharacters[1].tablePos        --- @type CharacterType
-    _G.CT_PEACH       = extraCharacters[2].tablePos        --- @type CharacterType
-    _G.CT_DAISY       = extraCharacters[3].tablePos        --- @type CharacterType
-    _G.CT_YOSHI       = extraCharacters[4].tablePos        --- @type CharacterType
-    _G.CT_BIRDO       = extraCharacters[5].tablePos        --- @type CharacterType
-    --_G.CT_FOREMANSPIKE     = extraCharacters[6].tablePos  --- @type CharacterType
-    _G.CT_PAULINE     = extraCharacters[7].tablePos        --- @type CharacterType
-    _G.CT_ROSALINA    = extraCharacters[8].tablePos        --- @type CharacterType
-    _G.CT_WAPEACH     = extraCharacters[9].tablePos        --- @type CharacterType
-    _G.CT_DONKEY_KONG = extraCharacters[10].tablePos       --- @type CharacterType
-    _G.CT_SONIC       = extraCharacters[11].tablePos       --- @type CharacterType
+    _G.CT_TOADETTE     = extraCharacters[ 1].tablePos       --- @type CharacterType
+    _G.CT_PEACH        = extraCharacters[ 2].tablePos       --- @type CharacterType
+    _G.CT_DAISY        = extraCharacters[ 3].tablePos       --- @type CharacterType
+    _G.CT_YOSHI        = extraCharacters[ 4].tablePos       --- @type CharacterType
+    _G.CT_BIRDO        = extraCharacters[ 5].tablePos       --- @type CharacterType
+    _G.CT_FOREMANSPIKE = extraCharacters[ 6].tablePos       --- @type CharacterType
+    _G.CT_PAULINE      = extraCharacters[ 7].tablePos       --- @type CharacterType
+    _G.CT_ROSALINA     = extraCharacters[ 8].tablePos       --- @type CharacterType
+    _G.CT_WAPEACH      = extraCharacters[ 9].tablePos       --- @type CharacterType
+    _G.CT_DONKEY_KONG  = extraCharacters[10].tablePos       --- @type CharacterType
+    _G.CT_SONIC        = extraCharacters[11].tablePos       --- @type CharacterType
 
     -- Toadette
     character_hook_moveset(CT_TOADETTE, HOOK_MARIO_UPDATE, toadette_update)

@@ -1310,22 +1310,14 @@ function sonic_homing_hud()
 end
 
 -- Removes Sonic's defacto speed on slopes.
--- This will be restricted to certain actions until Squishy adds the hook to CS.
 
 function sonic_defacto_fix(m)
+    if get_options_status(6) == 0 or are_movesets_restricted() or character_get_current_number() ~= CT_SONIC then return end
     local floorNormal = m.floor.normal.y
     local floorDYaw = m.floorAngle - m.faceAngle.y
-    
-    local sonicGroundActs = {
-        [ACT_SONIC_RUNNING] = true,
-        [ACT_SPIN_DASH] = true,
-    }
-    
-    if (m.floor.normal.y < 0.9 
-        and (math.abs(floorDYaw) <= 0x4500 and math.abs(floorDYaw) >= 0x3500)) then
-        if sonicGroundActs[m.action] then
-            floorNormal = math.max(math.abs(sins(floorDYaw)), m.floor.normal.y)
-        end
+
+    if (m.floor.normal.y < 0.9 and (math.abs(floorDYaw) <= 0x4500 and math.abs(floorDYaw) >= 0x3500)) then
+        floorNormal = math.max(math.abs(sins(floorDYaw)), m.floor.normal.y)
     end
 
     return floorNormal
