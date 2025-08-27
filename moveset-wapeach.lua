@@ -64,11 +64,11 @@ local function act_axe_chop(m)
     local slope = -find_floor_slope(m, 0)
     m.faceAngle.x = slope
     m.marioObj.header.gfx.angle.x = slope
-
     if m.actionTimer == 0 then
         set_character_animation(m, CHAR_ANIM_BREAKDANCE)
         smlua_anim_util_set_animation(m.marioObj, 'wapeach_axechop')
         play_character_sound(m, CHAR_SOUND_YAHOO_WAHA_YIPPEE)
+        m.forwardVel = 0
     end
 
     --if m.actionTimer >= 14 and m.actionTimer <= 40 then m.marioBodyState.handState = 2 end
