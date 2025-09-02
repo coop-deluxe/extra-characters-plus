@@ -1311,16 +1311,16 @@ end
 
 -- Removes Sonic's defacto speed on slopes.
 
+--- @param m MarioState
 function sonic_defacto_fix(m)
-    if get_options_status(6) == 0 or are_movesets_restricted() or character_get_current_number() ~= CT_SONIC then return end
-    local floorNormal = m.floor.normal.y
-    local floorDYaw = m.floorAngle - m.faceAngle.y
+    if get_options_status(6) ~= 0 and not are_movesets_restricted() and character_get_current_number() == CT_SONIC then
+        local floorDYaw = m.floorAngle - m.faceAngle.y
 
-    if (m.floor.normal.y < 0.9 and (math.abs(floorDYaw) <= 0x4500 and math.abs(floorDYaw) >= 0x3500)) then
-        floorNormal = math.max(math.abs(sins(floorDYaw)), m.floor.normal.y)
+        if (m.floor.normal.y < 0.9 and (math.abs(floorDYaw) <= 0x4500 and math.abs(floorDYaw) >= 0x3500)) then
+            return math.max(math.abs(sins(floorDYaw)), m.floor.normal.y)
+        end
     end
-
-    return floorNormal
+    return m.floor.normal.y
 end
 
 hook_mario_action(ACT_SPIN_JUMP, act_spin_jump)
