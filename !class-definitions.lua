@@ -29,7 +29,9 @@
 
 --- @class RosalinaState
 --- @field public canSpin boolean
---- @field public canGrab boolean
+--- @field public orbitObjActive boolean
+--- @field public orbitObjDist number
+--- @field public orbitObjAngle integer
 
 --- @class WapeachState
 

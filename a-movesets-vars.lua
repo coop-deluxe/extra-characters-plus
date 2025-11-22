@@ -30,7 +30,9 @@ for i = 0, (MAX_PLAYERS - 1) do
     e.birdo.flameCharge = 0
 
     e.rosalina.canSpin = true
-    e.rosalina.canGrab = false
+    e.rosalina.orbitObjActive = false
+    e.rosalina.orbitObjDist = 0
+    e.rosalina.orbitObjAngle = 0
 
     e.sonic.spinCharge = 0
     e.sonic.groundYVel = 0

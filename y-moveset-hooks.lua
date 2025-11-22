@@ -90,7 +90,7 @@ local function on_character_select_load()
     -- Rosalina
     character_hook_moveset(CT_ROSALINA, HOOK_MARIO_UPDATE, rosalina_update)
     -- character_hook_moveset(CT_ROSALINA, HOOK_ON_PVP_ATTACK, rosalina_on_pvp_attack)
-    character_hook_moveset(CT_ROSALINA, HOOK_ON_INTERACT, rosalina_on_interact)
+    character_hook_moveset(CT_ROSALINA, HOOK_ALLOW_INTERACT, rosalina_allow_interact)
     character_hook_moveset(CT_ROSALINA, HOOK_BEFORE_SET_MARIO_ACTION, rosalina_before_action)
     -- Wapeach
     character_hook_moveset(CT_WAPEACH, HOOK_BEFORE_SET_MARIO_ACTION, wapeach_before_action)
