@@ -896,6 +896,17 @@ extraCharacters = {
                 [CAP]    = { r = 0xc3, g = 0x9e, b = 0x4e }, -- 568EFF
                 [EMBLEM] = { r = 0x72, g = 0x1c, b = 0x0e }  -- FFFF00
             },
+            {
+                name     = "Retro",
+                [PANTS]  = { r = 0xc8, g = 0x4c, b = 0x0c }, -- c84c0c
+                [SHIRT]  = { r = 0xc8, g = 0x4c, b = 0x0c }, -- c84c0c
+                [GLOVES] = { r = 0xfc, g = 0xbc, b = 0xb0 }, -- fcbcb0
+                [SHOES]  = { r = 0x00, g = 0x00, b = 0xa8 }, -- 0000a8
+                [HAIR]   = { r = 0x00, g = 0x00, b = 0xa8 }, -- 0000a8
+                [SKIN]   = { r = 0xfc, g = 0xbc, b = 0xb0 }, -- fcbcb0
+                [CAP]    = { r = 0xc8, g = 0x4c, b = 0x0c }, -- c84c0c
+                [EMBLEM] = { r = 0x00, g = 0x00, b = 0xa8 }  -- 0000a8
+            },
         },
         voices = {
             [CHAR_SOUND_ATTACKED] = "foreman_spike_attacked.ogg",
