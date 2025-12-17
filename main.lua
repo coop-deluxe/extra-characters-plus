@@ -1,4 +1,4 @@
--- name: [CS] Extra Characters DEV
+-- name: [CS] Extra Characters DEV (WIP)
 -- description: [CS] Extra Characters Dev version\nBy: \\#00ff00\\ULTRA BROS TEAM\n\n\\#ffff00\\Ultra Bros Team:\n\\#ffffff\\FunkyLion\nMelzinoff\nFluffaMario\nSharen\nSquishy\n\n\\#f54e59\\Characters:\n\\#ffffff\\Toadette\nPeach\nDaisy\nYoshi\nBirdo\nForeman Spike\nPauline\nRosalina\nWaPeach
 -- category: cs
 
