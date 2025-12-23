@@ -1485,7 +1485,8 @@ extraCharacters = {
             [CS_ANIM_MENU] = "cs_wapeach",
         },
         eyes = {
-            [CS_ANIM_MENU] = MARIO_EYES_LOOK_LEFT },
+            [CS_ANIM_MENU] = MARIO_EYES_LOOK_RIGHT
+        },
     },
     -----------------
     -- Donkey Kong --
@@ -1839,6 +1840,9 @@ extraCharacters = {
                 [CHAR_ANIM_PUT_CAP_ON] = 'sonic_putting_on_hat',
                 [CS_ANIM_MENU] = 'cs_sonic',
             }
+        },
+        eyes = {
+            [CS_ANIM_MENU] = MARIO_EYES_LOOK_RIGHT
         },
     },
 }
