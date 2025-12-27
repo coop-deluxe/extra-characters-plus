@@ -493,15 +493,15 @@ _G.ACT_BOUNCE_LAND        = allocate_mario_action(ACT_FLAG_STATIONARY | ACT_GROU
 _G.ACT_SPIN_DASH          = allocate_mario_action(ACT_FLAG_MOVING | ACT_GROUP_MOVING | ACT_FLAG_SHORT_HITBOX | ACT_FLAG_ATTACKING)
 _G.ACT_SONIC_RUNNING      = allocate_mario_action(ACT_FLAG_MOVING | ACT_GROUP_MOVING)
 
-local SOUND_SPIN_JUMP           = audio_sample_load("spinjump.ogg")   -- Load audio sample
-local SOUND_SPIN_CHARGE         = audio_sample_load("spincharge.ogg") -- Load audio sample
-local SOUND_SPIN_RELEASE        = audio_sample_load("spinrelease.ogg") -- Load audio sample
-local SOUND_ROLL                = audio_sample_load("spinroll.ogg")   -- Load audio sample
-local SOUND_SONIC_BOUNCE        = audio_sample_load("sonicbounce.ogg")   -- Load audio sample
-local SOUND_SONIC_HOMING        = audio_sample_load("sonic_homing_select.ogg")   -- Load audio sample
-local SOUND_SONIC_INSTA         = audio_sample_load("sonicinstashield.ogg")   -- Load audio sample
-local SOUND_SONIC_ELECTRIC_JUMP = audio_sample_load("sonicelectricjump.ogg")   -- Load audio sample
-local SOUND_COUNTDOWN_CD        = audio_sample_load("countdown.ogg") -- Load audio sample
+local SOUND_SPIN_JUMP           = audio_sample_load("z_sfx_sonic_spinjump.ogg")   -- Load audio sample
+local SOUND_SPIN_CHARGE         = audio_sample_load("z_sfx_sonic_spincharge.ogg") -- Load audio sample
+local SOUND_SPIN_RELEASE        = audio_sample_load("z_sfx_sonic_spinrelease.ogg") -- Load audio sample
+local SOUND_ROLL                = audio_sample_load("z_sfx_sonic_spinroll.ogg")   -- Load audio sample
+local SOUND_SONIC_BOUNCE        = audio_sample_load("z_sfx_sonic_bounce.ogg")   -- Load audio sample
+local SOUND_SONIC_HOMING        = audio_sample_load("z_sfx_sonic_homingselect.ogg")   -- Load audio sample
+local SOUND_SONIC_INSTA         = audio_sample_load("z_sfx_sonic_instashield.ogg")   -- Load audio sample
+local SOUND_SONIC_ELECTRIC_JUMP = audio_sample_load("z_sfx_sonic_electricjump.ogg")   -- Load audio sample
+local SOUND_COUNTDOWN_CD        = audio_sample_load("z_sfx_sonic_countdown.ogg") -- Load audio sample
 
 local sonicActionOverride = {
     [ACT_JUMP]         = ACT_SPIN_JUMP,

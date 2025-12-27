@@ -4,7 +4,7 @@
 
 if not charSelect then return end
 
-local SOUND_SPIT = audio_sample_load("spit.ogg") -- Load audio sample
+local SOUND_SPIT = audio_sample_load("z_sfx_birdo_spit.ogg") -- Load audio sample
 
 ---------------
 -- Birdo Egg --

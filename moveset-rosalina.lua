@@ -49,7 +49,7 @@ local spinOverrides = {
     [ACT_DIVE]          = true
 }
 
-local ROSALINA_SOUND_SPIN = audio_sample_load("spin_attack.ogg") -- Load audio sample
+local ROSALINA_SOUND_SPIN = audio_sample_load("z_sfx_rosalina_spinattack.ogg") -- Load audio sample
 
 ---@param m MarioState
 function act_jump_twirl(m)
