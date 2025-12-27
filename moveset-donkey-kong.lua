@@ -10,115 +10,6 @@ DONKEY_KONG_ROLL_DECAY_TIME = 10
 DONKEY_KONG_ROLL_STARTUP = 4
 DONKEY_KONG_ROLL_END = 25
 
----------------
--- DK Bounce --
----------------
-
---- Allows the player to bounce across enemies with well-timed A presses. Spawns coins when chained across multiple enemies. Credit to baconator2558 for the vast majority of this code.
---- action
-
-local bounceSounds = {
-	audio_sample_load("z_sfx_dk_bounce1.ogg"),
-	audio_sample_load("z_sfx_dk_bounce2.ogg"),
-	audio_sample_load("z_sfx_dk_bounce3.ogg")
-}
-
-local coinObj = nil
-ACT_DK_BOUNCE = (ACT_GROUP_AIRBORNE | ACT_FLAG_MOVING | ACT_FLAG_AIR | ACT_FLAG_ALLOW_VERTICAL_WIND_ACTION)
-
-function act_dk_bounce(m)
-	if (m.actionTimer == 0) then
-		set_character_animation(m, CHAR_ANIM_FORWARD_SPINNING)
-		set_anim_to_frame(m, 0)
-		m.forwardVel = 0
-		m.vel.x = 0
-		m.vel.y = 80
-		play_character_sound(m, CHAR_SOUND_YAHOO_WAHA_YIPPEE)
-		m.vel.z = 0
-		m.slideVelX = 0
-		m.slideVelZ = 0
-		m.faceAngle.y = m.intendedYaw
-		if (m.actionArg >= 3) then
-			coinObj = spawn_non_sync_object(id_bhvBlueCoinJumping, E_MODEL_SPARKLES, m.pos.x, m.pos.y, m.pos.z, nil)
-		end
-		audio_sample_play(bounceSounds[math.min(m.actionArg,3)], m.pos, 0.5)
-		-- plays a random sound from a table ('bounceSounds') of 3 sound files.
-		-- I didn't include them here because I ripped them straight from DKCR myself
-		-- and I'm under the impression that this mod mainly uses self-made sound effects
-        set_mario_particle_flags(m, PARTICLE_HORIZONTAL_STAR, 0)
-	end
-
-	if (m.actionTimer >= 1 and coinObj ~= nil) then
-		coinObj.oPosX = m.pos.x
-		coinObj.oPosY = m.pos.y
-		coinObj.oPosZ = m.pos.z
-		interact_coin(m, INTERACT_COIN, coinObj)
-		coinObj = nil
-	end
-
-	if (m.actionTimer > 5 and m.marioObj.header.gfx.animInfo.animID == CHAR_ANIM_FORWARD_SPINNING) then
-		set_character_animation(m, CHAR_ANIM_TRIPLE_JUMP)
-		set_anim_to_frame(m, 21)
-	end
-	
-	m.forwardVel = math.min(m.forwardVel, 95)
-
-	update_air_without_turn(m)
-	if (m.actionTimer > 20) then
-		update_air_without_turn(m)
-	end
-
-	if (m.vel.y < 10) then
-		update_air_without_turn(m)
-		if (m.vel.y < -10) then
-			update_air_without_turn(m)
-			update_air_without_turn(m)
-			update_air_without_turn(m)
-			update_air_without_turn(m)
-			update_air_without_turn(m)
-		end
-	end
-
-	local stepResult = perform_air_step(m, AIR_STEP_CHECK_HANG | AIR_STEP_CHECK_LEDGE_GRAB)
-
-	if (stepResult == AIR_STEP_LANDED) then
-		set_character_animation(m, CHAR_ANIM_FORWARD_SPINNING)
-		set_anim_to_frame(m, 0)
-		return set_mario_action(m, ACT_DOUBLE_JUMP_LAND, 0)
-	elseif (stepResult == AIR_STEP_GRABBED_LEDGE) then
-		set_character_animation(m, CHAR_ANIM_IDLE_ON_LEDGE)
-		return drop_and_set_mario_action(m, ACT_LEDGE_GRAB, 0)
-	elseif (stepResult == AIR_STEP_GRABBED_CEILING) then
-		return set_mario_action(m, ACT_START_HANGING, 0);
-	end
-
-	m.faceAngle.y = approach_s16_symmetric(m.faceAngle.y, m.intendedYaw, (abs_angle_diff(m.faceAngle.y, m.intendedYaw) / (25 * m.actionTimer + 1)) + 750)
-	update_air_without_turn(m)
-	m.actionTimer = m.actionTimer + 1
-	if (check_kick_or_dive_in_air(m) ~= 0) then
-		return 1
-	end
-	
-    return 0
-end
-
-hook_mario_action(ACT_DK_BOUNCE, act_dk_bounce, INT_HIT_FROM_ABOVE)
-
----hook
-
-function DK_on_attack(m, obj, id)
-    if (CT_DONKEY_KONG ~= _G.charSelect.character_get_current_number(m.playerIndex)) then return end
-    if (_G.charSelect.get_options_status(6) ~= 0) then
-        if (id == INT_HIT_FROM_ABOVE and m.framesSinceA < 5) then
-            m.actionTimer = 0
-            if (m.action == ACT_DK_BOUNCE) then
-                set_mario_action(m, ACT_DK_BOUNCE, m.actionArg + 1)
-            else
-                set_mario_action(m, ACT_DK_BOUNCE, 1)
-            end
-        end
-    end
-end
 
 ----------------
 -- DK Gravity --
@@ -267,6 +158,19 @@ function on_attack_object(m, o, interaction)
             m.actionArg = 0
         end
     end
+	
+	-- Bounce code
+	if (CT_DONKEY_KONG ~= _G.charSelect.character_get_current_number(m.playerIndex)) then return end
+    if (_G.charSelect.get_options_status(6) ~= 0) then
+        if (interaction == INT_HIT_FROM_ABOVE and m.framesSinceA < 5) then
+            m.actionTimer = 0
+            if (m.action == ACT_DONKEY_KONG_BOUNCE) then
+                set_mario_action(m, ACT_DONKEY_KONG_BOUNCE, m.actionArg + 1)
+            else
+                set_mario_action(m, ACT_DONKEY_KONG_BOUNCE, 1)
+            end
+        end
+    end
 end
 hook_event(HOOK_ON_ATTACK_OBJECT, on_attack_object)
 
@@ -274,6 +178,103 @@ _G.ACT_DONKEY_KONG_ROLL = allocate_mario_action(ACT_GROUP_MOVING | ACT_FLAG_ATTA
 _G.ACT_DONKEY_KONG_ROLL_AIR = allocate_mario_action(ACT_GROUP_AIRBORNE | ACT_FLAG_ATTACKING | ACT_FLAG_AIR | ACT_FLAG_ALLOW_VERTICAL_WIND_ACTION)
 _G.ACT_DONKEY_KONG_POUND = allocate_mario_action(ACT_GROUP_STATIONARY | ACT_FLAG_ATTACKING)
 _G.ACT_DONKEY_KONG_POUND_HIT = allocate_mario_action(ACT_GROUP_STATIONARY | ACT_FLAG_ATTACKING)
+_G.ACT_DONKEY_KONG_BOUNCE = (ACT_GROUP_AIRBORNE | ACT_FLAG_MOVING | ACT_FLAG_AIR | ACT_FLAG_ALLOW_VERTICAL_WIND_ACTION)
+
+---------------
+-- DK Bounce --
+---------------
+
+--- SwagSkeleton95
+--- Allows the player to bounce across enemies with well-timed A presses. Spawns coins when chained across multiple enemies. Credit to baconator2558 for the vast majority of this code.
+--- action
+
+local bounceSounds = {
+	audio_sample_load("z_sfx_dk_bounce1.ogg"),
+	audio_sample_load("z_sfx_dk_bounce2.ogg"),
+	audio_sample_load("z_sfx_dk_bounce3.ogg")
+}
+
+local coinObj = nil
+
+function act_dk_bounce(m)
+	if (m.actionTimer == 0) then
+		set_character_animation(m, CHAR_ANIM_FORWARD_SPINNING)
+		set_anim_to_frame(m, 0)
+		m.forwardVel = 0
+		m.vel.x = 0
+		m.vel.y = 80
+		play_character_sound(m, CHAR_SOUND_YAHOO_WAHA_YIPPEE)
+		m.vel.z = 0
+		m.slideVelX = 0
+		m.slideVelZ = 0
+		m.faceAngle.y = m.intendedYaw
+		if (m.actionArg >= 3) then
+			coinObj = spawn_non_sync_object(id_bhvBlueCoinJumping, E_MODEL_SPARKLES, m.pos.x, m.pos.y, m.pos.z, nil)
+		end
+		audio_sample_play(bounceSounds[math.min(m.actionArg,3)], m.pos, 0.5)
+		-- plays a random sound from a table ('bounceSounds') of 3 sound files.
+		-- I didn't include them here because I ripped them straight from DKCR myself
+		-- and I'm under the impression that this mod mainly uses self-made sound effects
+        set_mario_particle_flags(m, PARTICLE_HORIZONTAL_STAR, 0)
+	end
+
+	if (m.actionTimer >= 1 and coinObj ~= nil) then
+		coinObj.oPosX = m.pos.x
+		coinObj.oPosY = m.pos.y
+		coinObj.oPosZ = m.pos.z
+		interact_coin(m, INTERACT_COIN, coinObj)
+		coinObj = nil
+	end
+
+	if (m.actionTimer > 5 and m.marioObj.header.gfx.animInfo.animID == CHAR_ANIM_FORWARD_SPINNING) then
+		set_character_animation(m, CHAR_ANIM_TRIPLE_JUMP)
+		set_anim_to_frame(m, 21)
+	end
+	
+	m.forwardVel = math.min(m.forwardVel, 95)
+
+	update_air_without_turn(m)
+	if (m.actionTimer > 20) then
+		update_air_without_turn(m)
+	end
+
+	if (m.vel.y < 10) then
+		update_air_without_turn(m)
+		if (m.vel.y < -10) then
+			update_air_without_turn(m)
+			update_air_without_turn(m)
+			update_air_without_turn(m)
+			update_air_without_turn(m)
+			update_air_without_turn(m)
+		end
+	end
+
+	local stepResult = perform_air_step(m, AIR_STEP_CHECK_HANG | AIR_STEP_CHECK_LEDGE_GRAB)
+
+	if (stepResult == AIR_STEP_LANDED) then
+		set_character_animation(m, CHAR_ANIM_FORWARD_SPINNING)
+		set_anim_to_frame(m, 0)
+		return set_mario_action(m, ACT_DOUBLE_JUMP_LAND, 0)
+	elseif (stepResult == AIR_STEP_GRABBED_LEDGE) then
+		set_character_animation(m, CHAR_ANIM_IDLE_ON_LEDGE)
+		return drop_and_set_mario_action(m, ACT_LEDGE_GRAB, 0)
+	elseif (stepResult == AIR_STEP_GRABBED_CEILING) then
+		return set_mario_action(m, ACT_START_HANGING, 0);
+	end
+
+	m.faceAngle.y = approach_s16_symmetric(m.faceAngle.y, m.intendedYaw, (abs_angle_diff(m.faceAngle.y, m.intendedYaw) / (25 * m.actionTimer + 1)) + 750)
+	update_air_without_turn(m)
+	m.actionTimer = m.actionTimer + 1
+	if (check_kick_or_dive_in_air(m) ~= 0) then
+		return 1
+	end
+	
+    return 0
+end
+
+hook_mario_action(ACT_DONKEY_KONG_BOUNCE, act_dk_bounce, INT_HIT_FROM_ABOVE)
+
+--- Roll
 
 ---@param m MarioState
 local function act_donkey_kong_roll(m)
