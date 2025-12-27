@@ -1371,20 +1371,19 @@ extraCharacters = {
     -- WaPeach --
     -------------
     {
-        name = "WaPeach",
-        description =
-        "Who is this?! A Princess Peach imposter?! A very angsty girl who holds a very large axe for neferious purposes! How did she get here?! And why?",
-        credits = "Coop Team / VA: SlashOLantern",
-        color = { r = 255, g = 129, b = 69 },
-        model = smlua_model_util_get_id("wapeach_geo"),
-        forceChar = CT_MARIO,
-        lifeIcon = get_texture_info("icon-wapeach"),
-        camScale = 1,
-        offset = 0,
+        name        = "WaPeach",
+        description = "Who is this?! A Princess Peach imposter?! A very angsty girl who holds a very large axe for neferious purposes! How did she get here?! And why?",
+        credits     = "Coop Team / VA: SlashOLantern",
+        color       = { r = 255, g = 129, b = 69 },
+        model       = smlua_model_util_get_id("wapeach_geo"),
+        forceChar   = CT_MARIO,
+        lifeIcon    = get_texture_info("icon-wapeach"),
+        camScale    = 1,
+        offset      = 0,
         meter = {
             label = {
-                left = get_texture_info("char-select-wapeach-meter-left"),
-                right = get_texture_info("char-select-wapeach-meter-right"),
+                left    = get_texture_info("char-select-wapeach-meter-left"),
+                right   = get_texture_info("char-select-wapeach-meter-right"),
             },
             pie = {
                 [1] = get_texture_info("char-select-custom-meter-pie1"),
@@ -1497,7 +1496,7 @@ extraCharacters = {
         "King of the Apes! Son of the original Donkey Kong who battled Mario in the arcades. No matter which generation, the beef continues!",
         credits = "Coop Team / VA: Dean Seavor",
         color = { r = 131, g = 30, b = 20 },
-        model = smlua_model_util_get_id("dk_geo") --[[smlua_model_util_get_id("dk_geo")]],
+        model = smlua_model_util_get_id("dk_geo"),
         forceChar = CT_MARIO,
         lifeIcon = get_texture_info("icon-dk"),
         camScale = 1.4,
@@ -1727,10 +1726,10 @@ extraCharacters = {
             }
         },
         caps = {
-            -- normal = smlua_model_util_get_id("sonic_cap_geo"),
-            -- wing = smlua_model_util_get_id("sonic_wing_cap_geo"),
-            -- metal = smlua_model_util_get_id("sonic_metal_cap_geo"),
-            -- metalWing = smlua_model_util_get_id("sonic_metal_wing_cap_geo")
+            normal =     smlua_model_util_get_id("segasonic_cap_geo"),
+            wing =       smlua_model_util_get_id("segasonic_wing_cap_geo"),
+            metal =      smlua_model_util_get_id("segasonic_metal_cap_geo"),
+            metalWing =  smlua_model_util_get_id("segasonic_metal_wing_cap_geo")
         },
         palettes = {
             {
