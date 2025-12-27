@@ -10,6 +10,7 @@ DONKEY_KONG_ROLL_DECAY_TIME = 10
 DONKEY_KONG_ROLL_STARTUP = 4
 DONKEY_KONG_ROLL_END = 25
 
+DK_ANIM_CLIMBING = 'donkey_custom_climbing'
 
 ----------------
 -- DK Gravity --
