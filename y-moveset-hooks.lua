@@ -107,6 +107,7 @@ local function on_character_select_load()
     character_hook_moveset(CT_SONIC, HOOK_MARIO_UPDATE, sonic_update)
     character_hook_moveset(CT_SONIC, HOOK_BEFORE_PHYS_STEP, sonic_before_phys_step)
     character_hook_moveset(CT_SONIC, HOOK_ON_HUD_RENDER_BEHIND, sonic_homing_hud)
+    character_hook_moveset(CT_SONIC, HOOK_ON_HUD_RENDER_BEHIND, sonic_ring_display)
     character_hook_moveset(CT_SONIC, HOOK_ON_DEATH, sonic_on_death)
 end
 

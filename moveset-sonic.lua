@@ -7,6 +7,8 @@ local TEX_HOMING_CURSOR = get_texture_info("homing-cursor")
 local prevVelY
 local prevHeight
 
+local rings = 0
+
 local physTimer = 0
 local lastforwardPos = gVec3fZero()
 local realFVel = 0 -- Velocity calculated in realtime so that walls count.
@@ -159,7 +161,7 @@ local function sonic_update_air(m)
             m.vel.z = approach_f32_symmetric(m.vel.z, targetSpeed * coss(m.intendedYaw) * intendedMag, accel)
         end
 
-        local airDrag = (fVel / 0.125) / 256
+        local airDrag = (math.abs(fVel) / 0.125) / 256
 
         if m.vel.y > 0 and m.vel.y < 32 then
             m.vel.x = approach_f32_symmetric(m.vel.x, 0, airDrag)
@@ -1182,6 +1184,7 @@ function sonic_update(m)
     end
 
     sonic_drowning(m, e)
+    sonic_ring_health(m, e)
     
     e.sonic.instashieldTimer = e.sonic.instashieldTimer - 1
 end
@@ -1223,6 +1226,48 @@ function sonic_drowning(m, e)
         e.sonic.oxygenTimer = 30
         e.sonic.oxygen = 30
     end
+end
+
+local timeBetweenDamages = 0
+local flingFactor = 0
+function sonic_ring_health(m, e)
+    local realFlingFactor = math.min(math.sqrt(flingFactor ^ 2 + (m.hurtCounter / 4) ^ 2), 8)
+
+    djui_chat_message_create(tostring(realFlingFactor))
+
+    if (m.controller.buttonPressed & X_BUTTON) ~= 0 then rings = rings + 20 end
+
+    if m.hurtCounter > 0 then
+        if m.playerIndex == 0 then
+            if rings > 50 then rings = 50 end
+            m.hurtCounter = 0
+            
+            if rings > 0 then
+    		    for i = 0,rings -1,1 do
+                spawn_sync_object(
+                    id_bhvSonicRing,
+                    E_MODEL_YELLOW_COIN,
+                    m.pos.x, m.pos.y, m.pos.z,
+                    function (o)
+                        o.oVelY = math.random(-15,15) * realFlingFactor
+                        o.oForwardVel = math.random(5,15) * realFlingFactor
+                        o.oMoveAngleYaw = random_u16()
+                    end)
+                end
+            else
+                m.health = 0x000
+            end
+        end
+
+        if timeBetweenDamages > 0 then flingFactor = flingFactor + 1 end
+
+        rings = 0
+        timeBetweenDamages = 240
+    end
+
+    if timeBetweenDamages <= 0 then flingFactor = 0 end
+
+    timeBetweenDamages = timeBetweenDamages - 1
 end
 
 function sonic_on_death(m)
@@ -1299,6 +1344,11 @@ function sonic_on_interact(m, o, intType)
         if m.action == ACT_HOMING_ATTACK then
             set_mario_action(m, ACT_AIR_SPIN, 0)
         end
+    end
+
+	if intType == INTERACT_COIN then
+		rings = rings + o.oDamageOrCoinValue
+		--m.healCounter = 0
     end
 end
 
@@ -1541,6 +1591,27 @@ function sonic_homing_hud()
     end
 end
 
+function sonic_ring_display()
+
+	
+    djui_hud_set_font(FONT_HUD)
+    djui_hud_set_resolution(RESOLUTION_N64)
+
+    local screenHeight = djui_hud_get_screen_height()
+    local screenWidth = djui_hud_get_screen_width()
+    local textLength = djui_hud_measure_text(string.format("rings %d", rings))
+
+    local y = screenHeight - (screenHeight/1.40)
+    local x = (screenWidth - textLength)/screenWidth
+
+    local scale = 1
+
+    x = screenWidth - textLength
+	djui_hud_set_color(255, 255, 255, 255);
+    djui_hud_print_text(string.format("rings %d", rings), x - 15, y, scale)
+
+end
+
 -- Removes Sonic's defacto speed on slopes.
 
 --- @param m MarioState
@@ -1565,3 +1636,75 @@ hook_mario_action(ACT_HOMING_ATTACK, { every_frame = act_homing_attack, gravity 
 hook_mario_action(ACT_BOUNCE_LAND, act_bounce_land, INT_GROUND_POUND_OR_TWIRL)
 
 hook_event(HOOK_MARIO_OVERRIDE_PHYS_STEP_DEFACTO_SPEED, sonic_defacto_fix)
+
+
+
+local function bhv_ring_init(o)
+    o.oFlags = (OBJ_FLAG_COMPUTE_ANGLE_TO_MARIO | OBJ_FLAG_COMPUTE_DIST_TO_MARIO | OBJ_FLAG_SET_FACE_YAW_TO_MOVE_YAW | OBJ_FLAG_UPDATE_GFX_POS_AND_ANGLE)
+    cur_obj_become_intangible()
+
+    -- hitbox
+    o.oInteractType = INTERACT_COIN
+    o.oHealth = 0
+    o.oNumLootCoins = 0
+    o.hitboxRadius = 100
+    o.hitboxHeight = 64
+    o.hitboxDownOffset = 0
+    o.oGravity = -1
+    o.oBounciness = -0.95
+
+    obj_set_billboard(o)
+end
+
+local function bhv_ring_loop(o)
+    local sp1C = o.oFloor
+    local sp1A
+    cur_obj_update_floor_and_walls()
+    cur_obj_if_hit_wall_bounce_away()
+    cur_obj_move_standard(-62)
+
+    if (o.oTimer > 60) then
+        cur_obj_become_tangible()
+    end
+
+    if (o.oMoveFlags & OBJ_MOVE_LANDED) ~= 0 then
+        if (o.oMoveFlags & (OBJ_MOVE_ABOVE_DEATH_BARRIER | OBJ_MOVE_ABOVE_LAVA)) ~= 0 then
+            obj_mark_for_deletion(o)
+        end
+    end
+
+    if (o.oMoveFlags & OBJ_MOVE_BOUNCE) ~= 0 then
+        --cur_obj_play_sound_2(SOUND_GENERAL_COIN_DROP)
+        play_sound_with_freq_scale(SOUND_GENERAL_COIN_DROP, o.header.gfx.pos, math.random(980, 1030) / 1000)
+
+        if (sp1C ~= nil and sp1C.normal.y < 0.9) then
+            sp1A = atan2s(sp1C.normal.z, sp1C.normal.x)
+            cur_obj_rotate_yaw_toward(sp1A, 0x400)
+        end
+    end
+
+    if (o.oInteractStatus & INT_STATUS_INTERACTED) ~= 0 then
+        obj_mark_for_deletion(o)
+        spawn_sync_object(
+            id_bhvCoinSparkles,
+            E_MODEL_SPARKLES,
+            o.oPosX, o.oPosY, o.oPosZ,
+            nil)
+    end
+    
+    if (cur_obj_wait_then_blink(150, 20) ~= 0) then
+        obj_mark_for_deletion(o)
+    end
+
+    o.oAnimState = o.oAnimState + 1
+end
+
+function ringteract(m, o, intType) -- This is the ring interaction for ALL characters.
+    if obj_has_behavior_id(o, id_bhvSonicRing) ~= 0 then
+        m.healCounter = 4
+        rings = rings + 1
+    end
+end
+
+hook_event(HOOK_ON_INTERACT, ringteract)
+id_bhvSonicRing = hook_behavior(nil, OBJ_LIST_LEVEL, true, bhv_ring_init, bhv_ring_loop)
