@@ -1736,14 +1736,14 @@ extraCharacters = {
         palettes = {
             {
                 name     = "Default",
-                [PANTS]  = 'FFFF00',
+                [PANTS]  = '0000FF',
                 [SHIRT]  = 'FEC179',
                 [GLOVES] = 'FFFFFF',
                 [SHOES]  = 'FF0000',
                 [HAIR]   = 'FFFF00',
                 [SKIN]   = 'FEC179',
                 [CAP]    = '0000FF',
-                [EMBLEM] = '0000FF'
+                [EMBLEM] = '000000'
             },
             {
                 name     = "Mirror",
@@ -1754,18 +1754,18 @@ extraCharacters = {
                 [HAIR]   = 'cccccc',
                 [SKIN]   = 'cccccc',
                 [CAP]    = '555555',
-                [EMBLEM] = '555555'
+                [EMBLEM] = '000000'
             },
             {
                 name     = "Ashura",
-                [PANTS]  = '0000ff',
+                [PANTS]  = '000000',
                 [SHIRT]  = 'ffb493',
                 [GLOVES] = 'FFFFFF',
                 [SHOES]  = 'ff9000',
                 [HAIR]   = 'FFFF00',
                 [SKIN]   = 'ffb493',
                 [CAP]    = '49fc00',
-                [EMBLEM] = '000000'
+                [EMBLEM] = '006cff'
             },
             {
                 name     = "Origin",
@@ -1776,7 +1776,7 @@ extraCharacters = {
                 [HAIR]   = 'ba6864',
                 [SKIN]   = 'e7eae5',
                 [CAP]    = 'ea7640',
-                [EMBLEM] = 'ea7640'
+                [EMBLEM] = '000000'
             },
         },
         voices = {
