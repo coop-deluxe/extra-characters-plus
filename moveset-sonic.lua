@@ -3,6 +3,7 @@
 -------------------
 
 local TEX_HOMING_CURSOR = get_texture_info("homing-cursor")
+local TEX_SONIC_RING_METER = get_texture_info("char-select-sonic-ring-meter")
 
 local prevVelY
 local prevHeight
@@ -13,6 +14,19 @@ local physTimer = 0
 local lastforwardPos = gVec3fZero()
 local realFVel = 0 -- Velocity calculated in realtime so that walls count.
 local l = gLakituState
+
+local RingMeterHUD = {
+    animation = 0,
+    y = 0,
+    prevY = 0,
+    visibleTimer = 0
+}
+
+local RING_METER_HIDDEN = 0
+local RING_METER_EMPHASIZING = 1
+local RING_METER_DEEMPHASIZING = 2
+local RING_METER_HIDING = 3
+local RING_METER_VISIBLE = 4
 
 --- @param m MarioState
 --- @param accel number
@@ -1314,6 +1328,7 @@ function sonic_value_refresh(m)
     e.sonic.oxygenTimer = 30
     e.sonic.oxygen = 30
     rings = 0
+    RingMeterHUD.animation = RING_METER_HIDDEN
 end
 
 function sonic_on_level_init()
@@ -1594,7 +1609,9 @@ local prevTarget
 
 function sonic_hud_stuff()
     sonic_homing_hud()
-    sonic_ring_display()
+    if obj_get_first_with_behavior_id(id_bhvActSelector) == nil then
+        sonic_ring_display()
+    end
 end
 
 function sonic_homing_hud()
@@ -1635,25 +1652,106 @@ function sonic_homing_hud()
     end
 end
 
+local flashTimer = 0
+local flash = 0
+
 function sonic_ring_display()
-
+    local varRings = tostring(rings)
 	
-    djui_hud_set_font(FONT_HUD)
+    djui_hud_set_font(FONT_RECOLOR_HUD)
     djui_hud_set_resolution(RESOLUTION_N64)
+    djui_hud_set_color(255, 255, 255, 255)
 
-    local screenHeight = djui_hud_get_screen_height()
-    local screenWidth = djui_hud_get_screen_width()
-    local textLength = djui_hud_measure_text(string.format("rings %d", rings))
+    if rings <= 0 then
+        if flashTimer > 30 then flashTimer = 0 end
 
-    local y = screenHeight - (screenHeight/1.40)
-    local x = (screenWidth - textLength)/screenWidth
+        flashTimer = flashTimer + 1
+    else
+        flashTimer = 0
+    end
+    local x = (djui_hud_get_screen_width() / 2 - 20) - (djui_hud_measure_text(varRings) * 0.5) / 2 - 1
+    local x2 = djui_hud_get_screen_width() / 2 - 52
 
-    local scale = 1
+    if RingMeterHUD.animation ~= RING_METER_HIDDEN then
+        djui_hud_render_texture_interpolated(TEX_SONIC_RING_METER, x2, RingMeterHUD.prevY - 25, 1, 1, x2, RingMeterHUD.y - 25, 1, 1)
 
-    x = screenWidth - textLength
-	djui_hud_set_color(255, 255, 255, 255);
-    djui_hud_print_text(string.format("rings %d", rings), x - 15, y, scale)
+        if math.floor(flashTimer / 15) == 1 then
+            djui_hud_set_color(255, 0, 0, 255)
+        else
+            djui_hud_set_color(255, 255, 0, 255)
+        end
+        djui_hud_print_text_interpolated(varRings, x, RingMeterHUD.prevY, 0.5, x, RingMeterHUD.y, 0.5)
+    else
+        RingMeterHUD.y = 68
+    end
 
+    if RingMeterHUD.animation ==  RING_METER_EMPHASIZING then
+        sonic_ring_display_emphasizing(RingMeterHUD)
+    elseif RingMeterHUD.animation ==  RING_METER_DEEMPHASIZING then
+        sonic_ring_display_deemphasizing(RingMeterHUD)
+    elseif RingMeterHUD.animation ==  RING_METER_HIDING then
+        sonic_ring_display_hiding(RingMeterHUD)
+    elseif RingMeterHUD.animation ==  RING_METER_VISIBLE then
+        sonic_ring_display_visible(RingMeterHUD)
+    end
+
+    if RingMeterHUD.animation == 0 and rings > 0 then
+        RingMeterHUD.visibleTimer = 0
+        RingMeterHUD.animation = RING_METER_EMPHASIZING
+    end
+
+    RingMeterHUD.prevY = RingMeterHUD.y
+end
+
+function sonic_ring_display_emphasizing(h)
+    h.y = 68
+    if h.visibleTimer >= 45 then
+        h.animation = RING_METER_DEEMPHASIZING
+        h.visibleTimer = 0
+    end
+
+    h.visibleTimer = h.visibleTimer + 1
+end
+
+function sonic_ring_display_deemphasizing(h)
+    local speed = 3
+
+    if (h.y <= 44) then
+        speed = 2
+    end
+    
+    if (h.y <= 38) then
+        speed = 1
+    end
+    
+    if (h.y <= 33) then
+        h.y = 33
+        h.animation = RING_METER_VISIBLE
+    end
+    h.y = h.y - speed
+
+    h.visibleTimer = h.visibleTimer + 1
+end
+
+function sonic_ring_display_hiding(h)
+    h.y = h.y - 20
+
+    if h.y < -20 then h.animation = RING_METER_HIDDEN end
+end
+
+function sonic_ring_display_visible(h)
+    h.y = 33
+
+    if h.visibleTimer >= 90 then
+        h.animation = RING_METER_HIDING
+        h.visibleTimer = 0
+    end
+
+    if rings > 0 then
+        h.visibleTimer = 0
+    else
+        h.visibleTimer = h.visibleTimer + 1
+    end
 end
 
 -- Removes Sonic's defacto speed on slopes.
