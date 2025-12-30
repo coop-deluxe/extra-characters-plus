@@ -1822,25 +1822,41 @@ extraCharacters = {
             [CHAR_SOUND_YAH_WAH_HOO] = { "sonic_yah_wah_hoo1.ogg", "sonic_yah_wah_hoo2.ogg", "sonic_yah_wah_hoo3.ogg" },
             --[CHAR_SOUND_HELLO] = "sonic_hello.ogg"
         },
-        anims = {},
-        animsets = {
-            moveset = {
-                [CHAR_ANIM_WALKING] = 'sonic_walk',
-                [CHAR_ANIM_RUNNING] = 'sonic_running',
-                [CHAR_ANIM_SHIVERING_RETURN_TO_IDLE] = 'sonic_shivering_stop',
-                [CHAR_ANIM_TAKE_CAP_OFF_THEN_ON] = 'sonic_star_exit_with_hat',
-                [CHAR_ANIM_PUT_CAP_ON] = 'sonic_putting_on_hat',
-                [CHAR_ANIM_RUNNING_UNUSED] = "sonic_running3",
-                [CS_ANIM_MENU] = 'sonic_idle_head_center',
-                [CHAR_ANIM_STAR_DANCE] = 'sonic_victory',
-                [CHAR_ANIM_RETURN_FROM_STAR_DANCE] = 'sonic_after_victory',
-                [CS_ANIM_MENU] = 'cs_sonic',
-            },
-            normal = {
-                [CHAR_ANIM_TAKE_CAP_OFF_THEN_ON] = 'sonic_star_exit_with_hat',
-                [CHAR_ANIM_PUT_CAP_ON] = 'sonic_putting_on_hat',
-                [CS_ANIM_MENU] = 'cs_sonic',
-            }
+        anims = {
+            [CHAR_ANIM_WALKING] = function(m)
+                if gCSPlayers[m.playerIndex].movesetToggle then
+                    return 'sonic_walk'
+                end
+            end,
+            [CHAR_ANIM_RUNNING] = function(m)
+                if gCSPlayers[m.playerIndex].movesetToggle then
+                    return 'sonic_running'
+                end
+            end,
+            [CHAR_ANIM_SHIVERING_RETURN_TO_IDLE] = function(m)
+                if gCSPlayers[m.playerIndex].movesetToggle then
+                    return 'sonic_shivering_stop'
+                end
+            end,
+            [CHAR_ANIM_RUNNING_UNUSED] = function(m)
+                if gCSPlayers[m.playerIndex].movesetToggle then
+                    return 'sonic_running3'
+                end
+            end,
+            [CHAR_ANIM_STAR_DANCE] = function(m)
+                if gCSPlayers[m.playerIndex].movesetToggle then
+                    return 'sonic_victory'
+                end
+            end,
+            [CHAR_ANIM_RETURN_FROM_STAR_DANCE] = function(m)
+                if gCSPlayers[m.playerIndex].movesetToggle then
+                    return 'sonic_after_victory'
+                end
+            end,
+            [CHAR_ANIM_TAKE_CAP_OFF_THEN_ON] = 'sonic_star_exit_with_hat',
+            [CHAR_ANIM_PUT_CAP_ON] = 'sonic_putting_on_hat',
+            [CS_ANIM_MENU] = 'cs_sonic',
+            
         },
         eyes = {
             [CS_ANIM_MENU] = MARIO_EYES_LOOK_LEFT
@@ -1848,21 +1864,38 @@ extraCharacters = {
     },
 }
 
--- Seperate palette for Super Sonic Model Edit
---[[
-palette = {
-    [PANTS]  = 'FFFF00',
-    [SHIRT]  = 'FEC179',
-    [GLOVES] = 'FFFFFF',
-    [SHOES]  = 'FF0000',
-    [HAIR]   = 'FFFF00',
-    [SKIN]   = 'FEC179',
-    [CAP]    = 'ffff00',
-    [EMBLEM] = 'ffff00'
+local ultraBrosCredits = {
+    {
+        name = TEXT_PACK_NAME,
+        "FunkyLion,Lead Dev",
+        "Melzinoff,Models / Animation / Moveset",
+        "Sharen,Animation",
+        "FluffaMario,Models",
+        "EmilyEmmi,Moveset",
+        "Wibblus,Moveset",
+        "steven3004,Moveset",
+        "Squishy6094,CS Code / Optimization",
+        "xLuigiGamerx,Moveset / Optimization",
+        'Strawberii "Oreo",Render Icons',
+        "Chars_64,Render Icons",
+        "WaterVapor,Render Icons",
+    },
+    {
+        name = TEXT_PACK_NAME .. " Voice Actors",
+        "MelissaMekrose,Toadette",
+        "SuperKirbyLover,Peach",
+        "MorphiGalaxi,Daisy",
+        "FunkyLion,Yoshi",
+        "LuUvvUCY,Birdo",
+        "VinnyVinesauce,Spike",
+        "BeckyVO,Pauline",
+        "GauntletQueen,Rosalina",
+        "SlashOLantern,WaPeach",
+        "TomSchalk,Donkey Kong",
+        "ReeseiMental,Sonic",
+    }
 }
-]]
 
-local CSloaded         = false
 local function on_character_select_load()
     for i, char in pairs(extraCharacters) do
         local _ENV = setmetatable(char, { __index = _G })
@@ -1878,42 +1911,13 @@ local function on_character_select_load()
         if i ~= 11 and anims then character_add_animations(model, anims, eyes, hands) end
         if meter then character_add_health_meter(tablePos, meter) end
     end
-
-    -- Super Sonic Palette
-    --character_add_palette_preset(E_MODEL_SUPERSONIC, PALLETE_SUPERSONIC, "Default")
-
-    CSloaded = true
-end
-
-local function on_character_sound(m, sound)
-    if not CSloaded then return end
-
-    for _, char in pairs(extraCharacters) do
-        local _ENV = setmetatable(char, { __index = _G })
-        if character_get_voice(m) == voices then return voice.sound(m, sound) end
-    end
-end
-
-local function mario_update(m)
-    if not CSloaded then return end
-
-    do                                                          -- `do` to contain the sonic environment here
-        local sonicTable = extraCharacters[11]
-        local _ENV = setmetatable(sonicTable, { __index = _G }) -- Sonic's enviroment
-        if get_options_status(6) ~= 0 and (not are_movesets_restricted()) then
-            anims = animsets.moveset
-        else
-            anims = animsets.normal
+    
+    for i = 1, #ultraBrosCredits do
+        for c = 1, #ultraBrosCredits[i] do
+            local creditSplit = string.split(ultraBrosCredits[i][c], ",")
+            charSelect.credit_add(ultraBrosCredits[i].name, creditSplit[1], creditSplit[2])
         end
-
-        if anims then character_add_animations(model, anims, eyes, hands) end
-    end
-    for _, char in pairs(extraCharacters) do
-        local _ENV = setmetatable(char, { __index = _G })
-        if character_get_voice(m) == voices then return voice.snore(m) end
     end
 end
 
 hook_event(HOOK_ON_MODS_LOADED, on_character_select_load)
-hook_event(HOOK_CHARACTER_SOUND, on_character_sound)
-hook_event(HOOK_MARIO_UPDATE, mario_update)

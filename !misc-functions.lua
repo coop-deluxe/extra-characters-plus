@@ -46,3 +46,16 @@ function play_custom_anim(m, name, accel)
 
     smlua_anim_util_set_animation(m.marioObj, name)
 end
+
+--- @param str string
+--- @param splitAt? string
+function string.split(str, splitAt)
+    if splitAt == nil then
+        splitAt = " "
+    end
+    local result = {}
+    for match in str:gmatch(string.format("[^%s]+", splitAt)) do
+        table.insert(result, match)
+    end
+    return result
+end
