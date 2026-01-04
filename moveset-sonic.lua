@@ -1247,6 +1247,9 @@ function sonic_update(m)
 end
 
 function sonic_things_for_non_sonic_chars(m)
+    -- Only run for the local player.
+    if m.playerIndex ~= 0 then return end
+
     -- Clear rings even when you're not Sonic.
     if m.hurtCounter > 0 then
         gPlayerSyncTable[0].rings = 0
