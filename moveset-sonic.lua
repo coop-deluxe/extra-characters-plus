@@ -1273,11 +1273,17 @@ function sonic_drowning(m, e)
                         [2] = 0}
     if e.sonic.oxygen <= 0 then
         m.health = 0x000
-        set_mario_action(m, ACT_DROWNING, 0)
+
+        if (m.input & INPUT_IN_POISON_GAS) ~= 0 then
+            set_mario_action(m, ACT_SUFFOCATION, 0)
+        else
+            set_mario_action(m, ACT_DROWNING, 0)
+        end
     end
             
     
-    if m.pos.y + m.marioObj.hitboxHeight - 50 < m.waterLevel then
+    if m.pos.y + m.marioObj.hitboxHeight - 50 < m.waterLevel or (m.input & INPUT_IN_POISON_GAS) ~= 0 then
+        m.health = 0x16000
         e.sonic.oxygenTimer = e.sonic.oxygenTimer - 1
         if e.sonic.oxygenTimer <= 0 then
             if warning[e.sonic.oxygen] then
