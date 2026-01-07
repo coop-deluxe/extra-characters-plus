@@ -27,6 +27,7 @@ local function attack_bully(o, o2)
 
     o2.oInteractStatus = o2.oInteractStatus | ATTACK_FAST_ATTACK | INT_STATUS_WAS_ATTACKED | INT_STATUS_INTERACTED
 end
+
 ---@param o Object
 ---@param o2 Object
 local function attack_bully_strong(o, o2)

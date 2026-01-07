@@ -16,11 +16,11 @@ _G.ACT_BOMB_JUMP = allocate_mario_action(ACT_GROUP_AIRBORNE | ACT_FLAG_AIR | ACT
 local function act_spike_place_bomb(m)
     if (not m) then return 0 end
     if (m.input & INPUT_UNKNOWN_10) ~= 0 then
-        return drop_and_set_mario_action(m, ACT_SHOCKWAVE_BOUNCE, 0);
+        return drop_and_set_mario_action(m, ACT_SHOCKWAVE_BOUNCE, 0)
     end
 
     if (m.input & INPUT_OFF_FLOOR) ~= 0 then
-        return drop_and_set_mario_action(m, ACT_FREEFALL, 0);
+        return drop_and_set_mario_action(m, ACT_FREEFALL, 0)
     end
 
     m.actionTimer = m.actionTimer + 1
@@ -28,8 +28,8 @@ local function act_spike_place_bomb(m)
         spike_spawn_bomb(m)
     end
 
-    play_character_sound_if_no_flag(m, CHAR_SOUND_PUNCH_YAH, MARIO_ACTION_SOUND_PLAYED);
-    animated_stationary_ground_step(m, CHAR_ANIM_PLACE_LIGHT_OBJ, ACT_IDLE);
+    play_character_sound_if_no_flag(m, CHAR_SOUND_PUNCH_YAH, MARIO_ACTION_SOUND_PLAYED)
+    animated_stationary_ground_step(m, CHAR_ANIM_PLACE_LIGHT_OBJ, ACT_IDLE)
     set_anim_to_frame(m, m.marioObj.header.gfx.animInfo.animFrame + 2)
 
     return 0
@@ -40,10 +40,10 @@ local function act_spike_place_bomb_air(m)
     if (not m) then return 0 end
 
     if (m.actionState == 0) then
-        play_character_sound_if_no_flag(m, CHAR_SOUND_PUNCH_YAH, MARIO_ACTION_SOUND_PLAYED);
+        play_character_sound_if_no_flag(m, CHAR_SOUND_PUNCH_YAH, MARIO_ACTION_SOUND_PLAYED)
         set_character_animation(m, CHAR_ANIM_PLACE_LIGHT_OBJ)
         if is_anim_past_frame(m, 10) ~= 0 then
-            m.actionState = 1;
+            m.actionState = 1
         else
             set_anim_to_frame(m, m.marioObj.header.gfx.animInfo.animFrame + 2)
         end
@@ -61,14 +61,14 @@ local function act_spike_place_bomb_air(m)
     local result = perform_air_step(m, (m.actionState == 1 and AIR_STEP_CHECK_LEDGE_GRAB) or 0)
     if result == AIR_STEP_LANDED then
         if (check_fall_damage_or_get_stuck(m, ACT_HARD_BACKWARD_GROUND_KB) == 0) then
-            set_mario_action(m, ACT_FREEFALL_LAND, 0);
+            set_mario_action(m, ACT_FREEFALL_LAND, 0)
         end
     elseif result == AIR_STEP_HIT_WALL then
         if (m.wall or gServerSettings.bouncyLevelBounds == BOUNCY_LEVEL_BOUNDS_OFF) then
             mario_set_forward_vel(m, 0)
         end
     elseif result == AIR_STEP_GRABBED_LEDGE then
-        set_mario_action(m, ACT_LEDGE_GRAB, 0);
+        set_mario_action(m, ACT_LEDGE_GRAB, 0)
     end
 
     return 0
@@ -120,7 +120,7 @@ end
 ---@param m MarioState
 local function act_bomb_jump(m)
     update_air_without_turn(m)
-    
+
     if m.actionState == 0 then
         play_character_sound_if_no_flag(m, CHAR_SOUND_YAHOO_WAHA_YIPPEE, MARIO_ACTION_SOUND_PLAYED)
         set_character_animation(m, CHAR_ANIM_FORWARD_SPINNING)
@@ -137,18 +137,18 @@ local function act_bomb_jump(m)
     local result = perform_air_step(m, (m.actionState == 0 and AIR_STEP_CHECK_HANG | AIR_STEP_CHECK_LEDGE_GRAB) or 0)
     if result == AIR_STEP_LANDED then
         if m.actionState ~= 0 then
-            set_mario_action(m, ACT_HARD_FORWARD_GROUND_KB, 0);
+            set_mario_action(m, ACT_HARD_FORWARD_GROUND_KB, 0)
         elseif (check_fall_damage_or_get_stuck(m, ACT_HARD_FORWARD_GROUND_KB) == 0) then
-            set_mario_action(m, ACT_TRIPLE_JUMP_LAND, 0);
+            set_mario_action(m, ACT_TRIPLE_JUMP_LAND, 0)
         end
     elseif result == AIR_STEP_HIT_WALL then
         if (m.wall or gServerSettings.bouncyLevelBounds == BOUNCY_LEVEL_BOUNDS_OFF) then
             mario_set_forward_vel(m, 0)
         end
     elseif result == AIR_STEP_GRABBED_LEDGE then
-        set_mario_action(m, ACT_LEDGE_GRAB, 0);
+        set_mario_action(m, ACT_LEDGE_GRAB, 0)
     elseif result == AIR_STEP_GRABBED_CEILING then
-        set_mario_action(m, ACT_START_HANGING, 0);
+        set_mario_action(m, ACT_START_HANGING, 0)
     end
 
     if m.actionState ~= 0 then
@@ -242,7 +242,7 @@ function bhv_spike_bomb_loop(o)
 
         if ((o.oInteractStatus & INT_STATUS_INTERACTED) ~= 0) then
             if ((o.oInteractStatus & INT_STATUS_MARIO_UNK1) ~= 0) then
-                local player = nearest_player_to_object(o);
+                local player = nearest_player_to_object(o)
                 if (player) then
                     o.oMoveAngleYaw = player.header.gfx.angle.y
                 end
@@ -306,7 +306,7 @@ function bhv_spike_bomb_loop(o)
             end
             -- deal damage based on distance to explosion
             local dist = lateral_dist_between_objects(o, gMarioStates[0].marioObj)
-            o.oDamageOrCoinValue = math.ceil(clampf(1 - (dist / (200 * SCALE_TO_BOBOMB)), 0, 1) * 4)
+            o.oDamageOrCoinValue = math.ceil(math.clamp(1 - (dist / (200 * SCALE_TO_BOBOMB)), 0, 1) * 4)
 
             if o.oTimer == 9 then
                 bhv_explosion_loop()
@@ -469,7 +469,7 @@ function player_bomb_interact(m, o, type, value)
                     set_mario_action(m, ACT_HARD_BACKWARD_AIR_KB, 0)
                 end
             end
-        
+
             m.forwardVel = o.oDamageOrCoinValue * 10
             m.vel.y = o.oDamageOrCoinValue * 20
         end

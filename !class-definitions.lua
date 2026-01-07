@@ -47,6 +47,8 @@
 --- @field public bounced boolean
 --- @field public spindashState integer
 --- @field public instashieldTimer integer
+--- @field public oxygenTimer integer
+--- @field public oxygen integer
 
 --- @class CharacterState
 --- @field public mario MarioState

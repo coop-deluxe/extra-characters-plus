@@ -1859,7 +1859,6 @@ extraCharacters = {
             [CHAR_ANIM_TAKE_CAP_OFF_THEN_ON] = 'sonic_star_exit_with_hat',
             [CHAR_ANIM_PUT_CAP_ON] = 'sonic_putting_on_hat',
             [CS_ANIM_MENU] = 'cs_sonic',
-            
         },
         eyes = {
             [CS_ANIM_MENU] = MARIO_EYES_LOOK_LEFT
@@ -1924,7 +1923,7 @@ local function on_character_select_load()
         if meter then character_add_health_meter(tablePos, meter) end
         if graffiti then character_add_graffiti(tablePos, graffiti) end
     end
-    
+
     for i = 1, #ultraBrosCredits do
         for c = 1, #ultraBrosCredits[i] do
             local creditSplit = string.split(ultraBrosCredits[i][c], ",")

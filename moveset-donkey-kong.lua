@@ -4,23 +4,340 @@
 
 if not charSelect then return end
 
-DONKEY_KONG_ROLL_SPEED = 60
-DONKEY_KONG_ROLL_DECAY_PERCENT = 0.98
-DONKEY_KONG_ROLL_DECAY_TIME = 10
-DONKEY_KONG_ROLL_STARTUP = 4
-DONKEY_KONG_ROLL_END = 25
-DONKEY_KONG_SLIP_TIME = 20
-DONKEY_KONG_SLIDE_TIME = 40
+local DONKEY_KONG_ROLL_SPEED = 60
+local DONKEY_KONG_ROLL_DECAY_PERCENT = 0.98
+local DONKEY_KONG_ROLL_DECAY_TIME = 10
+local DONKEY_KONG_ROLL_STARTUP = 4
+local DONKEY_KONG_ROLL_END = 25
+local DONKEY_KONG_SLIP_TIME = 20
+local DONKEY_KONG_SLIDE_TIME = 40
 
 ----------------
 -- DK Gravity --
 ----------------
 
 --- @param m MarioState
+--- @param wall Surface
+--- @param intendedPos Vec3f
+--- @param nextPos Vec3f
+--- @return integer
+--- Checks ledge grab for donkey kong
+local function donkey_kong_check_ledge_grab(m, wall, intendedPos, nextPos)
+    if not m then return 0 end
+    local ledgeFloor
+    local ledgePos = gVec3fZero()
+    local displacementX
+    local displacementZ
+
+    if m.vel.y > 0 then
+        return 0
+    end
+
+    displacementX = nextPos.x - intendedPos.x
+    displacementZ = nextPos.z - intendedPos.z
+
+    -- Only ledge grab if the wall displaced Mario in the opposite direction of
+    -- his velocity.
+    if displacementX * m.vel.x + displacementZ * m.vel.z > 0.0 then
+        return 0
+    end
+
+    --! Since the search for floors starts at y + m.marioObj.hitboxHeight (160.0f), we will sometimes grab
+    -- a higher ledge than expected (glitchy ledge grab)
+    ledgePos.x = nextPos.x - wall.normal.x * 60.0
+    ledgePos.z = nextPos.z - wall.normal.z * 60.0
+    ledgePos.y, ledgeFloor = find_floor(ledgePos.x, nextPos.y + m.marioObj.hitboxHeight, ledgePos.z)
+    if not ledgeFloor then return 0 end
+
+    if gLevelValues.fixCollisionBugs ~= 0 and gLevelValues.fixCollisionBugsFalseLedgeGrab ~= 0 then
+        -- fix false ledge grabs
+        if (not ledgeFloor or ledgeFloor.normal.y < 0.90630779) then
+            return 0
+        end
+    end
+
+    if ledgePos.y - nextPos.y <= 100.0 then
+        return 0
+    end
+
+    vec3f_copy(m.pos, ledgePos)
+    m.floor = ledgeFloor
+    m.floorHeight = ledgePos.y
+
+    m.floorAngle = atan2s(ledgeFloor.normal.z, ledgeFloor.normal.x)
+
+    m.faceAngle.x = 0
+    m.faceAngle.y = atan2s(wall.normal.z, wall.normal.x) + 0x8000
+    return 1
+end
+
+--- Turns a WallCollisionData object into a table
+--- @param wcd WallCollisionData
+--- @return table
+local function wcd_to_table(wcd)
+    return {
+        x = wcd.x, -- number
+        y = wcd.y, -- number
+        z = wcd.z, -- number
+        offsetY = wcd.offsetY, -- number
+        radius = wcd.radius, -- number
+        unused = wcd.unused, -- integer
+        numWalls = wcd.numWalls, -- integer
+        walls = {
+            wcd.walls[1],
+            wcd.walls[2],
+            wcd.walls[3],
+            wcd.walls[4]
+        } , -- Surface[]
+        normalAddition = {
+            x = wcd.normalAddition.x,
+            y = wcd.normalAddition.y,
+            z = wcd.normalAddition.z,
+        }, -- Vec3f
+        normalCount = wcd.normalCount, -- integer
+    }
+end
+
+--- Fills a WallCollisionData object from a table
+--- @param wcd WallCollisionData
+--- @param t table
+local function table_to_wcd(wcd, t)
+    wcd.x = t.x
+    wcd.y = t.y
+    wcd.z = t.z
+    wcd.offsetY = t.offsetY
+    wcd.radius = t.radius
+    wcd.unused = t.unused
+    wcd.numWalls = t.numWalls
+    wcd.walls[1] = t.walls[1]
+    wcd.walls[2] = t.walls[2]
+    wcd.walls[3] = t.walls[3]
+    wcd.walls[4] = t.walls[4]
+    wcd.normalAddition.x = t.normalAddition.x
+    wcd.normalAddition.y = t.normalAddition.y
+    wcd.normalAddition.z = t.normalAddition.z
+    wcd.normalCount = t.normalCount
+end
+
+--- @param m MarioState
+--- @param intendedPos Vec3f
+--- @param stepArg integer
+--- @return integer
+--- Performs an air quarter step for donkey kong
+local function perform_donkey_kong_air_quarter_step(m, intendedPos, stepArg)
+    if not m then return 0 end
+    local wallDYaw
+    local nextPos = gVec3fZero()
+    local ceil
+    local floor
+    local ceilHeight
+    local floorHeight
+    local waterLevel
+
+    vec3f_copy(nextPos, intendedPos)
+
+    -- Important note:
+    -- The WallCollisionData pointer is always the same, meaning it cannot be used for both upperWcd and lowerWcd
+    -- Fortunately, it's read-write, so we can turn it into a table for the Lua part of the function and
+    -- turn it back into a WallCollisionData object for the C function calls
+
+    local upperWcdTmp = collision_get_temp_wall_collision_data()
+    resolve_and_return_wall_collisions_data(nextPos, 150.0, 50.0, upperWcdTmp)
+    local upperWcd = wcd_to_table(upperWcdTmp)
+
+    local lowerWcdTmp = collision_get_temp_wall_collision_data()
+    resolve_and_return_wall_collisions_data(nextPos, 30.0, 50.0, lowerWcdTmp)
+    local lowerWcd = wcd_to_table(lowerWcdTmp)
+
+    floorHeight, floor = find_floor(nextPos.x, nextPos.y, nextPos.z)
+    ceilHeight, ceil = vec3f_mario_ceil(nextPos, floorHeight)
+    waterLevel = find_water_level(nextPos.x, nextPos.z)
+
+    m.wall = nil
+
+    --! The water pseudo floor is not referenced when your intended qstep is
+    -- out of bounds, so it won't detect you as landing.
+
+    if not floor then
+        if nextPos.y <= m.floorHeight then
+            m.pos.y = m.floorHeight
+            return AIR_STEP_LANDED
+        end
+
+        m.pos.y = nextPos.y
+        if gServerSettings.bouncyLevelBounds ~= BOUNCY_LEVEL_BOUNDS_OFF then
+            m.faceAngle.y = m.faceAngle.y + 0x8000
+            mario_set_forward_vel(m, gServerSettings.bouncyLevelBounds == BOUNCY_LEVEL_BOUNDS_ON_CAP and math.clamp(1.5 * m.forwardVel, -500, 500) or 1.5 * m.forwardVel)
+        end
+        return AIR_STEP_HIT_WALL
+    end
+
+    if (m.action & ACT_FLAG_RIDING_SHELL) ~= 0 and floorHeight < waterLevel then
+        local allowForceAction = TRIPLET_BUTTERFLY_ACT_ACTIVATE
+        if allowForceAction then
+            floorHeight = waterLevel
+            floor = get_water_surface_pseudo_floor()
+            floor.originOffset = floorHeight
+        end
+    end
+
+    --! This check uses f32, but findFloor uses short (overflow jumps)
+    if nextPos.y <= floorHeight then
+        if ceilHeight - floorHeight > m.marioObj.hitboxHeight then
+            m.pos.x = nextPos.x
+            m.pos.z = nextPos.z
+            m.floor = floor
+            m.floorHeight = floorHeight
+        end
+
+        --! When ceilHeight - floorHeight <= m->marioObj->hitboxHeight (160.0f), the step result says that
+        -- Mario landed, but his movement is cancelled and his referenced floor
+        -- isn't updated (pedro spots)
+        m.pos.y = floorHeight
+        return AIR_STEP_LANDED
+    end
+
+    if nextPos.y + m.marioObj.hitboxHeight > ceilHeight then
+        if m.vel.y >= 0.0 then
+            m.vel.y = 0.0
+
+            --! Uses referenced ceiling instead of ceil (ceiling hang upwarp)
+            if (stepArg and (stepArg & AIR_STEP_CHECK_HANG) ~= 0) and m.ceil and m.ceil.type == SURFACE_HANGABLE then
+                return AIR_STEP_GRABBED_CEILING
+            end
+
+            return AIR_STEP_NONE
+        end
+
+        if nextPos.y <= m.floorHeight then
+            m.pos.y = m.floorHeight
+            return AIR_STEP_LANDED
+        end
+
+        m.pos.y = nextPos.y
+        return AIR_STEP_HIT_WALL
+    end
+
+    --! When the wall is not completely vertical or there is a slight wall
+    -- misalignment, you can activate these conditions in unexpected situations
+    if (stepArg and (stepArg & AIR_STEP_CHECK_LEDGE_GRAB) ~= 0) and upperWcd.numWalls == 0 and lowerWcd.numWalls > 0 then
+        for i = 1, lowerWcd.numWalls do
+            if gLevelValues.fixCollisionBugs == 0 then
+                i = lowerWcd.numWalls
+            end
+            local wall = lowerWcd.walls[i]
+            if donkey_kong_check_ledge_grab(m, wall, intendedPos, nextPos) ~= 0 then
+                return AIR_STEP_GRABBED_LEDGE
+            end
+        end
+
+        vec3f_copy(m.pos, nextPos)
+        m.floor = floor
+        m.floorHeight = floorHeight
+        return AIR_STEP_NONE
+    end
+
+    vec3f_copy(m.pos, nextPos)
+    m.floor = floor
+    m.floorHeight = floorHeight
+
+    if upperWcd.numWalls > 0 then
+        table_to_wcd(upperWcdTmp, upperWcd)
+        mario_update_wall(m, upperWcdTmp)
+        upperWcd = wcd_to_table(upperWcdTmp)
+
+        for i = 1, upperWcd.numWalls do
+            if gLevelValues.fixCollisionBugs == 0 then
+                i = upperWcd.numWalls
+            end
+
+            local wall = upperWcd.walls[i]
+            wallDYaw = atan2s(wall.normal.z, wall.normal.x) - m.faceAngle.y
+
+            if wall.type == SURFACE_BURNING then
+                m.wall = wall
+                return AIR_STEP_HIT_LAVA_WALL
+            end
+
+            if wallDYaw < -0x6000 or wallDYaw > 0x6000 then
+                m.wall = wall
+                m.flags = m.flags | MARIO_UNKNOWN_30
+                return AIR_STEP_HIT_WALL
+            end
+        end
+    elseif lowerWcd.numWalls > 0 then
+        table_to_wcd(lowerWcdTmp, lowerWcd)
+        mario_update_wall(m, lowerWcdTmp)
+        lowerWcd = wcd_to_table(lowerWcdTmp)
+
+        for i = 1, lowerWcd.numWalls do
+            if gLevelValues.fixCollisionBugs == 0 then
+                i = lowerWcd.numWalls
+            end
+
+            local wall = lowerWcd.walls[i]
+            wallDYaw = atan2s(wall.normal.z, wall.normal.x) - m.faceAngle.y
+
+            if wall.type == SURFACE_BURNING then
+                m.wall = wall
+                return AIR_STEP_HIT_LAVA_WALL
+            end
+
+            if wallDYaw < -0x6000 or wallDYaw > 0x6000 then
+                m.wall = wall
+                m.flags = m.flags | MARIO_UNKNOWN_30
+                return AIR_STEP_HIT_WALL
+            end
+        end
+    end
+
+    return AIR_STEP_NONE
+end
+
+--- @param m MarioState
+--- Applies twirl gravity to donkey kong
+local function apply_donkey_kong_twirl_gravity(m)
+    if not m then return end
+    local terminalVelocity
+    local heaviness = 1.0
+
+    if m.angleVel.y > 1024 then
+        heaviness = 1024.0 / m.angleVel.y
+    end
+
+    terminalVelocity = -75.0 * heaviness
+
+    m.vel.y = m.vel.y - 4.0 * heaviness
+    if m.vel.y < terminalVelocity then
+        m.vel.y = terminalVelocity
+    end
+end
+
+--- @param m MarioState
+--- @return integer
+--- Checks if gravity should be strengthen for donkey kong jump ascent
+local function should_strengthen_gravity_for_donkey_kong_jump_ascent(m)
+    if not m then return 0 end
+    if m.flags & MARIO_UNKNOWN_08 == 0 then
+        return 0
+    end
+
+    if m.action & ACT_FLAG_INTANGIBLE ~= 0 or m.action & ACT_FLAG_INVULNERABLE ~= 0 then
+        return 0
+    end
+
+    if m.input & INPUT_A_DOWN == 0 and m.vel.y > 20.0 then
+        return m.action & ACT_FLAG_CONTROL_JUMP_HEIGHT ~= 0 and 1 or 0
+    end
+
+    return 0
+end
+
+--- @param m MarioState
 --- Applies gravity to donkey kong
-function apply_donkey_kong_gravity(m)
+local function apply_donkey_kong_gravity(m)
     if m.action == ACT_TWIRLING and m.vel.y < 0.0 then
-        apply_twirl_gravity(m)
+        apply_donkey_kong_twirl_gravity(m)
     elseif m.action == ACT_SHOT_FROM_CANNON then
         m.vel.y = math.max(-75, m.vel.y - 1)
     elseif m.action == ACT_LONG_JUMP or m.action == ACT_SLIDE_KICK or m.action == ACT_BBH_ENTER_SPIN then
@@ -29,7 +346,7 @@ function apply_donkey_kong_gravity(m)
         m.vel.y = math.max(-65, m.vel.y - 4.8)
     elseif m.action == ACT_GETTING_BLOWN then
         m.vel.y = math.max(-75, m.vel.y - (1.5 * m.unkC4))
-    elseif should_strengthen_gravity_for_jump_ascent(m) ~= 0 then
+    elseif should_strengthen_gravity_for_donkey_kong_jump_ascent(m) ~= 0 then
         m.vel.y = m.vel.y / 4.0
     elseif m.action & ACT_FLAG_METAL_WATER ~= 0 then
         m.vel.y = math.max(-16, m.vel.y - 2.4)
@@ -49,12 +366,36 @@ function apply_donkey_kong_gravity(m)
     end
 end
 
+---@param m MarioState
+--- Applies vertical wind to donkey kong
+local function apply_donkey_kong_vertical_wind(m)
+    if not m then return end
+    local maxVelY
+    local offsetY
+    if m.action ~= ACT_GROUND_POUND then
+        offsetY = m.pos.y - -1500.0
+
+        if m.floor and m.floor.type == SURFACE_VERTICAL_WIND and -3000.0 < offsetY and offsetY < 2000.0 then
+            if offsetY >= 0.0 then
+                maxVelY = 10000.0 / (offsetY + 200.0)
+            else
+                maxVelY = 50.0
+            end
+
+            if m.vel.y < maxVelY then
+                if (m.vel.y + maxVelY / 8.0) > maxVelY then
+                    m.vel.y = maxVelY
+                end
+            end
+        end
+    end
+end
+
 --- @param m MarioState
 --- @param stepArg integer
 --- @return integer
 --- Performs an air step for donkey kong
---- TODO: this prevents DK from ledge grabbing. Is this fixable?
-function perform_donkey_kong_air_step(m, stepArg)
+local function perform_donkey_kong_air_step(m, stepArg)
     local intendedPos = gVec3fZero()
     local quarterStepResult
     local stepResult = AIR_STEP_NONE
@@ -76,7 +417,7 @@ function perform_donkey_kong_air_step(m, stepArg)
         vec3f_normalize(step)
         set_find_wall_direction(step, true, true)
 
-        quarterStepResult = perform_air_quarter_step(m, intendedPos, stepArg)
+        quarterStepResult = perform_donkey_kong_air_quarter_step(m, intendedPos, stepArg)
         set_find_wall_direction(step, false, false)
 
         --! On one qf, hit OOB/ceil/wall to store the 2 return value, and continue
@@ -116,7 +457,7 @@ function perform_donkey_kong_air_step(m, stepArg)
     if (m.action ~= ACT_FLYING and m.action ~= ACT_BUBBLED) then
         apply_donkey_kong_gravity(m)
     end
-    apply_vertical_wind(m)
+    apply_donkey_kong_vertical_wind(m)
 
     vec3f_copy(m.marioObj.header.gfx.pos, m.pos)
     vec3s_set(m.marioObj.header.gfx.angle, 0, m.faceAngle.y, 0)
@@ -172,9 +513,9 @@ function on_attack_object(m, o, interaction)
             m.actionArg = 0
         end
     end
-	
-	-- Bounce code
-	if (CT_DONKEY_KONG ~= _G.charSelect.character_get_current_number(m.playerIndex)) then return end
+
+    -- Bounce code
+    if (CT_DONKEY_KONG ~= _G.charSelect.character_get_current_number(m.playerIndex)) then return end
     if (_G.charSelect.get_options_status(6) ~= 0) then
         if (interaction == INT_HIT_FROM_ABOVE and m.framesSinceA < 5) then
             m.actionTimer = 0
@@ -203,86 +544,86 @@ _G.ACT_DONKEY_KONG_BOUNCE = (ACT_GROUP_AIRBORNE | ACT_FLAG_MOVING | ACT_FLAG_AIR
 --- action
 
 local bounceSounds = {
-	audio_sample_load("z_sfx_dk_bounce1.ogg"),
-	audio_sample_load("z_sfx_dk_bounce2.ogg"),
-	audio_sample_load("z_sfx_dk_bounce3.ogg")
+    audio_sample_load("z_sfx_dk_bounce1.ogg"),
+    audio_sample_load("z_sfx_dk_bounce2.ogg"),
+    audio_sample_load("z_sfx_dk_bounce3.ogg")
 }
 
 local coinObj = nil
 
 function act_dk_bounce(m)
-	if (m.actionTimer == 0) then
-		set_character_animation(m, CHAR_ANIM_FORWARD_SPINNING)
-		set_anim_to_frame(m, 0)
-		m.forwardVel = 0
-		m.vel.x = 0
-		m.vel.y = 80
-		play_character_sound(m, CHAR_SOUND_YAHOO_WAHA_YIPPEE)
-		m.vel.z = 0
-		m.slideVelX = 0
-		m.slideVelZ = 0
-		m.faceAngle.y = m.intendedYaw
-		if (m.actionArg >= 3) then
-			coinObj = spawn_non_sync_object(id_bhvBlueCoinJumping, E_MODEL_SPARKLES, m.pos.x, m.pos.y, m.pos.z, nil)
-		end
-		audio_sample_play(bounceSounds[math.min(m.actionArg,3)], m.pos, 0.5)
-		-- plays a random sound from a table ('bounceSounds') of 3 sound files.
-		-- I didn't include them here because I ripped them straight from DKCR myself
-		-- and I'm under the impression that this mod mainly uses self-made sound effects
+    if (m.actionTimer == 0) then
+        set_character_animation(m, CHAR_ANIM_FORWARD_SPINNING)
+        set_anim_to_frame(m, 0)
+        m.forwardVel = 0
+        m.vel.x = 0
+        m.vel.y = 80
+        play_character_sound(m, CHAR_SOUND_YAHOO_WAHA_YIPPEE)
+        m.vel.z = 0
+        m.slideVelX = 0
+        m.slideVelZ = 0
+        m.faceAngle.y = m.intendedYaw
+        if (m.actionArg >= 3) then
+            coinObj = spawn_non_sync_object(id_bhvBlueCoinJumping, E_MODEL_SPARKLES, m.pos.x, m.pos.y, m.pos.z, nil)
+        end
+        audio_sample_play(bounceSounds[math.min(m.actionArg,3)], m.pos, 0.5)
+        -- plays a random sound from a table ('bounceSounds') of 3 sound files.
+        -- I didn't include them here because I ripped them straight from DKCR myself
+        -- and I'm under the impression that this mod mainly uses self-made sound effects
         set_mario_particle_flags(m, PARTICLE_HORIZONTAL_STAR, 0)
-	end
+    end
 
-	if (m.actionTimer >= 1 and coinObj ~= nil) then
-		coinObj.oPosX = m.pos.x
-		coinObj.oPosY = m.pos.y
-		coinObj.oPosZ = m.pos.z
-		interact_coin(m, INTERACT_COIN, coinObj)
-		coinObj = nil
-	end
+    if (m.actionTimer >= 1 and coinObj ~= nil) then
+        coinObj.oPosX = m.pos.x
+        coinObj.oPosY = m.pos.y
+        coinObj.oPosZ = m.pos.z
+        interact_coin(m, INTERACT_COIN, coinObj)
+        coinObj = nil
+    end
 
-	if (m.actionTimer > 5 and m.marioObj.header.gfx.animInfo.animID == CHAR_ANIM_FORWARD_SPINNING) then
-		set_character_animation(m, CHAR_ANIM_TRIPLE_JUMP)
-		set_anim_to_frame(m, 21)
-	end
-	
-	m.forwardVel = math.min(m.forwardVel, 95)
+    if (m.actionTimer > 5 and m.marioObj.header.gfx.animInfo.animID == CHAR_ANIM_FORWARD_SPINNING) then
+        set_character_animation(m, CHAR_ANIM_TRIPLE_JUMP)
+        set_anim_to_frame(m, 21)
+    end
+    
+    m.forwardVel = math.min(m.forwardVel, 95)
 
-	update_air_without_turn(m)
-	if (m.actionTimer > 20) then
-		update_air_without_turn(m)
-	end
+    update_air_without_turn(m)
+    if (m.actionTimer > 20) then
+        update_air_without_turn(m)
+    end
 
-	if (m.vel.y < 10) then
-		update_air_without_turn(m)
-		if (m.vel.y < -10) then
-			update_air_without_turn(m)
-			update_air_without_turn(m)
-			update_air_without_turn(m)
-			update_air_without_turn(m)
-			update_air_without_turn(m)
-		end
-	end
+    if (m.vel.y < 10) then
+        update_air_without_turn(m)
+        if (m.vel.y < -10) then
+            update_air_without_turn(m)
+            update_air_without_turn(m)
+            update_air_without_turn(m)
+            update_air_without_turn(m)
+            update_air_without_turn(m)
+        end
+    end
 
-	local stepResult = perform_air_step(m, AIR_STEP_CHECK_HANG | AIR_STEP_CHECK_LEDGE_GRAB)
+    local stepResult = perform_air_step(m, AIR_STEP_CHECK_HANG | AIR_STEP_CHECK_LEDGE_GRAB)
 
-	if (stepResult == AIR_STEP_LANDED) then
-		set_character_animation(m, CHAR_ANIM_FORWARD_SPINNING)
-		set_anim_to_frame(m, 0)
-		return set_mario_action(m, ACT_DOUBLE_JUMP_LAND, 0)
-	elseif (stepResult == AIR_STEP_GRABBED_LEDGE) then
-		set_character_animation(m, CHAR_ANIM_IDLE_ON_LEDGE)
-		return drop_and_set_mario_action(m, ACT_LEDGE_GRAB, 0)
-	elseif (stepResult == AIR_STEP_GRABBED_CEILING) then
-		return set_mario_action(m, ACT_START_HANGING, 0);
-	end
+    if (stepResult == AIR_STEP_LANDED) then
+        set_character_animation(m, CHAR_ANIM_FORWARD_SPINNING)
+        set_anim_to_frame(m, 0)
+        return set_mario_action(m, ACT_DOUBLE_JUMP_LAND, 0)
+    elseif (stepResult == AIR_STEP_GRABBED_LEDGE) then
+        set_character_animation(m, CHAR_ANIM_IDLE_ON_LEDGE)
+        return drop_and_set_mario_action(m, ACT_LEDGE_GRAB, 0)
+    elseif (stepResult == AIR_STEP_GRABBED_CEILING) then
+        return set_mario_action(m, ACT_START_HANGING, 0)
+    end
 
-	m.faceAngle.y = approach_s16_symmetric(m.faceAngle.y, m.intendedYaw, (abs_angle_diff(m.faceAngle.y, m.intendedYaw) / (25 * m.actionTimer + 1)) + 750)
-	update_air_without_turn(m)
-	m.actionTimer = m.actionTimer + 1
-	if (check_kick_or_dive_in_air(m) ~= 0) then
-		return 1
-	end
-	
+    m.faceAngle.y = approach_s16_symmetric(m.faceAngle.y, m.intendedYaw, (abs_angle_diff(m.faceAngle.y, m.intendedYaw) / (25 * m.actionTimer + 1)) + 750)
+    update_air_without_turn(m)
+    m.actionTimer = m.actionTimer + 1
+    if (check_kick_or_dive_in_air(m) ~= 0) then
+        return 1
+    end
+    
     return 0
 end
 
@@ -321,7 +662,7 @@ local function act_donkey_kong_roll(m)
 
     local doSpinAnim = true
     m.actionTimer = m.actionTimer + 1
-    
+
     set_character_animation(m, CHAR_ANIM_START_CROUCHING)
     if m.actionState == 0 then
         doSpinAnim = false
@@ -343,7 +684,7 @@ local function act_donkey_kong_roll(m)
     m.marioObj.oMoveAngleYaw = m.faceAngle.y
     cur_obj_rotate_yaw_toward(m.intendedYaw, 0x100)
     m.faceAngle.y = m.marioObj.oMoveAngleYaw
-    
+
     local result = perform_ground_step(m)
     if result == GROUND_STEP_LEFT_GROUND then
         if m.actionState == 0 then
@@ -353,7 +694,7 @@ local function act_donkey_kong_roll(m)
     elseif result == GROUND_STEP_HIT_WALL then
         if (m.wall or gServerSettings.bouncyLevelBounds == BOUNCY_LEVEL_BOUNDS_OFF) then
             m.faceAngle.x = 0
-            set_mario_particle_flags(m, PARTICLE_VERTICAL_STAR, 0);
+            set_mario_particle_flags(m, PARTICLE_VERTICAL_STAR, 0)
             slide_bonk(m, ACT_GROUND_BONK, ACT_WALKING)
             return
         end
@@ -410,11 +751,11 @@ local function act_donkey_kong_roll_air(m)
         end
     elseif result == AIR_STEP_HIT_WALL then
         if (m.wall or gServerSettings.bouncyLevelBounds == BOUNCY_LEVEL_BOUNDS_OFF) then
-            mario_bonk_reflection(m, 1);
+            mario_bonk_reflection(m, 1)
             if (m.vel.y > 0) then m.vel.y = 0 end
 
-            set_mario_particle_flags(m, PARTICLE_VERTICAL_STAR, 0);
-            drop_and_set_mario_action(m, ACT_BACKWARD_AIR_KB, 0);
+            set_mario_particle_flags(m, PARTICLE_VERTICAL_STAR, 0)
+            drop_and_set_mario_action(m, ACT_BACKWARD_AIR_KB, 0)
             return 1
         end
     elseif result == AIR_STEP_HIT_LAVA_WALL then

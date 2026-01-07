@@ -94,7 +94,7 @@ local function on_character_select_load()
     -- Wapeach
     character_hook_moveset(CT_WAPEACH, HOOK_BEFORE_SET_MARIO_ACTION, wapeach_before_action)
     -- Donkey Kong
-    character_hook_moveset(CT_DONKEY_KONG, HOOK_BEFORE_PHYS_STEP, donkey_kong_before_phys_step) -- Cut until ledge grabbing gets fixed
+    character_hook_moveset(CT_DONKEY_KONG, HOOK_BEFORE_PHYS_STEP, donkey_kong_before_phys_step)
     character_hook_moveset(CT_DONKEY_KONG, HOOK_BEFORE_SET_MARIO_ACTION, donkey_kong_before_action)
     character_hook_moveset(CT_DONKEY_KONG, HOOK_ON_INTERACT, donkey_kong_on_interact)
     -- Sonic

@@ -57,7 +57,7 @@ local function bhv_axe_attack_loop(o)
     end
 end
 
-local id_bhvAxeAttack = hook_behavior(nil, OBJ_LIST_DESTRUCTIVE, true, bhv_axe_attack_init, bhv_axe_attack_loop)
+local id_bhvAxeAttack = hook_behavior(nil, OBJ_LIST_DESTRUCTIVE, true, bhv_axe_attack_init, bhv_axe_attack_loop, "bhvWapeachAxeAttack")
 
 ---@param m MarioState
 local function act_axe_chop(m)
@@ -220,8 +220,7 @@ local function bhv_dizzycircle_loop(o)
     end
 end
 
-local id_bhvDizzyCircle = hook_behavior(nil, OBJ_LIST_GENACTOR, true, bhv_dizzycircle_init, bhv_dizzycircle_loop)
-
+local id_bhvDizzyCircle = hook_behavior(nil, OBJ_LIST_GENACTOR, true, bhv_dizzycircle_init, bhv_dizzycircle_loop, "bhvWapeachDizzyCircle")
 
 local function act_axe_spin_dizzy(m)
     if m.actionTimer == 1 then

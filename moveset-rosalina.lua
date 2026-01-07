@@ -33,7 +33,7 @@ local function bhv_spin_attack_loop(o)
 end
 
 local id_bhvTwirlEffect = hook_behavior(nil, OBJ_LIST_GENACTOR, true, bhv_spin_attack_init, bhv_spin_attack_loop,
-    "bhvTwirlEffect")
+    "bhvRosalinaTwirlEffect")
 
 -- Spinable actions, these are actions you can spin out of that don't normally allow a kick/dive
 local extraSpinActs = {
@@ -76,7 +76,7 @@ function act_jump_twirl(m)
                 end)
             end
         else
-            m.vel.y = max(m.vel.y, 0)
+            m.vel.y = math.max(m.vel.y, 0)
         end
         m.marioObj.hitboxRadius = 100 -- Damage hitbox
     else

@@ -79,12 +79,12 @@ local CAPPY_EVENT_UNLOAD                    = 5
 local CAPPY_EVENT_BOUNCE                    = 6
 
 -- Actions
-local ACT_CAPPY_THROW_GROUND                = allocate_mario_action(ACT_GROUP_MOVING | ACT_FLAG_MOVING)
-local ACT_CAPPY_THROW_AIRBORNE              = allocate_mario_action(ACT_GROUP_AIRBORNE | ACT_FLAG_AIR)
-local ACT_CAPPY_BOUNCE                      = allocate_mario_action(ACT_GROUP_AIRBORNE | ACT_FLAG_AIR | ACT_FLAG_ALLOW_VERTICAL_WIND_ACTION)
-local ACT_CAPPY_VAULT                       = allocate_mario_action(ACT_GROUP_AIRBORNE | ACT_FLAG_AIR | ACT_FLAG_ALLOW_VERTICAL_WIND_ACTION)
-local ACT_CAPPY_RAINBOW_SPIN                = allocate_mario_action(ACT_GROUP_AIRBORNE | ACT_FLAG_AIR | ACT_FLAG_ALLOW_VERTICAL_WIND_ACTION | ACT_FLAG_ATTACKING)
-local ACT_CAPPY_THROW_WATER                 = allocate_mario_action(ACT_GROUP_SUBMERGED | ACT_FLAG_SWIMMING)
+_G.ACT_CAPPY_THROW_GROUND                   = allocate_mario_action(ACT_GROUP_MOVING | ACT_FLAG_MOVING)
+_G.ACT_CAPPY_THROW_AIRBORNE                 = allocate_mario_action(ACT_GROUP_AIRBORNE | ACT_FLAG_AIR)
+_G.ACT_CAPPY_BOUNCE                         = allocate_mario_action(ACT_GROUP_AIRBORNE | ACT_FLAG_AIR | ACT_FLAG_ALLOW_VERTICAL_WIND_ACTION)
+_G.ACT_CAPPY_VAULT                          = allocate_mario_action(ACT_GROUP_AIRBORNE | ACT_FLAG_AIR | ACT_FLAG_ALLOW_VERTICAL_WIND_ACTION)
+_G.ACT_CAPPY_RAINBOW_SPIN                   = allocate_mario_action(ACT_GROUP_AIRBORNE | ACT_FLAG_AIR | ACT_FLAG_ALLOW_VERTICAL_WIND_ACTION | ACT_FLAG_ATTACKING)
+_G.ACT_CAPPY_THROW_WATER                    = allocate_mario_action(ACT_GROUP_SUBMERGED | ACT_FLAG_SWIMMING)
 
 -- Animations
 local MARIO_ANIM_PAULINE_CAPPY_VAULT        = "anim_pauline_cappy_vault"
@@ -177,7 +177,7 @@ local id_bhvCappy = hook_behavior(
     true,
     function (o) o.oFlags = o.oFlags | OBJ_FLAG_UPDATE_GFX_POS_AND_ANGLE end,
     function (o) bhv_cappy_loop(o) end,
-    "bhvCappy"
+    "bhvPaulineCappy"
 )
 
 local function cappy_get_object(m)
