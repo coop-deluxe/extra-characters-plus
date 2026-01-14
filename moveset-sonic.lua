@@ -1254,11 +1254,12 @@ function sonic_update(m)
     e.sonic.instashieldTimer = e.sonic.instashieldTimer - 1
 end
 
+local showHealth = 0
 local function sonic_set_alive(m)
     if m.playerIndex == 0 and sPrevNonSonicHealth == nil then
         sPrevNonSonicHealth = m.health
     end
-    m.health = 0x700
+    m.health = showHealth > 0 and 0x700 or 0x880
 end
 
 local function sonic_set_dead(m)
@@ -1802,10 +1803,13 @@ function sonic_health_meter(localIndex, health, prevX, prevY, prevScaleW, prevSc
 
         djui_hud_render_texture_interpolated(TEX_SONIC_RING_METER, prevX, prevY, prevScaleW, prevScaleH, x, y, scaleW, scaleH)
         
-        if p.rings == 0 and math.floor(get_global_timer()%30 / 15) == 1 then
-            djui_hud_set_color(255 * djuiColor.r/255, 0, 0, djuiColor.a)
-        else
-            djui_hud_set_color(255 * djuiColor.r/255, 255 * djuiColor.g/255, 0, djuiColor.a)
+        showHealth = showHealth - 1
+        djui_hud_set_color(255 * djuiColor.r/255, 255 * djuiColor.g/255, 0, djuiColor.a)
+        if p.rings == 0 then
+            if math.floor(get_global_timer()%30 / 15) == 1 then
+                djui_hud_set_color(255 * djuiColor.r/255, 0, 0, djuiColor.a)
+            end
+            showHealth = 150
         end
         local rings = tostring(p.rings)
         djui_hud_print_text_interpolated(rings, prevX + (31 - djui_hud_measure_text(rings)*0.25)*prevScaleW, prevY + 25*prevScaleH, prevScaleH*0.5, x + (31 - djui_hud_measure_text(rings)*0.25)*prevScaleW, y + 25*prevScaleH, scaleH*0.5)
@@ -1835,6 +1839,13 @@ function sonic_defacto_fix(m)
         return math.max(math.abs(sins(floorDYaw)), m.floor.normal.y)
     end
     return m.floor.normal.y
+end
+
+-- Mute health meter sounds
+function sonic_on_play_sound(soundBits, pos)
+    if soundBits == SOUND_MENU_POWER_METER then
+        return NO_SOUND
+    end
 end
 
 hook_mario_action(ACT_SPIN_JUMP, act_spin_jump)
@@ -1930,6 +1941,7 @@ function ringteract(m, o, intType) -- This is the ring interaction for ALL chara
     if intType == INTERACT_COIN then
         if m.playerIndex == 0 then
             p.rings = p.rings + o.oDamageOrCoinValue
+            showHealth = 150
         end
         e.sonic.oxygen = math.min(e.sonic.oxygen + o.oDamageOrCoinValue * 150, 900)
     end
