@@ -1,5 +1,5 @@
--- name: [CS] Extra Characters Plus Dev
--- description: [CS] Extra Characters Plus\nBy: \\#00ff00\\ULTRA BROS TEAM\n\ \n\\\#ffffff\\A CS Pack done by CoopDX members that not only gives opportunity to new roster additions but also provides unique movesets.\n\ \n\\\#00ff00\\It is RECOMMENDED to have the interpolation set to ACCURATE.\n\ \n\Delete the modcache file in sm64coopdx's roaming file and restart if multiplayer causes issues.\n\ \n\\\#ff0000\\REQUIRES Character Select v1.16 or newer for all of it's features to be used.
+-- name: \\##ff87b5\\[CS] Extra Characters Plus v2.0b
+-- description: \\##ffffff\\[CS] Extra Characters Plus\nBy: \\#00ff00\\ULTRA BROS TEAM\n\ \n\\\#ffffff\\A CS Pack done by CoopDX members that not only gives opportunity to new roster additions but also provides unique movesets.\n\ \n\\\#00ff00\\It is RECOMMENDED to have the interpolation set to ACCURATE.\n\ \n\Delete the modcache file in sm64coopdx's roaming file and restart if multiplayer causes issues.\n\ \n\\\#ff0000\\REQUIRES Character Select v1.16 or newer for all of it's features to be used.
 -- category: cs
 
 local TEXT_VANILLA_CAST = "CoopDX Characters"
