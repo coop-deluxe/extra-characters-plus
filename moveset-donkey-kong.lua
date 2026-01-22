@@ -503,7 +503,7 @@ function donkey_kong_on_interact(m, o, type, value)
     end
 end
 
-function on_attack_object(m, o, interaction)
+function donkey_kong_on_attack_object(m, o, interaction)
     -- speed up when hitting enemies with roll
     if (m.action == ACT_DONKEY_KONG_ROLL or m.action == ACT_DONKEY_KONG_ROLL_AIR) and (interaction & INT_FAST_ATTACK_OR_SHELL ~= 0) then
         if o.oInteractType == INTERACT_BULLY then
@@ -520,7 +520,7 @@ function on_attack_object(m, o, interaction)
 
     -- Bounce code
     if (CT_DONKEY_KONG ~= _G.charSelect.character_get_current_number(m.playerIndex)) then return end
-    if (_G.charSelect.get_options_status(6) ~= 0) then
+    if (not _G.charSelect.are_movesets_restricted()) then
         if (interaction == INT_HIT_FROM_ABOVE and m.framesSinceA < 5) then
             m.actionTimer = 0
             if (m.action == ACT_DONKEY_KONG_BOUNCE) then
@@ -531,7 +531,7 @@ function on_attack_object(m, o, interaction)
         end
     end
 end
-hook_event(HOOK_ON_ATTACK_OBJECT, on_attack_object)
+hook_event(HOOK_ON_ATTACK_OBJECT, donkey_kong_on_attack_object)
 
 _G.ACT_DONKEY_KONG_ROLL = allocate_mario_action(ACT_GROUP_MOVING | ACT_FLAG_ATTACKING | ACT_FLAG_MOVING)
 _G.ACT_DONKEY_KONG_ROLL_AIR = allocate_mario_action(ACT_GROUP_AIRBORNE | ACT_FLAG_ATTACKING | ACT_FLAG_AIR | ACT_FLAG_ALLOW_VERTICAL_WIND_ACTION)
