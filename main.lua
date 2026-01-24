@@ -1715,7 +1715,7 @@ extraCharacters = {
         credits = "Coop Team / VA: ReeseiMental",
         color = { r = 0, g = 0, b = 255 },
         model = smlua_model_util_get_id("ec_segasonic_geo"),
-        costumes = smlua_model_util_get_id("ec_segasupersonic_geo"),
+        -- costumes = smlua_model_util_get_id("ec_segasupersonic_geo"),
         forceChar = CT_MARIO,
         lifeIcon = get_texture_info("icon-ec-segasonic"),
         graffiti = get_texture_info("char-select-ec-graffiti-sonic"),
