@@ -1715,6 +1715,7 @@ extraCharacters = {
         credits = "Coop Team / VA: ReeseiMental",
         color = { r = 0, g = 0, b = 255 },
         model = smlua_model_util_get_id("ec_segasonic_geo"),
+        costumes = smlua_model_util_get_id("ec_segasupersonic_geo"),
         forceChar = CT_MARIO,
         lifeIcon = get_texture_info("icon-ec-segasonic"),
         graffiti = get_texture_info("char-select-ec-graffiti-sonic"),
@@ -1905,9 +1906,9 @@ local ultraBrosCredits = {
 local function on_character_select_load()
     for i, char in pairs(extraCharacters) do
         local _ENV = setmetatable(char, { __index = _G })
-        tablePos = character_add(name, description, credits, color, model, forceChar, lifeIcon, camScale, offset, meter, graffiti)
         if caps then character_add_caps(model, caps) end
         if voices then character_add_voice(model, voices) end
+        -- if costumes then character_add_costume(model, costumes) end
         if palettes then
             for i = 1, #palettes do
                 character_add_palette_preset(model, palettes[i], palettes[i].name)
