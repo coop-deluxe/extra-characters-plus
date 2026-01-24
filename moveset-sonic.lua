@@ -2085,3 +2085,49 @@ end
 
 extraCharsSonic.sonic_set_alive = sonic_set_alive
 extraCharsSonic.sonic_set_dead = sonic_set_dead
+
+-- Handle Slow Down Boots option
+local forceSlowBoots = false
+gGlobalSyncTable.slowDownBoots = sSlowDownBoots
+
+local OPTION_SLOW_BOOTS = charSelect.add_option("Slow Down Boots", nil, nil, nil, {"Makes Sonic's moveset less", "powerful (Host Only)"})
+charSelect.get_option(OPTION_SLOW_BOOTS).lock = function()
+    if not network_is_server() then
+        return "Host Only"
+    elseif forceSlowBoots then
+        return "Forced On"
+    end
+end
+
+-- Toggles forcing Sonic to have slow boots or not. Will only run for the host.
+extraCharsSonic.sonic_force_slow_down_boots = function(toggle_)
+    if not network_is_server() then return end
+    local toggle = toggle_ or false
+    forceSlowBoots = toggle
+end
+
+extraCharsSonic.sonic_slow_down_boots_active = function()
+    return sSlowDownBoots
+end
+
+function on_slow_boots_option_change(tag, oldVal, newVal)
+    if newVal == nil then return end
+
+    sSlowDownBoots = newVal
+    if sSlowDownBoots == false then
+        HEDGEHOG_SPEED = 128
+        HEDGEHOG_HEIGHT = 32
+    else
+        HEDGEHOG_SPEED = 64
+        HEDGEHOG_HEIGHT = 20
+    end
+end
+hook_on_sync_table_change(gGlobalSyncTable, "slowDownBoots", "slowDownBoots", on_slow_boots_option_change)
+
+function update_slow_boots_option()
+    local slowBootsToggle = forceSlowBoots or (charSelect.get_options_status(OPTION_SLOW_BOOTS) ~= 0)
+    gGlobalSyncTable.slowDownBoots = slowBootsToggle
+end
+if network_is_server() then
+    hook_event(HOOK_UPDATE, update_slow_boots_option)
+end
