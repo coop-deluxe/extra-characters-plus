@@ -73,7 +73,17 @@ extraCharacters = {
                 [CAP]    = 'f30080',
                 [EMBLEM] = 'f30080'
             },
-
+            {
+                name     = "Retro",
+                [PANTS]  = 'ffffff',
+                [SHIRT]  = 'f1318f',
+                [GLOVES] = 'FFFFFF',
+                [SHOES]  = 'f1318f',
+                [HAIR]   = 'f1318f',
+                [SKIN]   = 'f7c37f',
+                [CAP]    = 'f1318f',
+                [EMBLEM] = 'f1318f'
+            },
             {
                 name     = "Drill",
                 [PANTS]  = 'ffffff',
@@ -97,7 +107,6 @@ extraCharacters = {
                 [CAP]    = 'bdbdbd',
                 [EMBLEM] = '555555'
             },
-
             {
                 name     = "Poison",
                 [PANTS]  = '000000',
@@ -206,7 +215,7 @@ extraCharacters = {
                 [EMBLEM] = '0883d5'
             },
             {
-                name     = "Classic",
+                name     = "Retro",
                 [PANTS]  = 'b53120',
                 [SHIRT]  = 'ffffff',
                 [GLOVES] = 'ffffff',
@@ -415,6 +424,28 @@ extraCharacters = {
                 [EMBLEM] = '00FFFF'
             },
             {
+                name     = "LCD",
+                [PANTS]  = 'A8A8A8',
+                [SHIRT]  = '505050',
+                [GLOVES] = '505050',
+                [SHOES]  = 'A8A8A8',
+                [HAIR]   = '161616',
+                [SKIN]   = 'A8A8A8',
+                [CAP]    = '505050',
+                [EMBLEM] = 'A8A8A8'
+            },
+            {
+                name     = "Retro",
+                [PANTS]  = '944e13',
+                [SHIRT]  = 'd5d5d5',
+                [GLOVES] = 'dc9d38',
+                [SHOES]  = 'd5d5d5',
+                [HAIR]   = '944e13',
+                [SKIN]   = 'dc9d38',
+                [CAP]    = 'dc9d38',
+                [EMBLEM] = '944e13'
+            },
+            {
                 name     = "Modern",
                 [PANTS]  = 'F1662F',
                 [SHIRT]  = 'FFD01C',
@@ -436,19 +467,6 @@ extraCharacters = {
                 [CAP]    = 'f7ea6e',
                 [EMBLEM] = 'ce53b2',
             },
-
-            {
-                name     = "LCD",
-                [PANTS]  = 'A8A8A8',
-                [SHIRT]  = '505050',
-                [GLOVES] = '505050',
-                [SHOES]  = 'A8A8A8',
-                [HAIR]   = '161616',
-                [SKIN]   = 'A8A8A8',
-                [CAP]    = '505050',
-                [EMBLEM] = 'A8A8A8'
-            },
-
         },
         voices = {
             [CHAR_SOUND_ATTACKED] = { 'daisy_attacked_1.ogg', 'daisy_attacked_2.ogg', 'daisy_attacked_3.ogg' },
@@ -626,6 +644,17 @@ extraCharacters = {
                 [EMBLEM] = { r = 0xFF, g = 0x00, b = 0x00 }
             },
             {
+                name     = "Retro",
+                [PANTS]  = 'FFFFFF',
+                [SHIRT]  = '468519',
+                [GLOVES] = 'FFFFFF',
+                [SHOES]  = 'b53121',
+                [HAIR]   = 'b53121',
+                [SKIN]   = 'FFFFFF',
+                [CAP]    = '468519',
+                [EMBLEM] = 'b53121'
+            },
+            {
                 name     = "Red",
                 [PANTS]  = 'FFFF00',
                 [SHIRT]  = 'FE0000',
@@ -757,6 +786,17 @@ extraCharacters = {
                 [EMBLEM] = 'FF0000'
             },
             {
+                name     = "Retro",
+                [PANTS]  = '6b1240',
+                [SHIRT]  = 'c82777',
+                [GLOVES] = 'FFFFFF',
+                [SHOES]  = 'c82777',
+                [HAIR]   = '6b1240',
+                [SKIN]   = 'c82777',
+                [CAP]    = 'c82777',
+                [EMBLEM] = '6b1240'
+            },
+            {
                 name     = "Green",
                 [PANTS]  = 'FDE400',
                 [SHIRT]  = 'A4E784',
@@ -788,7 +828,7 @@ extraCharacters = {
                 [SKIN]   = '646464',
                 [CAP]    = '646464',
                 [EMBLEM] = '646464'
-            }
+            },
         },
         voices = {
             [CHAR_SOUND_ATTACKED] = "birdo_attacked.ogg",
@@ -1021,6 +1061,17 @@ extraCharacters = {
                 [EMBLEM] = 'ffffff'
             },
             {
+                name     = "Retro",
+                [PANTS]  = 'f057e8',
+                [SHIRT]  = 'f057e8',
+                [GLOVES] = 'f057e8',
+                [SHOES]  = 'f057e8',
+                [HAIR]   = 'ee7511',
+                [SKIN]   = 'fefcff',
+                [CAP]    = 'f057e8',
+                [EMBLEM] = 'f057e8'
+            },
+            {
                 name     = "Odd Rock",
                 [PANTS]  = '7234F5',
                 [SHIRT]  = '7234F5',
@@ -1221,6 +1272,17 @@ extraCharacters = {
                 [EMBLEM] = 'FFFF00'
             },
             {
+                name     = "Retro",
+                [PANTS]  = 'a2dbe7',
+                [SHIRT]  = 'a2dbe7',
+                [GLOVES] = '3f798b',
+                [SHOES]  = 'a2dbe7',
+                [HAIR]   = '3f798b',
+                [SKIN]   = 'd49f45',
+                [CAP]    = 'a2dbe7',
+                [EMBLEM] = '3f798b'
+            },
+            {
                 name     = "Super Bell",
                 [PANTS]  = '272F40',
                 [SHIRT]  = '272F40',
@@ -1241,7 +1303,7 @@ extraCharacters = {
                 [SKIN]   = 'FCE3CD',
                 [CAP]    = 'B7B7BB',
                 [EMBLEM] = 'FFF9E9'
-            }
+            },
         },
         voices = {
             [CHAR_SOUND_ATTACKED] = "rosalina_attacked.ogg",
@@ -1434,6 +1496,17 @@ extraCharacters = {
                 [EMBLEM] = 'FF258C'
             },
             {
+                name     = "Retro",
+                [PANTS]  = '743b89',
+                [SHIRT]  = '743b89',
+                [GLOVES] = '743b89',
+                [SHOES]  = '743b89',
+                [HAIR]   = '9e4f14',
+                [SKIN]   = 'dc9d38',
+                [CAP]    = 'dc9d38',
+                [EMBLEM] = 'dc9d38'
+            },
+            {
                 name     = "Scene",
                 [PANTS]  = 'FF009E',
                 [SHIRT]  = 'FF0077',
@@ -1443,7 +1516,7 @@ extraCharacters = {
                 [SKIN]   = 'BF9468',
                 [CAP]    = 'FF5581',
                 [EMBLEM] = 'FFFFFF'
-            }
+            },
         },
         voices = {
             [CHAR_SOUND_ATTACKED] = "wapeach_attacked.ogg",
@@ -1544,6 +1617,17 @@ extraCharacters = {
                 [EMBLEM] = 'FFE900'
             },
             {
+                name     = "Retro",
+                [PANTS]  = 'ee7511',
+                [SHIRT]  = 'ab0507',
+                [GLOVES] = 'f5bb9f',
+                [SHOES]  = 'f5bb9f',
+                [HAIR]   = 'ab0507',
+                [SKIN]   = 'f5bb9f',
+                [CAP]    = 'ab0507',
+                [EMBLEM] = 'f5bb9f'
+            },
+            {
                 name     = "Gorilla",
                 [PANTS]  = 'eec52b',
                 [SHIRT]  = '1b1b1b',
@@ -1565,17 +1649,6 @@ extraCharacters = {
                 [CAP]    = 'ffffff',
                 [EMBLEM] = 'FFE900',
             },
-            {
-                name     = "Retro",
-                [PANTS]  = 'ee7511',
-                [SHIRT]  = 'ab0507',
-                [GLOVES] = 'f5bb9f',
-                [SHOES]  = 'f5bb9f',
-                [HAIR]   = 'ab0507',
-                [SKIN]   = 'f5bb9f',
-                [CAP]    = 'ab0507',
-                [EMBLEM] = 'f5bb9f'
-            }
         },
         voices = {
             [CHAR_SOUND_ATTACKED] = "dk_attacked.ogg",
@@ -1740,6 +1813,17 @@ extraCharacters = {
                 [EMBLEM] = '000000'
             },
             {
+                name     = "Retro",
+                [PANTS]  = '152a89',
+                [SHIRT]  = 'e1a037',
+                [GLOVES] = 'FFFFFF',
+                [SHOES]  = 'b98025',
+                [HAIR]   = '152a89',
+                [SKIN]   = 'e1a037',
+                [CAP]    = '152a89',
+                [EMBLEM] = '000000'
+            },
+            {
                 name     = "Mirror",
                 [PANTS]  = '555555',
                 [SHIRT]  = 'cccccc',
@@ -1825,11 +1909,6 @@ extraCharacters = {
             [CHAR_ANIM_RUNNING] = function(m)
                 if gCSPlayers[m.playerIndex].movesetToggle then
                     return 'sonic_running'
-                end
-            end,
-            [CHAR_ANIM_SHIVERING_RETURN_TO_IDLE] = function(m)
-                if gCSPlayers[m.playerIndex].movesetToggle then
-                    return 'sonic_shivering_stop'
                 end
             end,
             [CHAR_ANIM_RUNNING_UNUSED] = function(m)
