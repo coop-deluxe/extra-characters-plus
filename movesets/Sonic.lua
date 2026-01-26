@@ -4,6 +4,8 @@
 
 if not charSelect then return end
 
+require "anims/sonic"
+
 -- Sonic variables for the local player only
 local sPrevRings = 0
 local sRingTimeBetweenDamages = 0
@@ -1855,7 +1857,7 @@ function sonic_health_meter(localIndex, health, prevX, prevY, prevScaleW, prevSc
         djui_hud_set_font(FONT_RECOLOR_HUD)
 
         djui_hud_render_texture_interpolated(TEX_SONIC_RING_METER, prevX, prevY, prevScaleW, prevScaleH, x, y, scaleW, scaleH)
-        
+
         showHealth = showHealth - 1
         djui_hud_set_color(255 * djuiColor.r/255, 255 * djuiColor.g/255, 0, djuiColor.a)
         if p.rings == 0 then
@@ -2124,3 +2126,17 @@ end
 if network_is_server() then
     hook_event(HOOK_UPDATE, update_slow_boots_option)
 end
+
+return {
+    { HOOK_BEFORE_SET_MARIO_ACTION, before_set_sonic_action },
+    { HOOK_ON_SET_MARIO_ACTION, on_set_sonic_action },
+    { HOOK_ALLOW_INTERACT, sonic_allow_interact },
+    { HOOK_ON_INTERACT, sonic_on_interact },
+    { HOOK_ALLOW_FORCE_WATER_ACTION, sonic_allow_water },
+    { HOOK_MARIO_UPDATE, sonic_update },
+    { HOOK_BEFORE_PHYS_STEP, sonic_before_phys_step },
+    { HOOK_ON_HUD_RENDER_BEHIND, sonic_homing_hud },
+    { HOOK_MARIO_OVERRIDE_PHYS_STEP_DEFACTO_SPEED, sonic_defacto_fix },
+    { HOOK_ON_PLAY_SOUND, sonic_on_play_sound },
+    meter = sonic_health_meter
+}

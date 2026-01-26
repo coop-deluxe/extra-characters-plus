@@ -4,6 +4,8 @@
 
 if not charSelect then return end
 
+require "anims/rosalina"
+
 _G.ACT_JUMP_TWIRL = allocate_mario_action(ACT_GROUP_AIRBORNE | ACT_FLAG_AIR | ACT_FLAG_ATTACKING)
 E_MODEL_TWIRL_EFFECT = smlua_model_util_get_id("spin_attack_geo")
 
@@ -201,3 +203,10 @@ function rosalina_before_action(m, action)
 end
 
 hook_mario_action(ACT_JUMP_TWIRL, act_jump_twirl, INT_KICK)
+
+return {
+    { HOOK_MARIO_UPDATE, rosalina_update },
+ -- { HOOK_ON_PVP_ATTACK, rosalina_on_pvp_attack },
+    { HOOK_ALLOW_INTERACT, rosalina_allow_interact },
+    { HOOK_BEFORE_SET_MARIO_ACTION, rosalina_before_action }
+}

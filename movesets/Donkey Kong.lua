@@ -4,6 +4,8 @@
 
 if not charSelect then return end
 
+require "anims/dk"
+
 local DONKEY_KONG_ROLL_SPEED = 60
 local DONKEY_KONG_ROLL_DECAY_PERCENT = 0.98
 local DONKEY_KONG_ROLL_DECAY_TIME = 10
@@ -723,7 +725,7 @@ local function act_donkey_kong_roll(m)
     return 0
 end
 
-hook_mario_action(ACT_DONKEY_KONG_ROLL, { every_frame = act_donkey_kong_roll }, INT_FAST_ATTACK_OR_SHELL)
+hook_mario_action(ACT_DONKEY_KONG_ROLL, act_donkey_kong_roll, INT_FAST_ATTACK_OR_SHELL)
 
 ---@param m MarioState
 local function act_donkey_kong_roll_air(m)
@@ -783,7 +785,7 @@ local function act_donkey_kong_roll_air(m)
     return 0
 end
 
-hook_mario_action(ACT_DONKEY_KONG_ROLL_AIR, { every_frame = act_donkey_kong_roll_air }, INT_FAST_ATTACK_OR_SHELL)
+hook_mario_action(ACT_DONKEY_KONG_ROLL_AIR, act_donkey_kong_roll_air, INT_FAST_ATTACK_OR_SHELL)
 
 local function act_donkey_kong_pound(m)
     if (not m) then return 0 end
@@ -848,9 +850,9 @@ local function act_donkey_kong_pound(m)
         return set_mario_action(m, ACT_FREEFALL, 0)
     end
 end
-hook_mario_action(ACT_DONKEY_KONG_POUND, { every_frame = act_donkey_kong_pound })
+hook_mario_action(ACT_DONKEY_KONG_POUND, act_donkey_kong_pound)
 
-hook_mario_action(ACT_DONKEY_KONG_POUND_HIT, { every_frame = act_donkey_kong_pound }, INT_GROUND_POUND) -- same action but with ground pound interaction
+hook_mario_action(ACT_DONKEY_KONG_POUND_HIT, act_donkey_kong_pound, INT_GROUND_POUND) -- same action but with ground pound interaction
 
 -----------------------
 --- Donkey Climbing ---
@@ -955,3 +957,9 @@ function act_donkey_climb(m)
     m.actionTimer = m.actionTimer + 1
 end
 hook_mario_action(ACT_DONKEY_CLIMB, {every_frame = act_donkey_climb, gravity = function() end})
+
+return {
+    { HOOK_BEFORE_PHYS_STEP, donkey_kong_before_phys_step },
+    { HOOK_BEFORE_SET_MARIO_ACTION, donkey_kong_before_action },
+    { HOOK_ON_INTERACT, donkey_kong_on_interact }
+}

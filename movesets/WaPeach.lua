@@ -4,6 +4,8 @@
 
 if not charSelect then return end
 
+require "anims/wapeach"
+
 _G.ACT_AXE_CHOP       = allocate_mario_action(ACT_GROUP_STATIONARY | ACT_FLAG_STATIONARY)
 _G.ACT_AXE_SPIN       = allocate_mario_action(ACT_GROUP_MOVING | ACT_FLAG_MOVING | ACT_FLAG_ATTACKING)
 _G.ACT_AXE_SPIN_AIR   = allocate_mario_action(ACT_FLAG_ATTACKING | ACT_FLAG_AIR | ACT_GROUP_AIRBORNE)
@@ -336,3 +338,7 @@ function wapeach_on_attack_object(m, o, interaction)
     set_mario_particle_flags(m, PARTICLE_VERTICAL_STAR, 0)
 end
 hook_event(HOOK_ON_ATTACK_OBJECT, wapeach_on_attack_object)
+
+return {
+    { HOOK_BEFORE_SET_MARIO_ACTION, wapeach_before_action }
+}

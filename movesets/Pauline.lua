@@ -5,6 +5,8 @@
 local OmmEnabled = OmmEnabled
 if not charSelect then return end
 
+require "anims/pauline"
+
 ---------------
 -- Constants --
 ---------------
@@ -1754,3 +1756,12 @@ hook_mario_action(ACT_CAPPY_RAINBOW_SPIN, function(m)
     m.marioBodyState.punchState = 0
     return 0
 end)
+
+if not OmmEnabled then
+    return {
+        { HOOK_ON_SET_MARIO_ACTION, pauline_init_action, global = true },
+        { HOOK_BEFORE_SET_MARIO_ACTION, pauline_before_action },
+        { HOOK_BEFORE_MARIO_UPDATE, pauline_cancel_action },
+        { HOOK_MARIO_UPDATE, pauline_update, global = true }
+    }
+end

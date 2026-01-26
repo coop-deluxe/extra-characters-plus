@@ -4,6 +4,8 @@
 
 if not charSelect then return end
 
+require "anims/toadette"
+
 function toadette_before_phys_step(m)
     local hScale = 1.0
     local vScale = 1.0
@@ -88,3 +90,9 @@ function toadette_update(m)
         m.vel.y = m.vel.y + 0.9
     end
 end
+
+return {
+    { HOOK_MARIO_UPDATE, toadette_update },
+    { HOOK_ON_SET_MARIO_ACTION, toadette_on_set_action },
+    { HOOK_BEFORE_PHYS_STEP, toadette_before_phys_step }
+}

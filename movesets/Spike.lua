@@ -4,6 +4,8 @@
 
 if not charSelect then return end
 
+require "anims/spike"
+
 -----------------
 -- Spike Bombs --
 -----------------
@@ -591,6 +593,11 @@ function spike_hammer_interaction(o, hammer)
     end
 end
 
-hook_mario_action(ACT_SPIKE_PLACE_BOMB, { every_frame = act_spike_place_bomb })
-hook_mario_action(ACT_SPIKE_PLACE_BOMB_AIR, { every_frame = act_spike_place_bomb_air })
-hook_mario_action(ACT_BOMB_JUMP, { every_frame = act_bomb_jump })
+hook_mario_action(ACT_SPIKE_PLACE_BOMB, act_spike_place_bomb)
+hook_mario_action(ACT_SPIKE_PLACE_BOMB_AIR, act_spike_place_bomb_air)
+hook_mario_action(ACT_BOMB_JUMP, act_bomb_jump)
+
+return {
+    { HOOK_MARIO_UPDATE, spike_update },
+    { HOOK_BEFORE_SET_MARIO_ACTION, spike_before_action }
+}

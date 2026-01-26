@@ -4,6 +4,8 @@
 
 if not charSelect then return end
 
+require "anims/yoshi"
+
 -- Flutterable actions, these don't match the DS flutterable actions
 local flutterActs = {
     [ACT_JUMP]        = true,
@@ -52,3 +54,7 @@ function yoshi_update(m)
 end
 
 hook_mario_action(ACT_FLUTTER, act_flutter)
+
+return {
+    { HOOK_MARIO_UPDATE, yoshi_update }
+}

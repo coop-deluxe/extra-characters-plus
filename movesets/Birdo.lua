@@ -4,6 +4,8 @@
 
 if not charSelect then return end
 
+require "anims/birdo"
+
 local SOUND_SPIT = audio_sample_load("z_sfx_birdo_spit.ogg") -- Load audio sample
 
 ---------------
@@ -841,3 +843,12 @@ function on_obj_load(o)
     o.header.gfx.shadowInvisible = false
 end
 hook_event(HOOK_ON_OBJECT_LOAD, on_obj_load)
+
+return {
+    { HOOK_MARIO_UPDATE, birdo_update },
+    { HOOK_ON_SET_MARIO_ACTION, birdo_on_set_action },
+    { HOOK_BEFORE_SET_MARIO_ACTION, birdo_before_action },
+    { HOOK_ON_INTERACT, birdo_on_interact },
+    { HOOK_BEFORE_PHYS_STEP, birdo_before_phys_step },
+    { HOOK_BEFORE_MARIO_UPDATE, birdo_before_update }
+}
