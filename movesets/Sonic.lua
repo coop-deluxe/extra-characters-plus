@@ -844,11 +844,7 @@ local function act_homing_attack(m)
         m.particleFlags = m.particleFlags + PARTICLE_VERTICAL_STAR
         local totalVel = math.sqrt(m.forwardVel ^ 2 + m.vel.y ^ 2)
 
-        if totalVel < 80 then
-            m.forwardVel = 80
-        elseif totalVel >= 80 and totalVel < 172 then
-            m.forwardVel = totalVel + 20
-        end
+        m.forwardVel = math.clamp(80, totalVel + 20, 172)
 
         m.faceAngle.y = yaw
     end
@@ -863,9 +859,9 @@ local function act_homing_attack(m)
     if stepResult == AIR_STEP_LANDED then
         if m.floor.object == o and o.oInteractType == INTERACT_BREAKABLE then
             m.vel.y = math.abs(m.vel.y)
+            set_mario_action(m, ACT_SONIC_FALL, 4 + math.random(4))
             play_character_sound_offset(m, CHAR_SOUND_YAHOO_WAHA_YIPPEE, math.fmod(math.random(3, 5), 5) << 16)
             o.oInteractStatus = ATTACK_GROUND_POUND_OR_TWIRL + (INT_STATUS_INTERACTED | INT_STATUS_WAS_ATTACKED)
-            set_mario_action(m, ACT_SONIC_FALL, 4 + math.random(4))
         else
             if (m.controller.buttonDown & Z_TRIG) ~= 0 then
                 audio_sample_play(SOUND_ROLL, m.pos, 1)
@@ -977,7 +973,7 @@ local function act_spin_dash(m)
         set_mario_action(m, ACT_AIR_SPIN, 0)
 
     elseif stepResult == GROUND_STEP_HIT_WALL then
-        if m.forwardVel > 16 then
+        if m.forwardVel > 64 then
             set_mario_particle_flags(m, PARTICLE_VERTICAL_STAR, 0)
             return slide_bonk(m, ACT_GROUND_BONK, ACT_GROUND_BONK)
         else
@@ -1557,9 +1553,15 @@ function sonic_allow_interact(m, o, intType)
             if m.vel.y < 0 then
                 m.vel.y = math.abs(m.vel.y)
             end
-            play_character_sound_offset(m, CHAR_SOUND_YAHOO_WAHA_YIPPEE, math.fmod(math.random(3, 5), 5) << 16)
             set_mario_action(m, ACT_SONIC_FALL, 4 + math.random(4))
+            play_character_sound_offset(m, CHAR_SOUND_YAHOO_WAHA_YIPPEE, math.fmod(math.random(3, 5), 5) << 16)
             o.oInteractStatus = ATTACK_GROUND_POUND_OR_TWIRL + (INT_STATUS_INTERACTED | INT_STATUS_WAS_ATTACKED)
+            return false
+        end
+    end
+
+    if intType == INTERACT_POLE then
+        if m.action == ACT_HOMING_ATTACK then
             return false
         end
     end
