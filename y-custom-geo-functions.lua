@@ -6,9 +6,14 @@
 function mario_yaw_from_camera(m)
     local l = gLakituState
     local tau = math.pi * 2
+    local headAngle = m.marioObj.header.gfx.angle.y
+
+    for i = MARIO_ANIM_PART_ROOT, MARIO_ANIM_PART_HEAD + 1 do
+        headAngle = headAngle + m.marioBodyState.animPartsRot[i].y
+    end
 
     local vector = {X = l.pos.x - m.pos.x, Y = l.pos.y - m.pos.y,  Z = l.pos.z - m.pos.z}
-    local r0 = math.rad((m.faceAngle.y * 360) / 0x10000)
+    local r0 = math.rad((headAngle * 360) / 0x10000)
     local r1 = r0 < 0 and tau - math.abs(r0) or r0
     local a0 = math.atan(vector.Z, vector.X) + math.pi * 0.5
 
@@ -134,6 +139,8 @@ function geo_switch_mario_mouth(n)
     local switch = cast_graph_node(n)
     local m = geo_get_mario_state()
     local o = geo_get_current_object()
+    local homingAttacked = m.action == ACT_SONIC_FALL and m.actionArg >= 5
+    local frame = m.marioObj.header.gfx.animInfo.animFrame
 
     if m.marioBodyState.eyeState == MARIO_EYES_DEAD then
         switch.selectedCase = SONIC_MOUTH_ATTACKED
@@ -144,7 +151,7 @@ function geo_switch_mario_mouth(n)
     elseif m.marioBodyState.eyeState == MARIO_EYES_HALF_CLOSED and m.action == ACT_START_SLEEPING then
         switch.selectedCase = SONIC_MOUTH_SHOCKED
         m.actionTimer = 0
-    elseif m.marioBodyState.handState == MARIO_HAND_PEACE_SIGN then
+    elseif m.marioBodyState.handState == MARIO_HAND_PEACE_SIGN or (homingAttacked and frame <= 22) then
         switch.selectedCase = SONIC_MOUTH_GRIN
     else
         switch.selectedCase = SONIC_MOUTH_NORMAL
@@ -210,6 +217,7 @@ function geo_custom_hand_switch(n)
     local m = geo_get_mario_state()
     local bodyState = geo_get_body_state()
     local param = switch.parameter
+    local frame = m.marioObj.header.gfx.animInfo.animFrame
 
     if param == WAPEACH_HAND_AXE then
         if sWapeachAxeActs[m.action] or m.marioObj.header.gfx.animInfo.animID == CS_ANIM_MENU then
@@ -218,8 +226,22 @@ function geo_custom_hand_switch(n)
             switch.selectedCase = 0
         end
     else
-        if sSonicHandStateActs[m.action] and m.marioObj.header.gfx.animInfo.animFrame >= 58 then
+        if sSonicHandStateActs[m.action] and frame >= 58 then
             switch.selectedCase = sSonicHandStateActs[m.action][param]
+        elseif m.action == ACT_SONIC_FALL and m.actionArg >= 5 then
+            local animIndex = m.actionArg - 4
+            local handCases = {
+                [1] = {condition = in_between(frame, 9, 19, true), hands = {[SONIC_HAND_LEFT] = MARIO_HAND_PEACE_SIGN, [SONIC_HAND_RIGHT] = MARIO_HAND_OPEN}},
+                [2] = {condition = in_between(frame, 9, 22, true), hands = {[SONIC_HAND_LEFT] = MARIO_HAND_OPEN, [SONIC_HAND_RIGHT] = MARIO_HAND_OPEN}},
+                [4] = {condition = frame <= 26, hands = {[SONIC_HAND_LEFT] = MARIO_HAND_PEACE_SIGN, [SONIC_HAND_RIGHT] = MARIO_HAND_PEACE_SIGN}},
+            }
+            local case = handCases[animIndex]
+
+            if case and case.condition and case.hands[param] then
+                switch.selectedCase = case.hands[param]
+            else
+                switch.selectedCase = MARIO_HAND_FISTS
+            end
         elseif sSonicHandCopies[bodyState.handState] then
             if bodyState.handState == MARIO_HAND_OPEN or bodyState.handState == MARIO_HAND_RIGHT_OPEN then
                 if bodyState.handState == MARIO_HAND_OPEN then

@@ -29,3 +29,22 @@ function string.split(str, splitAt)
     end
     return result
 end
+
+--- @param x integer
+--- @param min integer
+--- @param max integer
+--- @param inclusive? boolean
+--- @return boolean
+function in_between(x, min, max, inclusive)
+    if inclusive then
+        if x >= min and x <= max then
+            return true
+        end
+    end
+
+    if x > min and x < max then
+        return true
+    end
+
+    return false
+end
