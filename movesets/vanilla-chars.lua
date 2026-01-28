@@ -1088,7 +1088,7 @@ function wario_update_spin_input(m)
             end
             e.spinDirection = newDirection
         else
-            for i = ANGLE_QUEUE_SIZE, 0, -1 do
+            for i = ANGLE_QUEUE_SIZE, 2, -1 do
                 e.angleDeltaQueue[i] = e.angleDeltaQueue[i-1]
                 angleOverFrames = angleOverFrames + e.angleDeltaQueue[i]
             end
