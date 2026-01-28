@@ -5,9 +5,7 @@
 --- @param accel? number
 --- Plays a custom animation for MarioState `m`
 function play_custom_anim(m, name, accel)
-    accel = accel or 0x10000
-
-    m.marioObj.header.gfx.animInfo.animAccel = accel
+    m.marioObj.header.gfx.animInfo.animAccel = accel or 0x10000
 
     if (smlua_anim_util_get_current_animation_name(m.marioObj) ~= name or m.marioObj.header.gfx.animInfo.animID ~= -1) then
         m.marioObj.header.gfx.animInfo.animID = -1

@@ -55,7 +55,7 @@ local ROSALINA_SOUND_SPIN = audio_sample_load("z_sfx_rosalina_spinattack.ogg") -
 
 ---@param m MarioState
 function act_jump_twirl(m)
-    local e = gCharacterStates[m.playerIndex]
+    local e = gCharacterStates[m.playerIndex].rosalina
 
     if m.actionTimer >= 15 then
         return set_mario_action(m, ACT_FREEFALL, 0) -- End the action
@@ -67,9 +67,9 @@ function act_jump_twirl(m)
         audio_sample_play(ROSALINA_SOUND_SPIN, m.pos, 1)             -- Plays the spin sound sample
         m.particleFlags = m.particleFlags | ACTIVE_PARTICLE_SPARKLES -- Spawns sparkle particles
 
-        if e.rosalina.canSpin then
+        if e.canSpin then
             m.vel.y = 30 -- Initial upward velocity
-            e.rosalina.canSpin = false
+            e.canSpin = false
 
             -- Spawn the spin effect
             if m.playerIndex == 0 then
@@ -97,7 +97,7 @@ end
 ---@param o Object
 ---@param intType InteractionType
 function rosalina_allow_interact(m, o, intType)
-    local e = gCharacterStates[m.playerIndex]
+    local e = gCharacterStates[m.playerIndex].rosalina
     if m.action == ACT_JUMP_TWIRL and intType == INTERACT_GRABBABLE and o.oInteractionSubtype & INT_SUBTYPE_NOT_GRABBABLE == 0 then
         local angleTo = mario_obj_angle_to_object(m, o)
         if (o.oInteractionSubtype & INT_SUBTYPE_GRABS_MARIO ~= 0 or obj_has_behavior_id(o, id_bhvBowser) ~= 0) then -- heavy grab objects
@@ -105,11 +105,11 @@ function rosalina_allow_interact(m, o, intType)
                 m.action = ACT_MOVE_PUNCHING
                 m.actionArg = 1
             end
-        elseif not e.rosalina.orbitObjActive then -- light grab objects
+        elseif not e.orbitObjActive then -- light grab objects
             m.usedObj = o
-            e.rosalina.orbitObjActive = true
-            e.rosalina.orbitObjDist = 160 - m.actionTimer * 2
-            e.rosalina.orbitObjAngle = angleTo
+            e.orbitObjActive = true
+            e.orbitObjDist = 160 - m.actionTimer * 2
+            e.orbitObjAngle = angleTo
 
             return false
         end
@@ -118,48 +118,48 @@ end
 
 ---@param m MarioState
 function rosalina_update(m)
-    local e = gCharacterStates[m.playerIndex]
+    local e = gCharacterStates[m.playerIndex].rosalina
 
     if m.controller.buttonPressed & B_BUTTON ~= 0 and extraSpinActs[m.action] then
         return set_mario_action(m, ACT_JUMP_TWIRL, 0)
     end
 
     --if m.action & ACT_FLAG_AIR == 0 and m.playerIndex == 0 then
-    --    e.rosalina.canSpin = true
+    --    e.canSpin = true
     --end
 
     if m.action ~= ACT_JUMP_TWIRL and m.marioObj.hitboxRadius ~= 37 then
         m.marioObj.hitboxRadius = 37
     end
 
-    if e.rosalina.orbitObjActive then
+    if e.orbitObjActive then
         local o = m.usedObj
 
         if not o or o.activeFlags == ACTIVE_FLAG_DEACTIVATED then
-            e.rosalina.orbitObjActive = false
+            e.orbitObjActive = false
             o.oIntangibleTimer = 0
 
             if m.playerIndex == 0 then m.usedObj = nil end
             return
         end
 
-        e.rosalina.orbitObjDist = e.rosalina.orbitObjDist - 6
-        if e.rosalina.orbitObjDist >= 90 then
-            e.rosalina.orbitObjAngle = e.rosalina.orbitObjAngle + 0x1800
+        e.orbitObjDist = e.orbitObjDist - 6
+        if e.orbitObjDist >= 90 then
+            e.orbitObjAngle = e.orbitObjAngle + 0x1800
         else
-            e.rosalina.orbitObjAngle = approach_s16_asymptotic(e.rosalina.orbitObjAngle, m.faceAngle.y, 4)
+            e.orbitObjAngle = approach_s16_asymptotic(e.orbitObjAngle, m.faceAngle.y, 4)
         end
 
-        o.oPosX = m.pos.x + sins(e.rosalina.orbitObjAngle) * e.rosalina.orbitObjDist
-        o.oPosZ = m.pos.z + coss(e.rosalina.orbitObjAngle) * e.rosalina.orbitObjDist
+        o.oPosX = m.pos.x + sins(e.orbitObjAngle) * e.orbitObjDist
+        o.oPosZ = m.pos.z + coss(e.orbitObjAngle) * e.orbitObjDist
         o.oPosY = approach_f32_asymptotic(o.oPosY, m.pos.y + 50, 0.25)
 
         obj_set_vel(o, 0, 0, 0)
         o.oForwardVel = 0
         o.oIntangibleTimer = -1
 
-        if m.playerIndex == 0 and e.rosalina.orbitObjDist <= 80 then
-            e.rosalina.orbitObjActive = false
+        if m.playerIndex == 0 and e.orbitObjDist <= 80 then
+            e.orbitObjActive = false
             o.oIntangibleTimer = 0
 
             if m.action & (ACT_FLAG_INVULNERABLE | ACT_FLAG_INTANGIBLE) ~= 0 or m.action & ACT_GROUP_MASK >= ACT_GROUP_SUBMERGED then
@@ -186,19 +186,19 @@ end
 function rosalina_before_action(m, action)
     if not action then return end
 
-    local e = gCharacterStates[m.playerIndex]
+    local e = gCharacterStates[m.playerIndex].rosalina
 
     if spinOverrides[action] and m.controller.buttonDown & (Z_TRIG | A_BUTTON) == 0 and m.action ~= ACT_STEEP_JUMP then
         return ACT_JUMP_TWIRL
     end
 
-    if action & ACT_FLAG_AIR == 0 and not e.rosalina.canSpin then
+    if action & ACT_FLAG_AIR == 0 and not e.canSpin then
         play_sound_with_freq_scale(SOUND_GENERAL_COIN_SPURT_EU, m.marioObj.header.gfx.cameraToObject, 1.6)
         if m.playerIndex == 0 then
             spawn_sync_object(id_bhvSparkle, E_MODEL_SPARKLES_ANIMATION, m.pos.x, m.pos.y + 200, m.pos.z,
                 function(o) obj_scale(o, 0.75) end)
         end
-        e.rosalina.canSpin = true
+        e.canSpin = true
     end
 end
 

@@ -44,10 +44,10 @@ function reset_from_action(m)
         [ACT_DONKEY_KONG_ROLL_AIR] = 1,
         [ACT_DONKEY_KONG_POUND] = 1,
         [ACT_DONKEY_KONG_POUND_HIT] = 1,
-        [ACT_SPIN_JUMP] = 1,
-        [ACT_AIR_SPIN] = 1,
-        [ACT_HOMING_ATTACK] = 1,
-        [ACT_SPIN_DASH] = 1,
+        [ACT_SONIC_SPIN_JUMP] = 1,
+        [ACT_SONIC_AIR_SPIN] = 1,
+        [ACT_SONIC_HOMING_ATTACK] = 1,
+        [ACT_SONIC_SPIN_DASH] = 1,
     }
 
     if PITCH_AND_HITBOX_RESET_ACTIONS[m.prevAction] then

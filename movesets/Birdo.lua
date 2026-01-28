@@ -91,7 +91,7 @@ end
 
 --- @param m MarioState
 local function act_spit_egg(m)
-    local e = gCharacterStates[m.playerIndex]
+    local e = gCharacterStates[m.playerIndex].birdo
     if (m.quicksandDepth > 30) then
         return set_mario_action(m, ACT_IN_QUICKSAND, 0)
     end
@@ -101,7 +101,7 @@ local function act_spit_egg(m)
         if is_anim_past_end(m) ~= 0 then
             m.actionState = 1
         end
-    elseif e.birdo.flameCharge == 0 and e.birdo.framesSinceShoot > 10 then
+    elseif e.flameCharge == 0 and e.framesSinceShoot > 10 then
         play_custom_anim(m, "BIRDO_ANIM_AIM_IDLE_TO_IDLE")
         if is_anim_past_end(m) ~= 0 then
             return set_mario_action(m, ACT_IDLE, 0)
@@ -138,13 +138,13 @@ end
 
 --- @param m MarioState
 local function act_spit_egg_walk(m)
-    local e = gCharacterStates[m.playerIndex]
+    local e = gCharacterStates[m.playerIndex].birdo
     local mBody = m.marioBodyState
 
     mario_drop_held_object(m)
 
     m.actionTimer = m.actionTimer + 1
-    if e.birdo.flameCharge == 0 and e.birdo.framesSinceShoot > 10 then
+    if e.flameCharge == 0 and e.framesSinceShoot > 10 then
         if m.forwardVel < 0 then
             m.forwardVel = m.intendedMag
             m.faceAngle.y = m.intendedYaw
@@ -245,7 +245,7 @@ end
 
 ---@param m MarioState
 local function act_spit_egg_air(m)
-    local e = gCharacterStates[m.playerIndex]
+    local e = gCharacterStates[m.playerIndex].birdo
 
     play_custom_anim(m, "BIRDO_ANIM_AIM_JUMP")
     if m.actionArg ~= 1 then
@@ -273,7 +273,7 @@ local function act_spit_egg_air(m)
     if result == AIR_STEP_LANDED then
         if check_fall_damage_or_get_stuck(m, ACT_HARD_BACKWARD_GROUND_KB) ~= 0 then
             return 1
-        elseif e.birdo.flameCharge == 0 and e.birdo.framesSinceShoot > 10 then
+        elseif e.flameCharge == 0 and e.framesSinceShoot > 10 then
             set_mario_action(m, ACT_FREEFALL_LAND, 0)
         else
             local oldActTimer = m.actionTimer
@@ -527,35 +527,35 @@ id_bhvBirdoEgg = hook_behavior(nil, OBJ_LIST_SURFACE, true, bhv_birdo_egg_init, 
 ---@param m MarioState
 function birdo_update(m)
     -- spit egg
-    local e = gCharacterStates[m.playerIndex]
+    local e = gCharacterStates[m.playerIndex].birdo
     local inSpitAction = (m.action == ACT_SPIT_EGG or m.action == ACT_SPIT_EGG_WALK or m.action == ACT_SPIT_EGG_AIR or m.action == ACT_FIRST_PERSON or m.action == ACT_WATER_PUNCH or m.action == ACT_FLYING)
     local headRot = m.marioBodyState.headAngle
 
     if m.controller.buttonPressed & B_BUTTON ~= 0 and inSpitAction then
         -- when mashing B, stay in spit action
-        e.birdo.framesSinceShoot = 0
-        if e.birdo.spitTimer == 0 then
-            e.birdo.flameCharge = 0
+        e.framesSinceShoot = 0
+        if e.spitTimer == 0 then
+            e.flameCharge = 0
         end
     else
         -- handle shooting repeatedly/charging
-        if e.birdo.framesSinceShoot ~= 255 then
-            e.birdo.framesSinceShoot = e.birdo.framesSinceShoot + 1
+        if e.framesSinceShoot ~= 255 then
+            e.framesSinceShoot = e.framesSinceShoot + 1
         end
         if m.controller.buttonDown & B_BUTTON ~= 0 then
             if inSpitAction then
-                e.birdo.flameCharge = e.birdo.flameCharge + 1
+                e.flameCharge = e.flameCharge + 1
             end
-        elseif e.birdo.spitTimer < 25 then
-            if e.birdo.flameCharge >= 30 then
-                e.birdo.framesSinceShoot = 0 -- shoot fireball
+        elseif e.spitTimer < 25 then
+            if e.flameCharge >= 30 then
+                e.framesSinceShoot = 0 -- shoot fireball
             else
-                e.birdo.flameCharge = 0
+                e.flameCharge = 0
             end
         end
     end
 
-    if (e.birdo.framesSinceShoot <= 10 or e.birdo.flameCharge ~= 0) and not m.heldObj and inSpitAction then
+    if (e.framesSinceShoot <= 10 or e.flameCharge ~= 0) and not m.heldObj and inSpitAction then
         local canShoot = true
         local eggCount = 0
         local gIndex = network_global_index_from_local(m.playerIndex)
@@ -571,16 +571,16 @@ function birdo_update(m)
             egg = obj_get_next_with_same_behavior_id(egg)
         end
 
-        if e.birdo.spitTimer ~= 0 then
-            e.birdo.spitTimer = e.birdo.spitTimer - 1
+        if e.spitTimer ~= 0 then
+            e.spitTimer = e.spitTimer - 1
             m.marioBodyState.allowPartRotation = true
-            if e.birdo.spitTimer > 24 then
+            if e.spitTimer > 24 then
                 headRot.x = approach_f32(headRot.x, degrees_to_sm64(-30), degrees_to_sm64(10), degrees_to_sm64(10))
             else
                 headRot.x = approach_f32(headRot.x, degrees_to_sm64(0), degrees_to_sm64(3.5), degrees_to_sm64(3.5))
             end
         end
-        if e.birdo.spitTimer == 0 and canShoot and e.birdo.framesSinceShoot <= 10 then
+        if e.spitTimer == 0 and canShoot and e.framesSinceShoot <= 10 then
             m.actionTimer = 0
             m.actionArg = 0
         end
@@ -614,7 +614,7 @@ function birdo_update(m)
             end
         end
 
-        if canShoot and e.birdo.spitTimer == 0 and e.birdo.flameCharge >= 30 and m.action & ACT_FLAG_SWIMMING == 0 then
+        if canShoot and e.spitTimer == 0 and e.flameCharge >= 30 and m.action & ACT_FLAG_SWIMMING == 0 then
             spawn_non_sync_object(id_bhvKoopaShellFlame, E_MODEL_RED_FLAME,
                 mouthPos.x,
                 mouthPos.y,
@@ -631,14 +631,14 @@ function birdo_update(m)
             play_sound(SOUND_AIR_BLOW_FIRE, m.marioObj.header.gfx.cameraToObject)
         end
 
-        if canShoot and e.birdo.spitTimer == 0 and e.birdo.framesSinceShoot <= 10 then
-            e.birdo.spitTimer = 30
-        elseif e.birdo.spitTimer == 25 then
+        if canShoot and e.spitTimer == 0 and e.framesSinceShoot <= 10 then
+            e.spitTimer = 30
+        elseif e.spitTimer == 25 then
             local model = E_MODEL_EGG
-            local isFireball = (e.birdo.flameCharge >= 30)
+            local isFireball = (e.flameCharge >= 30)
             if isFireball then
                 model = E_MODEL_RED_FLAME
-                e.birdo.flameCharge = 0
+                e.flameCharge = 0
             end
 
             if not isFireball then
@@ -666,10 +666,10 @@ function birdo_update(m)
                 end)
             end
         end
-    elseif e.birdo.spitTimer ~= 0 then
-        e.birdo.spitTimer = e.birdo.spitTimer - 1
+    elseif e.spitTimer ~= 0 then
+        e.spitTimer = e.spitTimer - 1
         m.marioBodyState.allowPartRotation = true
-        if e.birdo.spitTimer > 24 then
+        if e.spitTimer > 24 then
             headRot.x = approach_f32(headRot.x, degrees_to_sm64(-30), degrees_to_sm64(10), degrees_to_sm64(10))
         else
             headRot.x = approach_f32(headRot.x, degrees_to_sm64(0), degrees_to_sm64(3.5), degrees_to_sm64(3.5))
@@ -709,10 +709,10 @@ function birdo_before_action(m, action, actionArg)
     if m.playerIndex ~= 0 then return end
     if shootActs[action] and m.controller.buttonDown & A_BUTTON == 0 then
         if action == ACT_PUNCHING and actionArg == 9 then return end
-        local e = gCharacterStates[m.playerIndex]
-        e.birdo.framesSinceShoot = 0
-        if e.birdo.spitTimer == 0 then
-            e.birdo.flameCharge = 0
+        local e = gCharacterStates[m.playerIndex].birdo
+        e.framesSinceShoot = 0
+        if e.spitTimer == 0 then
+            e.flameCharge = 0
         end
 
         local canShoot = true
@@ -730,7 +730,7 @@ function birdo_before_action(m, action, actionArg)
             egg = obj_get_next_with_same_behavior_id(egg)
         end
 
-        if m.action ~= ACT_SPIT_EGG or e.birdo.spitTimer == 0 or canShoot then
+        if m.action ~= ACT_SPIT_EGG or e.spitTimer == 0 or canShoot then
             m.marioObj.header.gfx.animInfo.animFrame = 0
             return shootActs[action]
         end
@@ -738,8 +738,8 @@ function birdo_before_action(m, action, actionArg)
 end
 
 function birdo_on_interact(m, o, intType)
-    local e = gCharacterStates[m.playerIndex]
-    if intType == INTERACT_GRABBABLE and e.birdo.framesSinceShoot == 0 and e.birdo.flameCharge == 0 and (m.action == ACT_SPIT_EGG or m.action == ACT_SPIT_EGG_WALK) and o.oInteractionSubtype & INT_SUBTYPE_NOT_GRABBABLE == 0 then
+    local e = gCharacterStates[m.playerIndex].birdo
+    if intType == INTERACT_GRABBABLE and e.framesSinceShoot == 0 and e.flameCharge == 0 and (m.action == ACT_SPIT_EGG or m.action == ACT_SPIT_EGG_WALK) and o.oInteractionSubtype & INT_SUBTYPE_NOT_GRABBABLE == 0 then
         set_mario_action(m, ACT_MOVE_PUNCHING, 1)
         return
     end
@@ -767,10 +767,10 @@ end
 -- allow shooting in first person
 function birdo_before_update(m)
     if m.action == ACT_FIRST_PERSON and m.controller.buttonPressed & B_BUTTON ~= 0 then
-        local e = gCharacterStates[m.playerIndex]
-        e.birdo.framesSinceShoot = 0
-        if e.birdo.spitTimer == 0 then
-            e.birdo.flameCharge = 0
+        local e = gCharacterStates[m.playerIndex].birdo
+        e.framesSinceShoot = 0
+        if e.spitTimer == 0 then
+            e.flameCharge = 0
         end
         m.controller.buttonPressed = m.controller.buttonPressed & ~B_BUTTON
     end

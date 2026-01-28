@@ -30,12 +30,12 @@ function toadette_before_phys_step(m)
 end
 
 function toadette_on_set_action(m)
-    local e = gCharacterStates[m.playerIndex]
+    local e = gCharacterStates[m.playerIndex].toadette
 
     -- wall kick height based on how fast toadette is going
     if m.action == ACT_WALL_KICK_AIR and m.prevAction ~= ACT_HOLDING_POLE and m.prevAction ~= ACT_CLIMBING_POLE then
         m.vel.y = m.vel.y * 0.8
-        m.vel.y = m.vel.y + e.toadette.averageForwardVel * 0.8
+        m.vel.y = m.vel.y + e.averageForwardVel * 0.8
         return
     end
 
@@ -63,13 +63,13 @@ function toadette_on_set_action(m)
 end
 
 function toadette_update(m)
-    local e = gCharacterStates[m.playerIndex]
+    local e = gCharacterStates[m.playerIndex].toadette
 
     -- track average forward velocity
-    if e.toadette.averageForwardVel > m.forwardVel then
-        e.toadette.averageForwardVel = e.toadette.averageForwardVel * 0.93 + m.forwardVel * 0.07
+    if e.averageForwardVel > m.forwardVel then
+        e.averageForwardVel = e.averageForwardVel * 0.93 + m.forwardVel * 0.07
     else
-        e.toadette.averageForwardVel = m.forwardVel
+        e.averageForwardVel = m.forwardVel
     end
 
     -- keep your momentum for a while

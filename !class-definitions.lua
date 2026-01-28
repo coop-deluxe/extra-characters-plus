@@ -2,6 +2,8 @@
 --- @meta
 
 --- @class LuigiState
+--- @field public scuttle integer
+--- @field public lastHurtCounter integer
 
 --- @class ToadState
 

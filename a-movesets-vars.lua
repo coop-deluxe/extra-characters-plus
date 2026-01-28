@@ -5,7 +5,10 @@ gCharacterStates = {}
 for i = 0, (MAX_PLAYERS - 1) do
     gCharacterStates[i] = {
         mario = gMarioStates[i],
-        luigi = {},
+        luigi = {
+            scuttle = 0,
+            lastHurtCounter = 0
+        },
         toad = {},
         wario = {},
         waluigi = {},
@@ -18,7 +21,7 @@ for i = 0, (MAX_PLAYERS - 1) do
         birdo = {
             spitTimer = 0,
             framesSinceShoot = 255,
-            flameCharge = 0,
+            flameCharge = 0
         },
         spike = {},
         pauline = {},
@@ -26,7 +29,7 @@ for i = 0, (MAX_PLAYERS - 1) do
             canSpin = true,
             orbitObjActive = false,
             orbitObjDist = 0,
-            orbitObjAngle = 0,
+            orbitObjAngle = 0
         },
         wapeach = {},
         donkeyKong = {},
