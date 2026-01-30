@@ -896,6 +896,7 @@ extraCharacters = {
         model = smlua_model_util_get_id("ec_foreman_spike_geo"),
         forceChar = CT_MARIO,
         lifeIcon = get_texture_info("icon-ec-spike"),
+        graffiti = get_texture_info("char-select-ec-graffiti-foremanspike"),
         camScale = 1.1,
         offset = 0,
         meter = {
