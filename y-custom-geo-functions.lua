@@ -8,9 +8,10 @@ function mario_yaw_from_camera(m)
     local tau = math.pi * 2
     local headAngle = m.marioObj.header.gfx.angle.y
 
-    for i = MARIO_ANIM_PART_ROOT, MARIO_ANIM_PART_HEAD + 1 do
+    -- vvv Needs fixing later. vvv
+    --[[for i = MARIO_ANIM_PART_ROOT, MARIO_ANIM_PART_HEAD + 1 do
         headAngle = headAngle + m.marioBodyState.animPartsRot[i].y
-    end
+    end]]
 
     local vector = {X = l.pos.x - m.pos.x, Y = l.pos.y - m.pos.y,  Z = l.pos.z - m.pos.z}
     local r0 = math.rad((headAngle * 360) / 0x10000)

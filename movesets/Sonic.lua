@@ -1187,10 +1187,6 @@ function before_set_sonic_action(m, action, actionArg)
 end
 
 function on_set_sonic_action(m)
-    local p = gPlayerSyncTable[m.playerIndex]
-    if m.playerIndex == 0 and m.action == ACT_BURNING_JUMP then
-        sPrevRings = p.rings
-    end
 
     m.faceAngle.x = 0
     m.marioObj.header.gfx.angle.x = 0
@@ -1215,6 +1211,11 @@ function sonic_update(m)
         [ACT_DECELERATING] = 1,
         [ACT_BUTT_SLIDE] = 1
     }
+
+    if m.playerIndex == 0 and m.action == ACT_BURNING_JUMP and m.actionArg == 1 then
+        local p = gPlayerSyncTable[m.playerIndex]
+        sPrevRings = p.rings
+    end
 
     if groundMovingActions[m.action] then
         local steepness = sins(find_floor_slope(m, 0x8000)) * math.sign(m.forwardVel)
@@ -1328,6 +1329,39 @@ function sonic_instashield_interactions(m, e)
                 obj = obj_get_next(obj)
             end
         end
+
+        --[[local m2 = nearest_mario_state_to_object(m.marioObj)
+
+        if m2 ~= nil and m2.playerIndex ~= m.playerIndex then
+            if (dist_between_objects(m.marioObj, m2.marioObj) <= 200 and passes_pvp_interaction_checks(m, m2)) then
+                local angleToSonic = mario_obj_angle_to_object(m2, m.marioObj)
+                local facingDYaw = angleToSonic - m2.faceAngle.y
+
+                local sign = 1
+                local kbAct = ACT_HARD_FORWARD_AIR_KB
+
+                if math.abs(facingDYaw) <= 0x4000 then
+                    sign = -1
+                    kbAct = ACT_HARD_BACKWARD_AIR_KB
+                end
+                
+                local speed = gServerSettings.playerKnockbackStrength * sign * 50
+                
+                m2.marioObj.oInteractStatus = ATTACK_KICK_OR_TRIP + (INT_STATUS_INTERACTED | INT_STATUS_WAS_ATTACKED)
+
+                m2.faceAngle.y = angleToSonic * -sign
+                m2.vel.y = 25
+                set_mario_action(m2, kbAct, 0)
+                mario_set_forward_vel(m2, speed)
+                
+                mario_set_forward_vel(m, 0)
+                if m.playerIndex == 0 then set_camera_shake_from_hit(SHAKE_ATTACK) end
+                set_mario_particle_flags(m, PARTICLE_TRIANGLE, 0)
+                play_sound(SOUND_ACTION_HIT_2, m.marioObj.header.gfx.cameraToObject)
+
+                return true
+            end
+        end]]
         
     end
 end
@@ -1482,6 +1516,7 @@ function sonic_ring_health(m, e)
             sonic_set_alive(m)
         end
         if p.rings > 0 then
+            showHealth = 90
             spawn_sync_object(
                 id_bhvSonicRing,
                 E_MODEL_YELLOW_COIN,
@@ -1495,7 +1530,8 @@ function sonic_ring_health(m, e)
             p.rings = p.rings - 1
         end
 
-        if m.action == ACT_BURNING_JUMP then
+        if m.action == ACT_BURNING_JUMP and m.actionArg == 1 then
+            djui_chat_message_create(tostring(m.actionArg))
             if sPrevRings == 0 then
                 sonic_set_dead(m)
             else
@@ -1503,6 +1539,9 @@ function sonic_ring_health(m, e)
             end
         end
     end
+
+    -- Disable fall damage if no rings.
+    if p.rings <= 0 then m.peakHeight = m.pos.y end
 
     sRingTimeBetweenDamages = sRingTimeBetweenDamages - 1
 end
