@@ -663,7 +663,7 @@ extraCharacters = {
                 [GLOVES] = 'FFFFFF',
                 [SHOES]  = '0000FF',
                 [HAIR]   = 'FF6800',
-                [SKIN]   = 'FEC179',
+                [SKIN]   = 'FEDE39',
                 [CAP]    = 'FF0000',
                 [EMBLEM] = 'FF0000'
             },
@@ -674,7 +674,7 @@ extraCharacters = {
                 [GLOVES] = 'FFFFFF',
                 [SHOES]  = 'cb2998',
                 [HAIR]   = 'ff6800',
-                [SKIN]   = 'fec179',
+                [SKIN]   = 'fede39',
                 [CAP]    = '004098',
                 [EMBLEM] = 'ff0000'
             },
@@ -685,7 +685,7 @@ extraCharacters = {
                 [GLOVES] = 'FFFFFF',
                 [SHOES]  = '00ff00',
                 [HAIR]   = 'ff8600',
-                [SKIN]   = 'fec179',
+                [SKIN]   = 'fede39',
                 [CAP]    = 'ffff00',
                 [EMBLEM] = 'ff0000'
             },
