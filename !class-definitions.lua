@@ -30,6 +30,11 @@
 --- @class PaulineState
 
 --- @class RosalinaState
+--- @field public hp integer
+--- @field public meterState integer
+--- @field public meterTimer integer
+--- @field public lastHealCounter integer
+--- @field public lastHurtCounter integer
 --- @field public canSpin boolean
 --- @field public orbitObjActive boolean
 --- @field public orbitObjDist number

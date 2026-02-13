@@ -6,30 +6,32 @@ if not charSelect then return end
 
 require "anims/rosalina"
 
-_G.ACT_JUMP_TWIRL = allocate_mario_action(ACT_GROUP_AIRBORNE | ACT_FLAG_AIR | ACT_FLAG_ATTACKING)
-E_MODEL_TWIRL_EFFECT = smlua_model_util_get_id("spin_attack_geo")
+_G.ACT_ROSA_JUMP_TWIRL = allocate_mario_action(ACT_GROUP_AIRBORNE | ACT_FLAG_AIR | ACT_FLAG_ATTACKING)
+local E_MODEL_TWIRL_EFFECT = smlua_model_util_get_id("spin_attack_geo")
+
+local METER_STATE_IDLE  = 0
+local METER_STATE_HIT   = 1
+local METER_STATE_BREAK = 2
 
 ---@param o Object
-local function bhv_spin_attack_init(o)
+function bhv_spin_attack_init(o)
     o.oFlags = OBJ_FLAG_UPDATE_GFX_POS_AND_ANGLE -- Allows you to change the position and angle
 end
 
 ---@param o Object
-local function bhv_spin_attack_loop(o)
-
+function bhv_spin_attack_loop(o)
     -- Retrieves the Mario state corresponding to its global index
-    local m = gMarioStates[network_local_index_from_global(o.globalPlayerIndex)]
-    if m == nil or m.marioObj == nil then
+    local m = gMarioStates[o.parentObj.oBehParams - 1]
+    if not m or not m.marioObj then
         obj_mark_for_deletion(o)
         return
     end
 
-    o.parentObj = m.marioObj                     -- Sets the Mario object as its parent
     cur_obj_set_pos_relative_to_parent(0, 20, 0) -- Makes it move to its parent's position
 
     o.oFaceAngleYaw = o.oFaceAngleYaw + 0x2000   -- Rotates it
 
-    if m.action ~= ACT_JUMP_TWIRL or o.oTimer > 15 then -- Deletes itself once the action changes
+    if m.action ~= ACT_ROSA_JUMP_TWIRL or o.oTimer > 15 then -- Deletes itself once the action changes
         obj_mark_for_deletion(o)
     end
 end
@@ -74,7 +76,7 @@ function act_jump_twirl(m)
             -- Spawn the spin effect
             if m.playerIndex == 0 then
                 spawn_sync_object(id_bhvTwirlEffect, E_MODEL_TWIRL_EFFECT, m.pos.x, m.pos.y, m.pos.z, function(o)
-                    o.globalPlayerIndex = m.marioObj.globalPlayerIndex
+                    o.parentObj = m.marioObj
                 end)
             end
         else
@@ -98,7 +100,7 @@ end
 ---@param intType InteractionType
 function rosalina_allow_interact(m, o, intType)
     local e = gCharacterStates[m.playerIndex].rosalina
-    if m.action == ACT_JUMP_TWIRL and intType == INTERACT_GRABBABLE and o.oInteractionSubtype & INT_SUBTYPE_NOT_GRABBABLE == 0 then
+    if m.action == ACT_ROSA_JUMP_TWIRL and intType == INTERACT_GRABBABLE and o.oInteractionSubtype & INT_SUBTYPE_NOT_GRABBABLE == 0 then
         local angleTo = mario_obj_angle_to_object(m, o)
         if (o.oInteractionSubtype & INT_SUBTYPE_GRABS_MARIO ~= 0 or obj_has_behavior_id(o, id_bhvBowser) ~= 0) then -- heavy grab objects
             if m.pos.y - m.floorHeight < 100 and abs_angle_diff(m.faceAngle.y, angleTo) < 0x4000 then
@@ -121,14 +123,14 @@ function rosalina_update(m)
     local e = gCharacterStates[m.playerIndex].rosalina
 
     if m.controller.buttonPressed & B_BUTTON ~= 0 and extraSpinActs[m.action] then
-        return set_mario_action(m, ACT_JUMP_TWIRL, 0)
+        return set_mario_action(m, ACT_ROSA_JUMP_TWIRL, 0)
     end
 
     --if m.action & ACT_FLAG_AIR == 0 and m.playerIndex == 0 then
     --    e.canSpin = true
     --end
 
-    if m.action ~= ACT_JUMP_TWIRL and m.marioObj.hitboxRadius ~= 37 then
+    if m.action ~= ACT_ROSA_JUMP_TWIRL and m.marioObj.hitboxRadius ~= 37 then
         m.marioObj.hitboxRadius = 37
     end
 
@@ -180,6 +182,99 @@ function rosalina_update(m)
             end
         end
     end
+
+    if m.hurtCounter > e.lastHurtCounter then
+        m.hurtCounter = e.hp > 2 and 10 or 15
+        e.meterState = METER_STATE_HIT
+        e.meterTimer = 0
+        e.hp = math.max(0, e.hp - 1)
+    end
+    e.lastHurtCounter = m.hurtCounter
+
+    if m.healCounter > e.lastHealCounter then
+        if m.healCounter < 15 then
+            m.healCounter = e.hp > 2 and 10 or 15
+        end
+        e.hp = math.min(e.hp + m.healCounter // 10, 3)
+    end
+    e.lastHealCounter = m.healCounter
+end
+
+local meter = {
+    label = {
+        left  = get_texture_info("char-select-ec-rosalina-meter-left"),
+        right = get_texture_info("char-select-ec-rosalina-meter-right"),
+    },
+    pie = {
+        get_texture_info("char_select_custom_meter_pie1"),
+        get_texture_info("char_select_custom_meter_pie2"),
+        get_texture_info("char_select_custom_meter_pie3"),
+        get_texture_info("char_select_custom_meter_pie4"),
+        get_texture_info("char_select_custom_meter_pie5"),
+        get_texture_info("char_select_custom_meter_pie6"),
+        get_texture_info("char_select_custom_meter_pie7"),
+        get_texture_info("char_select_custom_meter_pie8"),
+    }
+}
+
+local function render_rect(prevX, prevY, prevSize, x, y, size)
+    djui_hud_render_rect_interpolated(prevX-prevSize/2,prevY-prevSize/2,prevSize,prevSize, x-size/2,y-size/2,size,size)
+end
+local function render_text_centered_interpolated(t, px, py, pz, x, y, z)
+    djui_hud_print_text_interpolated(t, px - djui_hud_measure_text(t) * pz/2, py - 32*pz, pz,
+                                         x - djui_hud_measure_text(t) *  z/2,  y - 32* z,  z)
+end
+
+function rosalina_health_meter(localIndex, health, prevX, prevY, prevScaleW, prevScaleH, x, y, scaleW, scaleH)
+    local m = gMarioStates[localIndex]
+    local e = gCharacterStates[m.playerIndex].rosalina
+    if gCSPlayers[m.playerIndex].movesetToggle then
+        local djuiFont, djuiColor = djui_hud_get_font(), djui_hud_get_color()
+
+        local timer = e.meterTimer
+        local scale, prevScale = scaleW/64, prevScaleW/64
+        local lifeX, prevLifeX = x + scale*24, prevX + prevScale*24
+        local lifeY, prevLifeY = y + scale*36, prevY + prevScale*36
+        if e.meterState == METER_STATE_IDLE then
+            local fac = math.pi*((3-e.hp)/6)
+            local pulse = (math.cos(timer*fac))/2+.5
+            local pulsePrev = (math.cos((timer-1)*fac))/2+.5
+            scale, prevScale = 1 + pulse*.1, 1 + pulsePrev*.1
+
+        elseif e.meterState == METER_STATE_HIT then
+            local fac = math.pi/12
+            local mag = math.sin(fac*math.min(12, timer))
+            local timerPrev = timer-1; local magPrev = math.sin(fac*math.min(12, timerPrev))
+            local timerPrev2 = timer-2; local magPrev2 = math.sin(fac*math.min(12, timerPrev2))
+            x, prevX = x + sins(timer*0x4000) * mag, prevX + sins(timerPrev*0x4000) * magPrev
+            y, prevY = y + coss(timer*0x4000) * mag, prevY + coss(timerPrev*0x4000) * magPrev
+            lifeX, prevLifeX = prevX + scale*24, prevX + prevScale*24 + sins(timerPrev2*0x4000) * magPrev2
+            lifeY, prevLifeY = prevY + scale*36, prevY + prevScale*36 + coss(timerPrev2*0x4000) * magPrev2
+
+            if timer > 13 then
+                e.meterState = e.hp > 0 and METER_STATE_IDLE or METER_STATE_BREAK
+                e.meterTimer = -1
+            end
+        end
+
+        e.meterTimer = timer + 1
+
+        -- prototype meter - find real assets!
+        djui_hud_set_color(148, 147, 146, 255)
+        render_rect(prevX + prevScaleW/2, prevY + prevScaleH/2, prevScale*64, x + scaleW/2, y + scaleH/2, scale*64)
+
+        djui_hud_set_font(FONT_MENU); djui_hud_set_color(235, 202, 103, 255)
+        render_text_centered_interpolated(""..e.hp, prevLifeX, prevLifeY, prevScale, lifeX, lifeY, scale)
+
+        -- Clean up after we're done
+        djui_hud_set_font(djuiFont); djui_hud_set_color(djuiColor.r, djuiColor.g, djuiColor.b, djuiColor.a)
+    else
+        djui_hud_render_texture_interpolated(meter.label.left, prevX, prevY, prevScaleW, prevScaleH, x, y, scaleW, scaleH)
+        djui_hud_render_texture_interpolated(meter.label.right, prevX + 31*prevScaleW, prevY, prevScaleW, prevScaleH, x + 31*scaleW, y, scaleW, scaleH)
+        if health > 0 then
+            djui_hud_render_texture_interpolated(meter.pie[health >> 8], prevX + 15*prevScaleW, prevY + 16*scaleH, prevScaleW, prevScaleH, x + 15*scaleW, y + 16*scaleH, scaleW, scaleH)
+        end
+    end
 end
 
 ---@param m MarioState
@@ -189,7 +284,7 @@ function rosalina_before_action(m, action)
     local e = gCharacterStates[m.playerIndex].rosalina
 
     if spinOverrides[action] and m.controller.buttonDown & (Z_TRIG | A_BUTTON) == 0 and m.action ~= ACT_STEEP_JUMP then
-        return ACT_JUMP_TWIRL
+        return ACT_ROSA_JUMP_TWIRL
     end
 
     if action & ACT_FLAG_AIR == 0 and not e.canSpin then
@@ -202,11 +297,12 @@ function rosalina_before_action(m, action)
     end
 end
 
-hook_mario_action(ACT_JUMP_TWIRL, act_jump_twirl, INT_KICK)
+hook_mario_action(ACT_ROSA_JUMP_TWIRL, act_jump_twirl, INT_KICK)
 
 return {
     { HOOK_MARIO_UPDATE, rosalina_update },
  -- { HOOK_ON_PVP_ATTACK, rosalina_on_pvp_attack },
     { HOOK_ALLOW_INTERACT, rosalina_allow_interact },
-    { HOOK_BEFORE_SET_MARIO_ACTION, rosalina_before_action }
+    { HOOK_BEFORE_SET_MARIO_ACTION, rosalina_before_action },
+    meter = rosalina_health_meter
 }
