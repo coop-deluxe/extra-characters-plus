@@ -521,8 +521,8 @@ function donkey_kong_on_attack_object(m, o, interaction)
     end
 
     -- Bounce code
-    if (CT_DONKEY_KONG ~= _G.charSelect.character_get_current_number(m.playerIndex)) then return end
-    if (not _G.charSelect.are_movesets_restricted()) then
+    if (CT_DONKEY_KONG ~= charSelect.character_get_current_number(m.playerIndex)) then return end
+    if (not charSelect.are_movesets_restricted()) then
         if (interaction == INT_HIT_FROM_ABOVE and m.framesSinceA < 5) then
             m.actionTimer = 0
             if (m.action == ACT_DONKEY_KONG_BOUNCE) then
@@ -539,7 +539,7 @@ _G.ACT_DONKEY_KONG_ROLL = allocate_mario_action(ACT_GROUP_MOVING | ACT_FLAG_ATTA
 _G.ACT_DONKEY_KONG_ROLL_AIR = allocate_mario_action(ACT_GROUP_AIRBORNE | ACT_FLAG_ATTACKING | ACT_FLAG_AIR | ACT_FLAG_ALLOW_VERTICAL_WIND_ACTION)
 _G.ACT_DONKEY_KONG_POUND = allocate_mario_action(ACT_GROUP_STATIONARY | ACT_FLAG_ATTACKING)
 _G.ACT_DONKEY_KONG_POUND_HIT = allocate_mario_action(ACT_GROUP_STATIONARY | ACT_FLAG_ATTACKING)
-_G.ACT_DONKEY_KONG_BOUNCE = (ACT_GROUP_AIRBORNE | ACT_FLAG_MOVING | ACT_FLAG_AIR | ACT_FLAG_ALLOW_VERTICAL_WIND_ACTION)
+_G.ACT_DONKEY_KONG_BOUNCE = allocate_mario_action(ACT_GROUP_AIRBORNE | ACT_FLAG_MOVING | ACT_FLAG_AIR | ACT_FLAG_ALLOW_VERTICAL_WIND_ACTION)
 
 ---------------
 -- DK Bounce --

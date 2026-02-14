@@ -2091,8 +2091,8 @@ _G.extraCharsSonic = {}
 ---@param index_ integer?
 ---@return boolean usingRingHealth
 extraCharsSonic.using_ring_health = function(index_)
-    if (CT_SONIC ~= _G.charSelect.character_get_current_number(index_ or 0)) then return false end
-    if (_G.charSelect.get_options_status(6) == 0) then return false end
+    if (CT_SONIC ~= charSelect.character_get_current_number(index_ or 0)) then return false end
+    if (charSelect.get_options_status(6) == 0) then return false end
 
     return true
 end

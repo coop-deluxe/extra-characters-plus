@@ -42,18 +42,18 @@ extraCharacters = {
         offset = 0,
         meter = {
             label = {
-                left    = get_texture_info("char-select-ec-toadette-meter-left"),
-                right   = get_texture_info("char-select-ec-toadette-meter-right"),
+                left  = get_texture_info("char-select-ec-toadette-meter-left"),
+                right = get_texture_info("char-select-ec-toadette-meter-right"),
             },
             pie = {
-                [1] = get_texture_info("char_select_custom_meter_pie1"),
-                [2] = get_texture_info("char_select_custom_meter_pie2"),
-                [3] = get_texture_info("char_select_custom_meter_pie3"),
-                [4] = get_texture_info("char_select_custom_meter_pie4"),
-                [5] = get_texture_info("char_select_custom_meter_pie5"),
-                [6] = get_texture_info("char_select_custom_meter_pie6"),
-                [7] = get_texture_info("char_select_custom_meter_pie7"),
-                [8] = get_texture_info("char_select_custom_meter_pie8"),
+                get_texture_info("char_select_custom_meter_pie1"),
+                get_texture_info("char_select_custom_meter_pie2"),
+                get_texture_info("char_select_custom_meter_pie3"),
+                get_texture_info("char_select_custom_meter_pie4"),
+                get_texture_info("char_select_custom_meter_pie5"),
+                get_texture_info("char_select_custom_meter_pie6"),
+                get_texture_info("char_select_custom_meter_pie7"),
+                get_texture_info("char_select_custom_meter_pie8"),
             }
         },
         caps = {
@@ -184,18 +184,18 @@ extraCharacters = {
         offset = 0,
         meter = {
             label = {
-                left    = get_texture_info("char-select-ec-peach-meter-left"),
-                right   = get_texture_info("char-select-ec-peach-meter-right"),
+                left  = get_texture_info("char-select-ec-peach-meter-left"),
+                right = get_texture_info("char-select-ec-peach-meter-right"),
             },
             pie = {
-                [1] = get_texture_info("char_select_custom_meter_pie1"),
-                [2] = get_texture_info("char_select_custom_meter_pie2"),
-                [3] = get_texture_info("char_select_custom_meter_pie3"),
-                [4] = get_texture_info("char_select_custom_meter_pie4"),
-                [5] = get_texture_info("char_select_custom_meter_pie5"),
-                [6] = get_texture_info("char_select_custom_meter_pie6"),
-                [7] = get_texture_info("char_select_custom_meter_pie7"),
-                [8] = get_texture_info("char_select_custom_meter_pie8"),
+                get_texture_info("char_select_custom_meter_pie1"),
+                get_texture_info("char_select_custom_meter_pie2"),
+                get_texture_info("char_select_custom_meter_pie3"),
+                get_texture_info("char_select_custom_meter_pie4"),
+                get_texture_info("char_select_custom_meter_pie5"),
+                get_texture_info("char_select_custom_meter_pie6"),
+                get_texture_info("char_select_custom_meter_pie7"),
+                get_texture_info("char_select_custom_meter_pie8"),
             }
         },
         caps = {
@@ -393,18 +393,18 @@ extraCharacters = {
         offset = 0,
         meter = {
             label = {
-                left    = get_texture_info("char-select-ec-daisy-meter-left"),
-                right   = get_texture_info("char-select-ec-daisy-meter-right"),
+                left  = get_texture_info("char-select-ec-daisy-meter-left"),
+                right = get_texture_info("char-select-ec-daisy-meter-right"),
             },
             pie = {
-                [1] = get_texture_info("char_select_custom_meter_pie1"),
-                [2] = get_texture_info("char_select_custom_meter_pie2"),
-                [3] = get_texture_info("char_select_custom_meter_pie3"),
-                [4] = get_texture_info("char_select_custom_meter_pie4"),
-                [5] = get_texture_info("char_select_custom_meter_pie5"),
-                [6] = get_texture_info("char_select_custom_meter_pie6"),
-                [7] = get_texture_info("char_select_custom_meter_pie7"),
-                [8] = get_texture_info("char_select_custom_meter_pie8"),
+                get_texture_info("char_select_custom_meter_pie1"),
+                get_texture_info("char_select_custom_meter_pie2"),
+                get_texture_info("char_select_custom_meter_pie3"),
+                get_texture_info("char_select_custom_meter_pie4"),
+                get_texture_info("char_select_custom_meter_pie5"),
+                get_texture_info("char_select_custom_meter_pie6"),
+                get_texture_info("char_select_custom_meter_pie7"),
+                get_texture_info("char_select_custom_meter_pie8"),
             }
         },
         caps = {
@@ -614,18 +614,18 @@ extraCharacters = {
         offset = 0,
         meter = {
             label = {
-                left    = get_texture_info("char-select-ec-yoshi-meter-left"),
-                right   = get_texture_info("char-select-ec-yoshi-meter-right"),
+                left  = get_texture_info("char-select-ec-yoshi-meter-left"),
+                right = get_texture_info("char-select-ec-yoshi-meter-right"),
             },
             pie = {
-                [1] = get_texture_info("char_select_custom_meter_pie1"),
-                [2] = get_texture_info("char_select_custom_meter_pie2"),
-                [3] = get_texture_info("char_select_custom_meter_pie3"),
-                [4] = get_texture_info("char_select_custom_meter_pie4"),
-                [5] = get_texture_info("char_select_custom_meter_pie5"),
-                [6] = get_texture_info("char_select_custom_meter_pie6"),
-                [7] = get_texture_info("char_select_custom_meter_pie7"),
-                [8] = get_texture_info("char_select_custom_meter_pie8"),
+                get_texture_info("char_select_custom_meter_pie1"),
+                get_texture_info("char_select_custom_meter_pie2"),
+                get_texture_info("char_select_custom_meter_pie3"),
+                get_texture_info("char_select_custom_meter_pie4"),
+                get_texture_info("char_select_custom_meter_pie5"),
+                get_texture_info("char_select_custom_meter_pie6"),
+                get_texture_info("char_select_custom_meter_pie7"),
+                get_texture_info("char_select_custom_meter_pie8"),
             }
         },
         caps = {
@@ -757,18 +757,18 @@ extraCharacters = {
         offset = 0,
         meter = {
             label = {
-                left    = get_texture_info("char-select-ec-birdo-meter-left"),
-                right   = get_texture_info("char-select-ec-birdo-meter-right"),
+                left  = get_texture_info("char-select-ec-birdo-meter-left"),
+                right = get_texture_info("char-select-ec-birdo-meter-right"),
             },
             pie = {
-                [1] = get_texture_info("char_select_custom_meter_pie1"),
-                [2] = get_texture_info("char_select_custom_meter_pie2"),
-                [3] = get_texture_info("char_select_custom_meter_pie3"),
-                [4] = get_texture_info("char_select_custom_meter_pie4"),
-                [5] = get_texture_info("char_select_custom_meter_pie5"),
-                [6] = get_texture_info("char_select_custom_meter_pie6"),
-                [7] = get_texture_info("char_select_custom_meter_pie7"),
-                [8] = get_texture_info("char_select_custom_meter_pie8"),
+                get_texture_info("char_select_custom_meter_pie1"),
+                get_texture_info("char_select_custom_meter_pie2"),
+                get_texture_info("char_select_custom_meter_pie3"),
+                get_texture_info("char_select_custom_meter_pie4"),
+                get_texture_info("char_select_custom_meter_pie5"),
+                get_texture_info("char_select_custom_meter_pie6"),
+                get_texture_info("char_select_custom_meter_pie7"),
+                get_texture_info("char_select_custom_meter_pie8"),
             }
         },
         caps = {
@@ -903,18 +903,18 @@ extraCharacters = {
         offset = 0,
         meter = {
             label = {
-                left    = get_texture_info("char-select-ec-foremanspike-meter-left"),
-                right   = get_texture_info("char-select-ec-foremanspike-meter-right"),
+                left  = get_texture_info("char-select-ec-foremanspike-meter-left"),
+                right = get_texture_info("char-select-ec-foremanspike-meter-right"),
             },
             pie = {
-                [1] = get_texture_info("char_select_custom_meter_pie1"),
-                [2] = get_texture_info("char_select_custom_meter_pie2"),
-                [3] = get_texture_info("char_select_custom_meter_pie3"),
-                [4] = get_texture_info("char_select_custom_meter_pie4"),
-                [5] = get_texture_info("char_select_custom_meter_pie5"),
-                [6] = get_texture_info("char_select_custom_meter_pie6"),
-                [7] = get_texture_info("char_select_custom_meter_pie7"),
-                [8] = get_texture_info("char_select_custom_meter_pie8"),
+                get_texture_info("char_select_custom_meter_pie1"),
+                get_texture_info("char_select_custom_meter_pie2"),
+                get_texture_info("char_select_custom_meter_pie3"),
+                get_texture_info("char_select_custom_meter_pie4"),
+                get_texture_info("char_select_custom_meter_pie5"),
+                get_texture_info("char_select_custom_meter_pie6"),
+                get_texture_info("char_select_custom_meter_pie7"),
+                get_texture_info("char_select_custom_meter_pie8"),
             }
         },
         caps = {
@@ -1044,18 +1044,18 @@ extraCharacters = {
         offset = 0,
         meter = {
             label = {
-                left    = get_texture_info("char-select-ec-pauline-meter-left"),
-                right   = get_texture_info("char-select-ec-pauline-meter-right"),
+                left  = get_texture_info("char-select-ec-pauline-meter-left"),
+                right = get_texture_info("char-select-ec-pauline-meter-right"),
             },
             pie = {
-                [1] = get_texture_info("char_select_custom_meter_pie1"),
-                [2] = get_texture_info("char_select_custom_meter_pie2"),
-                [3] = get_texture_info("char_select_custom_meter_pie3"),
-                [4] = get_texture_info("char_select_custom_meter_pie4"),
-                [5] = get_texture_info("char_select_custom_meter_pie5"),
-                [6] = get_texture_info("char_select_custom_meter_pie6"),
-                [7] = get_texture_info("char_select_custom_meter_pie7"),
-                [8] = get_texture_info("char_select_custom_meter_pie8"),
+                get_texture_info("char_select_custom_meter_pie1"),
+                get_texture_info("char_select_custom_meter_pie2"),
+                get_texture_info("char_select_custom_meter_pie3"),
+                get_texture_info("char_select_custom_meter_pie4"),
+                get_texture_info("char_select_custom_meter_pie5"),
+                get_texture_info("char_select_custom_meter_pie6"),
+                get_texture_info("char_select_custom_meter_pie7"),
+                get_texture_info("char_select_custom_meter_pie8"),
             }
         },
         caps = {
@@ -1264,22 +1264,7 @@ extraCharacters = {
         graffiti = get_texture_info("char-select-ec-graffiti-rosalina"),
         camScale = 1.5,
         offset = 0,
-        meter = {
-            label = {
-                left    = get_texture_info("char-select-ec-rosalina-meter-left"),
-                right   = get_texture_info("char-select-ec-rosalina-meter-right"),
-            },
-            pie = {
-                [1] = get_texture_info("char_select_custom_meter_pie1"),
-                [2] = get_texture_info("char_select_custom_meter_pie2"),
-                [3] = get_texture_info("char_select_custom_meter_pie3"),
-                [4] = get_texture_info("char_select_custom_meter_pie4"),
-                [5] = get_texture_info("char_select_custom_meter_pie5"),
-                [6] = get_texture_info("char_select_custom_meter_pie6"),
-                [7] = get_texture_info("char_select_custom_meter_pie7"),
-                [8] = get_texture_info("char_select_custom_meter_pie8"),
-            }
-        },
+        meter = require "movesets/Rosalina" .meter,
         caps = {
             normal      = smlua_model_util_get_id("ec_rosalina_cap_geo"),
             wing        = smlua_model_util_get_id("ec_rosalina_wing_cap_geo"),
@@ -1480,18 +1465,18 @@ extraCharacters = {
         offset      = 0,
         meter = {
             label = {
-                left    = get_texture_info("char-select-ec-wapeach-meter-left"),
-                right   = get_texture_info("char-select-ec-wapeach-meter-right"),
+                left  = get_texture_info("char-select-ec-wapeach-meter-left"),
+                right = get_texture_info("char-select-ec-wapeach-meter-right"),
             },
             pie = {
-                [1] = get_texture_info("char_select_custom_meter_pie1"),
-                [2] = get_texture_info("char_select_custom_meter_pie2"),
-                [3] = get_texture_info("char_select_custom_meter_pie3"),
-                [4] = get_texture_info("char_select_custom_meter_pie4"),
-                [5] = get_texture_info("char_select_custom_meter_pie5"),
-                [6] = get_texture_info("char_select_custom_meter_pie6"),
-                [7] = get_texture_info("char_select_custom_meter_pie7"),
-                [8] = get_texture_info("char_select_custom_meter_pie8"),
+                get_texture_info("char_select_custom_meter_pie1"),
+                get_texture_info("char_select_custom_meter_pie2"),
+                get_texture_info("char_select_custom_meter_pie3"),
+                get_texture_info("char_select_custom_meter_pie4"),
+                get_texture_info("char_select_custom_meter_pie5"),
+                get_texture_info("char_select_custom_meter_pie6"),
+                get_texture_info("char_select_custom_meter_pie7"),
+                get_texture_info("char_select_custom_meter_pie8"),
             }
         },
         caps = {
@@ -1613,18 +1598,18 @@ extraCharacters = {
         offset = 0,
         meter = {
             label = {
-                left    = get_texture_info("char-select-ec-donkeykong-meter-left"),
-                right   = get_texture_info("char-select-ec-donkeykong-meter-right"),
+                left  = get_texture_info("char-select-ec-donkeykong-meter-left"),
+                right = get_texture_info("char-select-ec-donkeykong-meter-right"),
             },
             pie = {
-                [1] = get_texture_info("char_select_custom_meter_pie1"),
-                [2] = get_texture_info("char_select_custom_meter_pie2"),
-                [3] = get_texture_info("char_select_custom_meter_pie3"),
-                [4] = get_texture_info("char_select_custom_meter_pie4"),
-                [5] = get_texture_info("char_select_custom_meter_pie5"),
-                [6] = get_texture_info("char_select_custom_meter_pie6"),
-                [7] = get_texture_info("char_select_custom_meter_pie7"),
-                [8] = get_texture_info("char_select_custom_meter_pie8"),
+                get_texture_info("char_select_custom_meter_pie1"),
+                get_texture_info("char_select_custom_meter_pie2"),
+                get_texture_info("char_select_custom_meter_pie3"),
+                get_texture_info("char_select_custom_meter_pie4"),
+                get_texture_info("char_select_custom_meter_pie5"),
+                get_texture_info("char_select_custom_meter_pie6"),
+                get_texture_info("char_select_custom_meter_pie7"),
+                get_texture_info("char_select_custom_meter_pie8"),
             }
         },
         caps = {
