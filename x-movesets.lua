@@ -70,9 +70,12 @@ for _, char in ipairs(extraCharacters) do
     table.insert(chars, char.name)
 end
 
-local movesetHooks = {}
+local sMovesetHooks = {}
 for _, name in ipairs(chars) do
-    movesetHooks[name] = require ("movesets/" .. name)
+    local hooks = require ("movesets/" .. name)
+    if type(hooks) == "table" then
+        sMovesetHooks[name] = hooks
+    end
 end
 
 local function on_character_select_load()
@@ -82,11 +85,14 @@ local function on_character_select_load()
     end
 
     for _, char in ipairs(extraCharacters) do
-        for _, hook in ipairs(movesetHooks[char.name]) do
-            if hook.global then
-                hook_event(hook[1], hook[2])
-            else
-                character_hook_moveset(char.tablePos, hook[1], hook[2])
+        local hooks = sMovesetHooks[char.name]
+        if hooks then
+            for _, hook in ipairs(hooks) do
+                if hook.global then
+                    hook_event(hook[1], hook[2])
+                else
+                    character_hook_moveset(char.tablePos, hook[1], hook[2])
+                end
             end
         end
     end
