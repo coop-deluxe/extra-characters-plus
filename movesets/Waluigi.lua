@@ -134,7 +134,7 @@ function act_waluigi_air_swim(m)
 
     if m.forwardVel > 4 then mario_set_forward_vel(m, m.forwardVel - 2) end
     m.actionTimer = m.actionTimer + 1
-    m.faceAngle.y = m.intendedYaw - approach_s32(convert_s16(m.intendedYaw - m.faceAngle.y), 0, 0x200, 0x200)
+    m.faceAngle.y = m.intendedYaw - approach_s32(math.s16(m.intendedYaw - m.faceAngle.y), 0, 0x200, 0x200)
     return 0
 end
 
