@@ -35,7 +35,7 @@ local sSonicSpinBallActs = {
     [ACT_SONIC_HOMING_ATTACK]    = true,
 }
 
-
+ 
 local sSonicInstashieldActs = {
     [ACT_SONIC_SPIN_JUMP]        = true,
     [ACT_SONIC_AIR_SPIN]         = true,
