@@ -39,15 +39,15 @@ function reset_from_action(m)
     end
 
     --- Resets the body rotations, pitch, and hitbox size on new actions
-    PITCH_AND_HITBOX_RESET_ACTIONS = PITCH_AND_HITBOX_RESET_ACTIONS or {
-        [ACT_DONKEY_KONG_ROLL] = 1,
-        [ACT_DONKEY_KONG_ROLL_AIR] = 1,
-        [ACT_DONKEY_KONG_POUND] = 1,
-        [ACT_DONKEY_KONG_POUND_HIT] = 1,
-        [ACT_SONIC_SPIN_JUMP] = 1,
-        [ACT_SONIC_AIR_SPIN] = 1,
-        [ACT_SONIC_HOMING_ATTACK] = 1,
-        [ACT_SONIC_SPIN_DASH] = 1,
+    PITCH_AND_HITBOX_RESET_ACTIONS = PITCH_AND_HITBOX_RESET_ACTIONS or T{
+        ACT_DONKEY_KONG_ROLL,
+        ACT_DONKEY_KONG_ROLL_AIR,
+        ACT_DONKEY_KONG_POUND,
+        ACT_DONKEY_KONG_POUND_HIT,
+        ACT_SONIC_SPIN_JUMP,
+        ACT_SONIC_AIR_SPIN,
+        ACT_SONIC_HOMING_ATTACK,
+        ACT_SONIC_SPIN_DASH
     }
 
     if PITCH_AND_HITBOX_RESET_ACTIONS[m.prevAction] then

@@ -1,9 +1,3 @@
--------------------
--- Sonic Moveset --
--------------------
-
-if not charSelect then return end
-
 require "anims/sonic"
 
 -- Sonic variables for the local player only
@@ -926,10 +920,6 @@ local function act_spin_dash_charge(m)
     m.marioObj.header.gfx.animInfo.animID = -1
     stationary_ground_step(m)
 
-    if math.floor(e.spindashState) > 7 then
-        e.spindashState = 0
-    end
-
     m.faceAngle.y = m.intendedYaw - approach_s32(math.s16(m.intendedYaw - m.faceAngle.y), 0, 0x2000, 0x2000)
     m.marioObj.header.gfx.pos.y = m.pos.y + 60
 
@@ -941,7 +931,7 @@ local function act_spin_dash_charge(m)
         l.focHSpeed = 0
         return set_mario_action(m, ACT_SONIC_SPIN_DASH, 0)
     end
-    e.spindashState = e.spindashState + e.spinCharge / 50
+    e.spindashState = (e.spindashState + e.spinCharge / 50) % 8
 end
 
 ---@param m MarioState
@@ -1146,21 +1136,21 @@ local function act_bounce_land(m)
     return set_mario_action(m, ACT_SONIC_AIR_SPIN, 0)
 end
 
-local waterActions = {
-    [ACT_WATER_PLUNGE]          = true,
-    [ACT_WATER_IDLE]            = true,
-    [ACT_FLUTTER_KICK]          = true,
-    [ACT_SWIMMING_END]          = true,
-    [ACT_WATER_ACTION_END]      = true,
-    [ACT_HOLD_WATER_IDLE]       = true,
-    [ACT_HOLD_WATER_JUMP]       = true,
-    [ACT_HOLD_WATER_ACTION_END] = true,
-    [ACT_BREASTSTROKE]          = true
+local waterActions = T{
+    ACT_WATER_PLUNGE,
+    ACT_WATER_IDLE,
+    ACT_FLUTTER_KICK,
+    ACT_SWIMMING_END,
+    ACT_WATER_ACTION_END,
+    ACT_HOLD_WATER_IDLE,
+    ACT_HOLD_WATER_JUMP,
+    ACT_HOLD_WATER_ACTION_END,
+    ACT_BREASTSTROKE
 }
 
-local instashieldActions = {
-    [ACT_SONIC_SPIN_JUMP]        = true,
-    [ACT_SONIC_AIR_SPIN]         = true,
+local instashieldActions = T{
+    ACT_SONIC_SPIN_JUMP,
+    ACT_SONIC_AIR_SPIN,
 }
 
 ---@param m MarioState
@@ -1205,11 +1195,11 @@ end
 function sonic_update(m)
     local e = gCharacterStates[m.playerIndex].sonic
 
-    local groundMovingActions = {
-        [ACT_SONIC_RUNNING] = 1,
-        [ACT_SONIC_SPIN_DASH] = 1,
-        [ACT_DECELERATING] = 1,
-        [ACT_BUTT_SLIDE] = 1
+    local groundMovingActions = T{
+        ACT_SONIC_RUNNING,
+        ACT_SONIC_SPIN_DASH,
+        ACT_DECELERATING,
+        ACT_BUTT_SLIDE
     }
 
     if m.playerIndex == 0 and m.action == ACT_BURNING_JUMP and m.actionArg == 1 then
@@ -1403,20 +1393,6 @@ function sonic_drowning(m, e)
     if m.health <= 0xFF then return end
     local p = gPlayerSyncTable[m.playerIndex]
 
-    local warning = {
-        [750] = true, -- 25 seconds
-        [600] = true, -- 20 seconds
-        [450] = true -- 15 seconds
-    }
-    local getOutNow = {
-        [360] = 5, -- 12 seconds
-        [300] = 4, -- 10 seconds
-        [240] = 3, -- 8 seconds
-        [180] = 2, -- 6 seconds
-        [120] = 1, -- 4 seconds
-        [60] = 0 -- 2 seconds
-    }
-
     if e.oxygen <= 0 then
         sonic_set_dead(m)
 
@@ -1425,11 +1401,7 @@ function sonic_drowning(m, e)
             p.rings = 0
         end
 
-        if (m.input & INPUT_IN_POISON_GAS) ~= 0 then
-            set_mario_action(m, ACT_SUFFOCATION, 0)
-        else
-            set_mario_action(m, ACT_DROWNING, 0)
-        end
+        set_mario_action(m, (m.input & INPUT_IN_POISON_GAS ~= 0) and ACT_SUFFOCATION or ACT_DROWNING, 0)
         return
     end
 
@@ -1438,11 +1410,14 @@ function sonic_drowning(m, e)
         e.oxygen = e.oxygen - 1
 
         if m.playerIndex == 0 then
-            if warning[e.oxygen] then
-                play_sound(SOUND_MOVING_ALMOST_DROWNING, m.marioObj.header.gfx.cameraToObject)
-            elseif getOutNow[e.oxygen] then
-                audio_sample_play(SOUND_COUNTDOWN_CD, m.pos, 2)
-                spawn_orange_number(getOutNow[e.oxygen], 0, 100, 0)
+            if e.oxygen % 30 == 0 then
+                local seconds = e.oxygen // 30
+                if seconds % 5 == 0 and in_between(seconds, 15, 25, true) then
+                    play_sound(SOUND_MOVING_ALMOST_DROWNING, m.marioObj.header.gfx.cameraToObject)
+                elseif seconds % 2 == 0 and in_between(seconds, 2, 12, true) then
+                    audio_sample_play(SOUND_COUNTDOWN_CD, m.pos, 2)
+                    spawn_orange_number(seconds / 2 - 1, 0, 100, 0)
+                end
             end
         end
         --djui_chat_message_create(tostring(e.oxygen))
@@ -1450,6 +1425,12 @@ function sonic_drowning(m, e)
         e.oxygen = 900
     end
 end
+
+local burnActions = T{
+    ACT_BURNING_JUMP,
+    ACT_BURNING_FALL,
+    ACT_BURNING_GROUND
+}
 
 function sonic_ring_health(m, e)
     if m.playerIndex ~= 0 then return end
@@ -1505,12 +1486,6 @@ function sonic_ring_health(m, e)
 
     if sRingTimeBetweenDamages <= 0 then sRingFlingFactor = 0 end
 
-    local burnActions = {
-        [ACT_BURNING_JUMP] = true,
-        [ACT_BURNING_FALL] = true,
-        [ACT_BURNING_GROUND] = true
-    }
-
     if burnActions[m.action] then
         if sPrevRings > 0 then
             sonic_set_alive(m)
@@ -1557,10 +1532,10 @@ function sonic_value_refresh(m)
     p.rings = (GAMEMODE_ACTIVE or bowserFight) and 10 or 0
 end
 
-local bounceTypes = {
-    [INTERACT_BOUNCE_TOP]  = true,
-    [INTERACT_BOUNCE_TOP2] = true,
-    [INTERACT_KOOPA]       = true
+local bounceTypes = T{
+    INTERACT_BOUNCE_TOP,
+    INTERACT_BOUNCE_TOP2,
+    INTERACT_KOOPA
 }
 
 function sonic_allow_interact(m, o, intType)
@@ -1593,11 +1568,11 @@ function sonic_allow_interact(m, o, intType)
     end
 end
 
-local badnikBounceActions = {
-    [ACT_SONIC_SPIN_JUMP] = true,
-    [ACT_SONIC_FALL] = true,
-    [ACT_SONIC_AIR_SPIN] = true,
-    [ACT_GROUND_POUND] = true,
+local badnikBounceActions = T{
+    ACT_SONIC_SPIN_JUMP,
+    ACT_SONIC_FALL,
+    ACT_SONIC_AIR_SPIN,
+    ACT_GROUND_POUND,
 }
 
 function sonic_on_interact(m, o, intType)
@@ -1700,7 +1675,7 @@ local function perform_ground_quarter_step(m, nextPos)
 
     if ((m.action & ACT_FLAG_RIDING_SHELL) ~= 0 and floorHeight < waterLevel) then
         local allow = true
-        if (allow == true) then
+        if allow then
             floorHeight = waterLevel
             floor = gWaterSurfacePseudoFloor
             floor.originOffset = floorHeight --! Wrong origin offset (no effect)
@@ -1718,7 +1693,7 @@ local function perform_ground_quarter_step(m, nextPos)
         return GROUND_STEP_LEFT_GROUND
     end
 
-    if detach == true then
+    if detach then
         m.floor = floor
         m.floorHeight = floorHeight
         return GROUND_STEP_LEFT_GROUND
@@ -1734,7 +1709,7 @@ local function perform_ground_quarter_step(m, nextPos)
 
     if (upperWcd.numWalls > 0) then
         for i = 0, upperWcd.numWalls, 1 do
-            if (gLevelValues.fixCollisionBugs ~= true) then
+            if not gLevelValues.fixCollisionBugs then
                 i = (upperWcd.numWalls - 1)
             end
             local wall = upperWcd.walls[i]
@@ -1836,11 +1811,11 @@ end
 -- Sonic HUD --
 ---------------
 
-local homingActs = {
-    [ACT_SONIC_SPIN_JUMP]     = true,
-    [ACT_SONIC_AIR_SPIN]      = true,
-    [ACT_SONIC_FALL]    = true,
-    [ACT_SONIC_HOMING_ATTACK] = true,
+local homingActs = T{
+    ACT_SONIC_SPIN_JUMP,
+    ACT_SONIC_AIR_SPIN,
+    ACT_SONIC_FALL,
+    ACT_SONIC_HOMING_ATTACK,
 }
 
 local homingCursorScaleTimer = 0
@@ -2088,55 +2063,50 @@ id_bhvSonicRing = hook_behavior(nil, OBJ_LIST_LEVEL, true, bhv_ring_init, bhv_ri
 -- Various API functions for sonic
 _G.extraCharsSonic = {}
 
----@param index_ integer?
+---@param index integer?
 ---@return boolean usingRingHealth
-extraCharsSonic.using_ring_health = function(index_)
-    if (CT_SONIC ~= _G.charSelect.character_get_current_number(index_ or 0)) then return false end
-    if (_G.charSelect.get_options_status(6) == 0) then return false end
+extraCharsSonic.using_ring_health = function(index)
+    if (charSelect.character_get_current_number(index) ~= CT_SONIC)
+    or (charSelect.get_options_status(6) == 0) then return false end
 
     return true
 end
 -- Note: update the above function if the ability to toggle off ring health is added
 
----@param index_ integer?
+---@param index integer?
 ---@return integer rings
-extraCharsSonic.get_rings = function(index_)
-    local index = index_ or 0
-    return (gPlayerSyncTable[index].rings or 0)
+extraCharsSonic.get_rings = function(index)
+    return (gPlayerSyncTable[index or 0].rings or 0)
 end
 
----@param index_ integer?
+---@param index integer?
 ---@param value integer
-extraCharsSonic.set_rings = function(index_, value)
-    local index = index_ or 0
-    gPlayerSyncTable[index].rings = (value or 0)
+extraCharsSonic.set_rings = function(index, value)
+    gPlayerSyncTable[index or 0].rings = (value or 0)
 end
 
----@param index_ integer?
+---@param index integer?
 ---@return integer oxygen
-extraCharsSonic.get_oxygen = function(index_)
-    local index = index_ or 0
-    return (gCharacterStates[index].sonic.oxygen or 900)
+extraCharsSonic.get_oxygen = function(index)
+    return (gCharacterStates[index or 0].sonic.oxygen or 900)
 end
 
----@param index_ integer?
+---@param index integer?
 ---@param value integer
-extraCharsSonic.set_oxygen = function(index_, value)
-    local index = index_ or 0
-    gCharacterStates[index].sonic.oxygen = (value or 900)
+extraCharsSonic.set_oxygen = function(index, value)
+    gCharacterStates[index or 0].sonic.oxygen = (value or 900)
 end
 
----@param index_ integer?
-extraCharsSonic.reset_oxygen = function(index_)
-    local index = index_ or 0
-    gCharacterStates[index].sonic.oxygen = 900
+---@param index integer?
+extraCharsSonic.reset_oxygen = function(index)
+    gCharacterStates[index or 0].sonic.oxygen = 900
 end
 
 -- Drops a ring behind Sonic, like when he is in a burning action
----@param index_ integer?
+---@param index integer?
 ---@return Object o
-extraCharsSonic.drop_ring = function(index_)
-    local m = gMarioStates[index_ or 0]
+extraCharsSonic.drop_ring = function(index)
+    local m = gMarioStates[index or 0]
     local o = spawn_sync_object(
         id_bhvSonicRing,
         E_MODEL_YELLOW_COIN,

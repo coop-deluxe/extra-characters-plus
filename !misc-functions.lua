@@ -35,14 +35,17 @@ end
 --- @return boolean
 function in_between(x, min, max, inclusive)
     if inclusive then
-        if x >= min and x <= max then
-            return true
-        end
+        return min <= x and x <= max
+    else
+        return min < x and x < max
     end
+end
 
-    if x > min and x < max then
-        return true
+-- generates a truth table
+function T(t)
+    local t2 = {}
+    for _, v in ipairs(t) do
+        t2[v] = 1
     end
-
-    return false
+    return t2
 end

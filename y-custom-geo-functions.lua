@@ -28,21 +28,20 @@ end
 
 -- Sonic Spin/Ball Acts --
 
-local sSonicSpinBallActs = {
-    [ACT_SONIC_SPIN_JUMP]        = true,
-    [ACT_SONIC_SPIN_DASH]        = true,
-    [ACT_SONIC_AIR_SPIN]         = true,
-    [ACT_SONIC_HOMING_ATTACK]    = true,
+local sSonicSpinBallActs = T{
+    ACT_SONIC_SPIN_JUMP,
+    ACT_SONIC_SPIN_DASH,
+    ACT_SONIC_AIR_SPIN,
+    ACT_SONIC_HOMING_ATTACK
 }
 
-
-local sSonicInstashieldActs = {
-    [ACT_SONIC_SPIN_JUMP]        = true,
-    [ACT_SONIC_AIR_SPIN]         = true,
+local sSonicInstashieldActs = T{
+    ACT_SONIC_SPIN_JUMP,
+    ACT_SONIC_AIR_SPIN
 }
 
-local sSonicSpinDashActs = {
-    [ACT_SONIC_SPIN_DASH_CHARGE] = true,
+local sSonicSpinDashActs = T{
+    ACT_SONIC_SPIN_DASH_CHARGE
 }
 
 --- @param n GraphNode | FnGraphNode
@@ -71,18 +70,8 @@ end
 
 --- @param n GraphNode | FnGraphNode
 --- Switches states when SlowDownBoots is true.
-function custom_slowdown_right(n)
+function geo_shoe_slowdown_boots(n)
     local switch = cast_graph_node(n)
-    local m = geo_get_mario_state()
-    local e = gCharacterStates[m.playerIndex].sonic
-
-    switch.selectedCase = sSlowDownBoots and 1 or 0
-end
-
-function custom_slowdown_left(n)
-    local switch = cast_graph_node(n)
-    local m = geo_get_mario_state()
-    local e = gCharacterStates[m.playerIndex].sonic
 
     switch.selectedCase = sSlowDownBoots and 1 or 0
 end
@@ -96,7 +85,7 @@ function geo_custom_spindash_states(n)
     local m = geo_get_mario_state()
     local e = gCharacterStates[m.playerIndex].sonic
 
-    switch.selectedCase = math.floor(e.spindashState)
+    switch.selectedCase = e.spindashState
 end
 
 -- Mouth Switch --
@@ -111,19 +100,19 @@ SONIC_MOUTH_SHOCKED   = 6 --- @type SonicMouthGSCId
 SONIC_MOUTH_SURPRISED = 7 --- @type SonicMouthGSCId
 SONIC_MOUTH_NEUTRAL   = 8 --- @type SonicMouthGSCId
 
-local sGrimacingActs = {
-    [ACT_HOLD_HEAVY_IDLE]    = true,
-    [ACT_SHIVERING]          = true,
-    [ACT_HOLD_HEAVY_WALKING] = true,
-    [ACT_SHOCKED]            = true,
-    [ACT_HEAVY_THROW]        = true,
+local sGrimacingActs = T{
+    ACT_HOLD_HEAVY_IDLE,
+    ACT_SHIVERING,
+    ACT_HOLD_HEAVY_WALKING,
+    ACT_SHOCKED,
+    ACT_HEAVY_THROW
 }
 
-local sSurprisedEyeStates = {
-    [MARIO_EYES_LOOK_LEFT]  = true,
-    [MARIO_EYES_LOOK_RIGHT] = true,
-    [MARIO_EYES_LOOK_UP]    = true,
-    [MARIO_EYES_LOOK_DOWN]  = true,
+local sSurprisedEyeStates = T{
+    MARIO_EYES_LOOK_LEFT,
+    MARIO_EYES_LOOK_RIGHT,
+    MARIO_EYES_LOOK_UP,
+    MARIO_EYES_LOOK_DOWN
 }
 
 --- @param n GraphNode | FnGraphNode
@@ -131,20 +120,20 @@ local sSurprisedEyeStates = {
 function geo_switch_mario_mouth(n)
     local switch = cast_graph_node(n)
     local m = geo_get_mario_state()
-    local o = geo_get_current_object()
+    local body = geo_get_body_state()
     local homingAttacked = m.action == ACT_SONIC_FALL and m.actionArg >= 5
     local frame = m.marioObj.header.gfx.animInfo.animFrame
 
-    if m.marioBodyState.eyeState == MARIO_EYES_DEAD then
+    if body.eyeState == MARIO_EYES_DEAD then
         switch.selectedCase = SONIC_MOUTH_ATTACKED
     elseif sGrimacingActs[m.action] then
         switch.selectedCase = SONIC_MOUTH_GRIMACING
     elseif m.action == ACT_PANTING then
         switch.selectedCase = SONIC_MOUTH_SURPRISED
-    elseif m.marioBodyState.eyeState == MARIO_EYES_HALF_CLOSED and m.action == ACT_START_SLEEPING then
+    elseif body.eyeState == MARIO_EYES_HALF_CLOSED and m.action == ACT_START_SLEEPING then
         switch.selectedCase = SONIC_MOUTH_SHOCKED
         m.actionTimer = 0
-    elseif m.marioBodyState.handState == MARIO_HAND_PEACE_SIGN or (homingAttacked and frame <= 22) then
+    elseif body.handState == MARIO_HAND_PEACE_SIGN or (homingAttacked and frame <= 22) then
         switch.selectedCase = SONIC_MOUTH_GRIN
     else
         switch.selectedCase = SONIC_MOUTH_NORMAL
@@ -161,46 +150,46 @@ SONIC_MOUTH_RIGHT = 1 --- @type SonicMouthSideGSCId
 function geo_switch_mario_mouth_side(n)
     local switch = cast_graph_node(n)
     local m = geo_get_mario_state()
-    local o = geo_get_current_object()
     local angle = mario_yaw_from_camera(m)
 
-    if angle <= 4 or m.marioBodyState.handState == MARIO_HAND_PEACE_SIGN then
-        switch.selectedCase = SONIC_MOUTH_RIGHT
-    else
-        switch.selectedCase = SONIC_MOUTH_LEFT
-    end
+    switch.selectedCase = (angle <= 4 or m.marioBodyState.handState == MARIO_HAND_PEACE_SIGN)
+        and SONIC_MOUTH_RIGHT
+        or SONIC_MOUTH_LEFT
 end
 
 -- Custom Hand Switch --
 
-    -- Hand Params
-
+-- Hand Params
 SONIC_HAND_RIGHT = 0 --- @type HandParam
 SONIC_HAND_LEFT  = 1 --- @type HandParam
 WAPEACH_HAND_AXE = 2 --- @type HandParam
 
-    -- Wapeach Hand
-
-local sWapeachAxeActs = {
-    [ACT_AXE_CHOP]       = true,
-    [ACT_AXE_SPIN]       = true,
-    [ACT_AXE_SPIN_AIR]   = true,
-    [ACT_AXE_SPIN_DIZZY] = true,
+-- Wapeach Hand
+local sWapeachAxeActs = T{
+    ACT_AXE_CHOP,
+    ACT_AXE_SPIN,
+    ACT_AXE_SPIN_AIR,
+    ACT_AXE_SPIN_DIZZY
 }
 
-    -- Sonic Hand
-
-local sSonicHandCopies = {
-    [MARIO_HAND_FISTS]            = true,
-    [MARIO_HAND_OPEN]             = true,
-    [MARIO_HAND_HOLDING_CAP]      = true,
-    [MARIO_HAND_HOLDING_WING_CAP] = true,
-    [MARIO_HAND_RIGHT_OPEN]       = true,
+-- Sonic Hand
+local sSonicHandCopies = T{
+    MARIO_HAND_FISTS,
+    MARIO_HAND_OPEN,
+    MARIO_HAND_HOLDING_CAP,
+    MARIO_HAND_HOLDING_WING_CAP,
+    MARIO_HAND_RIGHT_OPEN
 }
 
 local sSonicHandStateActs = {
     [ACT_STAR_DANCE_EXIT]    = { [SONIC_HAND_LEFT] = MARIO_HAND_PEACE_SIGN, [SONIC_HAND_RIGHT] = MARIO_HAND_FISTS },
     [ACT_STAR_DANCE_NO_EXIT] = { [SONIC_HAND_LEFT] = MARIO_HAND_PEACE_SIGN, [SONIC_HAND_RIGHT] = MARIO_HAND_FISTS },
+}
+
+local handCases = {
+    {condition = function (frame) return in_between(frame, 9, 19, true) end, hands = {[SONIC_HAND_LEFT] = MARIO_HAND_PEACE_SIGN, [SONIC_HAND_RIGHT] = MARIO_HAND_OPEN}},
+    {condition = function (frame) return in_between(frame, 9, 22, true) end, hands = {[SONIC_HAND_LEFT] = MARIO_HAND_OPEN, [SONIC_HAND_RIGHT] = MARIO_HAND_OPEN}},
+[4]={condition = function (frame) return frame <= 26 end, hands = {[SONIC_HAND_LEFT] = MARIO_HAND_PEACE_SIGN, [SONIC_HAND_RIGHT] = MARIO_HAND_PEACE_SIGN}},
 }
 
 --- @param n GraphNode | FnGraphNode
@@ -213,28 +202,14 @@ function geo_custom_hand_switch(n)
     local frame = m.marioObj.header.gfx.animInfo.animFrame
 
     if param == WAPEACH_HAND_AXE then
-        if sWapeachAxeActs[m.action] or m.marioObj.header.gfx.animInfo.animID == CS_ANIM_MENU then
-            switch.selectedCase = 1
-        else
-            switch.selectedCase = 0
-        end
+        switch.selectedCase = (sWapeachAxeActs[m.action] or m.marioObj.header.gfx.animInfo.animID == CS_ANIM_MENU) and 1 or 0
     else
         if sSonicHandStateActs[m.action] and frame >= 58 then
             switch.selectedCase = sSonicHandStateActs[m.action][param]
         elseif m.action == ACT_SONIC_FALL and m.actionArg >= 5 then
             local animIndex = m.actionArg - 4
-            local handCases = {
-                [1] = {condition = in_between(frame, 9, 19, true), hands = {[SONIC_HAND_LEFT] = MARIO_HAND_PEACE_SIGN, [SONIC_HAND_RIGHT] = MARIO_HAND_OPEN}},
-                [2] = {condition = in_between(frame, 9, 22, true), hands = {[SONIC_HAND_LEFT] = MARIO_HAND_OPEN, [SONIC_HAND_RIGHT] = MARIO_HAND_OPEN}},
-                [4] = {condition = frame <= 26, hands = {[SONIC_HAND_LEFT] = MARIO_HAND_PEACE_SIGN, [SONIC_HAND_RIGHT] = MARIO_HAND_PEACE_SIGN}},
-            }
             local case = handCases[animIndex]
-
-            if case and case.condition and case.hands[param] then
-                switch.selectedCase = case.hands[param]
-            else
-                switch.selectedCase = MARIO_HAND_FISTS
-            end
+            switch.selectedCase = case and case.condition(frame) and case.hands[param] or MARIO_HAND_FISTS
         elseif sSonicHandCopies[bodyState.handState] then
             if bodyState.handState == MARIO_HAND_OPEN or bodyState.handState == MARIO_HAND_RIGHT_OPEN then
                 if bodyState.handState == MARIO_HAND_OPEN then
@@ -258,9 +233,9 @@ end
 
 -- Donkey Kong Angry Acts --
 
-local sDonkeyKongAngryActs = {
-    [ACT_DONKEY_KONG_POUND] =     true,
-    [ACT_DONKEY_KONG_POUND_HIT] = true,
+local sDonkeyKongAngryActs = T{
+    ACT_DONKEY_KONG_POUND,
+    ACT_DONKEY_KONG_POUND_HIT
 }
 
 --- @param n GraphNode | FnGraphNode
@@ -268,16 +243,12 @@ local sDonkeyKongAngryActs = {
 function geo_custom_dk_head_switch(n)
     local switch = cast_graph_node(n)
     local m = geo_get_mario_state()
-    if sDonkeyKongAngryActs[m.action] then
-        switch.selectedCase = 1
-    else
-        switch.selectedCase = 0
-    end
+    switch.selectedCase = sDonkeyKongAngryActs[m.action] or 0
 end
 
 local sDonkeyKongRollActs = {
-    [ACT_DONKEY_KONG_ROLL] =     true,
-    [ACT_DONKEY_KONG_ROLL_AIR] = true,
+    [ACT_DONKEY_KONG_ROLL] = 1,
+    [ACT_DONKEY_KONG_ROLL_AIR] = 0
 }
 
 --- @param n GraphNode | FnGraphNode
@@ -286,12 +257,7 @@ function custom_dkroll_switch(n)
     local switch = cast_graph_node(n)
     local m = geo_get_mario_state()
 
-    if sDonkeyKongRollActs[m.action] and (m.action ~= ACT_DONKEY_KONG_ROLL or
-    m.actionState ~= 0) then
-        switch.selectedCase = 1
-    else
-        switch.selectedCase = 0
-    end
+    switch.selectedCase = sDonkeyKongRollActs[m.action] == m.actionState and 1 or 0
 end
 
 -- Yoshi Tongue Head Switch --

@@ -1,9 +1,3 @@
-----------------------
--- Rosalina Moveset --
-----------------------
-
-if not charSelect then return end
-
 require "anims/rosalina"
 
 _G.ACT_JUMP_TWIRL = allocate_mario_action(ACT_GROUP_AIRBORNE | ACT_FLAG_AIR | ACT_FLAG_ATTACKING)
@@ -38,17 +32,17 @@ local id_bhvTwirlEffect = hook_behavior(nil, OBJ_LIST_GENACTOR, true, bhv_spin_a
     "bhvRosalinaTwirlEffect")
 
 -- Spinable actions, these are actions you can spin out of that don't normally allow a kick/dive
-local extraSpinActs = {
-    [ACT_LONG_JUMP] = true,
-    [ACT_BACKFLIP]  = true,
+local extraSpinActs = T{
+    ACT_LONG_JUMP,
+    ACT_BACKFLIP,
 }
 
 -- Spin overridable actions, these are overriden instantly
-local spinOverrides = {
-    [ACT_PUNCHING]      = true,
-    [ACT_MOVE_PUNCHING] = true,
-    [ACT_JUMP_KICK]     = true,
-    [ACT_DIVE]          = true
+local spinOverrides = T{
+    ACT_PUNCHING,
+    ACT_MOVE_PUNCHING,
+    ACT_JUMP_KICK,
+    ACT_DIVE
 }
 
 local ROSALINA_SOUND_SPIN = audio_sample_load("z_sfx_rosalina_spinattack.ogg") -- Load audio sample

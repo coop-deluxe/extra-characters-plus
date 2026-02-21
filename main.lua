@@ -1,5 +1,5 @@
--- name: \\##ff87b5\\[CS] Extra Characters Plus
--- description: \\##ffffff\\[CS] Extra Characters Plus v2.0a\nBy: \\#00ff00\\ULTRA BROS TEAM\n\ \n\\\#ffffff\\A CS Pack done by CoopDX members that not only gives opportunity to new roster additions but also provides unique movesets.\n\ \n\\\#00ff00\\It is RECOMMENDED to have the interpolation set to ACCURATE.\n\ \n\\\#ffff00\\Delete the modcache file in sm64coopdx's roaming file and restart if multiplayer causes issues.\n\ \n\\\#ff0000\\REQUIRES Character Select v1.16 or newer for all of it's features to be used.
+-- name: [CS] Extra Characters Plus
+-- description: \\#fff\\[CS] Extra Characters Plus v2.0a\nBy: \\#0f0\\ULTRA BROS TEAM\n\n\\#fff\\A CS Pack done by CoopDX members that not only gives opportunity to new roster additions but also provides unique movesets.\n\n\\#0f0\\It is RECOMMENDED to have the interpolation set to ACCURATE.\n\n\\#ff0\\Delete the mod.cache file in sm64coopdx's user folder and restart if multiplayer causes issues.\n\n\\#f00\\REQUIRES Character Select v1.16 or newer for all of it's features to be used.
 -- category: cs
 
 local TEXT_VANILLA_CAST = "CoopDX Characters"
@@ -42,25 +42,25 @@ extraCharacters = {
         offset = 0,
         meter = {
             label = {
-                left    = get_texture_info("char-select-ec-toadette-meter-left"),
-                right   = get_texture_info("char-select-ec-toadette-meter-right"),
+                left  = get_texture_info("char-select-ec-toadette-meter-left"),
+                right = get_texture_info("char-select-ec-toadette-meter-right"),
             },
             pie = {
-                [1] = get_texture_info("char_select_custom_meter_pie1"),
-                [2] = get_texture_info("char_select_custom_meter_pie2"),
-                [3] = get_texture_info("char_select_custom_meter_pie3"),
-                [4] = get_texture_info("char_select_custom_meter_pie4"),
-                [5] = get_texture_info("char_select_custom_meter_pie5"),
-                [6] = get_texture_info("char_select_custom_meter_pie6"),
-                [7] = get_texture_info("char_select_custom_meter_pie7"),
-                [8] = get_texture_info("char_select_custom_meter_pie8"),
+                get_texture_info("char_select_custom_meter_pie1"),
+                get_texture_info("char_select_custom_meter_pie2"),
+                get_texture_info("char_select_custom_meter_pie3"),
+                get_texture_info("char_select_custom_meter_pie4"),
+                get_texture_info("char_select_custom_meter_pie5"),
+                get_texture_info("char_select_custom_meter_pie6"),
+                get_texture_info("char_select_custom_meter_pie7"),
+                get_texture_info("char_select_custom_meter_pie8"),
             }
         },
         caps = {
-            normal      = smlua_model_util_get_id("ec_toadette_cap_geo"),
-            wing        = smlua_model_util_get_id("ec_toadette_wing_cap_geo"),
-            metal       = smlua_model_util_get_id("ec_toadette_metal_cap_geo"),
-            metalWing   = smlua_model_util_get_id("ec_toadette_metal_wing_cap_geo")
+            normal    = smlua_model_util_get_id("ec_toadette_cap_geo"),
+            wing      = smlua_model_util_get_id("ec_toadette_wing_cap_geo"),
+            metal     = smlua_model_util_get_id("ec_toadette_metal_cap_geo"),
+            metalWing = smlua_model_util_get_id("ec_toadette_metal_wing_cap_geo")
         },
         palettes = {
             {
@@ -184,25 +184,25 @@ extraCharacters = {
         offset = 0,
         meter = {
             label = {
-                left    = get_texture_info("char-select-ec-peach-meter-left"),
-                right   = get_texture_info("char-select-ec-peach-meter-right"),
+                left  = get_texture_info("char-select-ec-peach-meter-left"),
+                right = get_texture_info("char-select-ec-peach-meter-right"),
             },
             pie = {
-                [1] = get_texture_info("char_select_custom_meter_pie1"),
-                [2] = get_texture_info("char_select_custom_meter_pie2"),
-                [3] = get_texture_info("char_select_custom_meter_pie3"),
-                [4] = get_texture_info("char_select_custom_meter_pie4"),
-                [5] = get_texture_info("char_select_custom_meter_pie5"),
-                [6] = get_texture_info("char_select_custom_meter_pie6"),
-                [7] = get_texture_info("char_select_custom_meter_pie7"),
-                [8] = get_texture_info("char_select_custom_meter_pie8"),
+                get_texture_info("char_select_custom_meter_pie1"),
+                get_texture_info("char_select_custom_meter_pie2"),
+                get_texture_info("char_select_custom_meter_pie3"),
+                get_texture_info("char_select_custom_meter_pie4"),
+                get_texture_info("char_select_custom_meter_pie5"),
+                get_texture_info("char_select_custom_meter_pie6"),
+                get_texture_info("char_select_custom_meter_pie7"),
+                get_texture_info("char_select_custom_meter_pie8"),
             }
         },
         caps = {
-            normal      = smlua_model_util_get_id("ec_peach_player_cap_geo"),
-            wing        = smlua_model_util_get_id("ec_peach_player_wing_cap_geo"),
-            metal       = smlua_model_util_get_id("ec_peach_player_metal_cap_geo"),
-            metalWing   = smlua_model_util_get_id("ec_peach_player_metal_wing_cap_geo")
+            normal    = smlua_model_util_get_id("ec_peach_player_cap_geo"),
+            wing      = smlua_model_util_get_id("ec_peach_player_wing_cap_geo"),
+            metal     = smlua_model_util_get_id("ec_peach_player_metal_cap_geo"),
+            metalWing = smlua_model_util_get_id("ec_peach_player_metal_wing_cap_geo")
         },
         palettes = {
             {
@@ -393,25 +393,25 @@ extraCharacters = {
         offset = 0,
         meter = {
             label = {
-                left    = get_texture_info("char-select-ec-daisy-meter-left"),
-                right   = get_texture_info("char-select-ec-daisy-meter-right"),
+                left  = get_texture_info("char-select-ec-daisy-meter-left"),
+                right = get_texture_info("char-select-ec-daisy-meter-right"),
             },
             pie = {
-                [1] = get_texture_info("char_select_custom_meter_pie1"),
-                [2] = get_texture_info("char_select_custom_meter_pie2"),
-                [3] = get_texture_info("char_select_custom_meter_pie3"),
-                [4] = get_texture_info("char_select_custom_meter_pie4"),
-                [5] = get_texture_info("char_select_custom_meter_pie5"),
-                [6] = get_texture_info("char_select_custom_meter_pie6"),
-                [7] = get_texture_info("char_select_custom_meter_pie7"),
-                [8] = get_texture_info("char_select_custom_meter_pie8"),
+                get_texture_info("char_select_custom_meter_pie1"),
+                get_texture_info("char_select_custom_meter_pie2"),
+                get_texture_info("char_select_custom_meter_pie3"),
+                get_texture_info("char_select_custom_meter_pie4"),
+                get_texture_info("char_select_custom_meter_pie5"),
+                get_texture_info("char_select_custom_meter_pie6"),
+                get_texture_info("char_select_custom_meter_pie7"),
+                get_texture_info("char_select_custom_meter_pie8"),
             }
         },
         caps = {
-            normal      = smlua_model_util_get_id("ec_daisy_cap_geo"),
-            wing        = smlua_model_util_get_id("ec_daisy_wing_cap_geo"),
-            metal       = smlua_model_util_get_id("ec_daisy_metal_cap_geo"),
-            metalWing   = smlua_model_util_get_id("ec_daisy_metal_wing_cap_geo")
+            normal    = smlua_model_util_get_id("ec_daisy_cap_geo"),
+            wing      = smlua_model_util_get_id("ec_daisy_wing_cap_geo"),
+            metal     = smlua_model_util_get_id("ec_daisy_metal_cap_geo"),
+            metalWing = smlua_model_util_get_id("ec_daisy_metal_wing_cap_geo")
         },
         palettes = {
             {
@@ -603,7 +603,7 @@ extraCharacters = {
     {
         name = "Yoshi",
         description =
-        "A friendly dinosuar originating from Dinosuar Land where he reunited with Mario! These cute little guys come in different colors! Might suggest to stay back when they're in a very hungry mood...",
+        "A friendly dinosaur originating from Dinosaur Land where he reunited with Mario! These cute little guys come in different colors! Might suggest to stay back when they're in a very hungry mood...",
         credits = "Coop Team / VA: FunkyLion 'Yuyake'",
         color = { r = 0, g = 255, b = 0 },
         model = smlua_model_util_get_id("ec_yoshi_player_geo"),
@@ -614,37 +614,37 @@ extraCharacters = {
         offset = 0,
         meter = {
             label = {
-                left    = get_texture_info("char-select-ec-yoshi-meter-left"),
-                right   = get_texture_info("char-select-ec-yoshi-meter-right"),
+                left  = get_texture_info("char-select-ec-yoshi-meter-left"),
+                right = get_texture_info("char-select-ec-yoshi-meter-right"),
             },
             pie = {
-                [1] = get_texture_info("char_select_custom_meter_pie1"),
-                [2] = get_texture_info("char_select_custom_meter_pie2"),
-                [3] = get_texture_info("char_select_custom_meter_pie3"),
-                [4] = get_texture_info("char_select_custom_meter_pie4"),
-                [5] = get_texture_info("char_select_custom_meter_pie5"),
-                [6] = get_texture_info("char_select_custom_meter_pie6"),
-                [7] = get_texture_info("char_select_custom_meter_pie7"),
-                [8] = get_texture_info("char_select_custom_meter_pie8"),
+                get_texture_info("char_select_custom_meter_pie1"),
+                get_texture_info("char_select_custom_meter_pie2"),
+                get_texture_info("char_select_custom_meter_pie3"),
+                get_texture_info("char_select_custom_meter_pie4"),
+                get_texture_info("char_select_custom_meter_pie5"),
+                get_texture_info("char_select_custom_meter_pie6"),
+                get_texture_info("char_select_custom_meter_pie7"),
+                get_texture_info("char_select_custom_meter_pie8"),
             }
         },
         caps = {
-            normal      = smlua_model_util_get_id("ec_yoshi_player_cap_geo"),
-            wing        = smlua_model_util_get_id("ec_yoshi_player_wing_cap_geo"),
-            metal       = smlua_model_util_get_id("ec_yoshi_player_metal_cap_geo"),
-            metalWing   = smlua_model_util_get_id("ec_yoshi_player_metal_wing_cap_geo")
+            normal    = smlua_model_util_get_id("ec_yoshi_player_cap_geo"),
+            wing      = smlua_model_util_get_id("ec_yoshi_player_wing_cap_geo"),
+            metal     = smlua_model_util_get_id("ec_yoshi_player_metal_cap_geo"),
+            metalWing = smlua_model_util_get_id("ec_yoshi_player_metal_wing_cap_geo")
         },
         palettes = {
             {
                 name     = "Default",
-                [PANTS]  = { r = 0xFF, g = 0x00, b = 0x00 },
-                [SHIRT]  = { r = 0x00, g = 0xFF, b = 0x00 },
-                [GLOVES] = { r = 0xFF, g = 0xFF, b = 0xFF },
-                [SHOES]  = { r = 0xFF, g = 0x00, b = 0x00 },
-                [HAIR]   = { r = 0xFF, g = 0x00, b = 0x00 },
-                [SKIN]   = { r = 0xFF, g = 0xDE, b = 0x39 },
-                [CAP]    = { r = 0x00, g = 0xFF, b = 0x00 },
-                [EMBLEM] = { r = 0xFF, g = 0x00, b = 0x00 }
+                [PANTS]  = "FF0000",
+                [SHIRT]  = "00FF00",
+                [GLOVES] = "FFFFFF",
+                [SHOES]  = "FF0000",
+                [HAIR]   = "FF0000",
+                [SKIN]   = "FFDE39",
+                [CAP]    = "00FF00",
+                [EMBLEM] = "FF0000"
             },
             {
                 name     = "Retro",
@@ -746,7 +746,7 @@ extraCharacters = {
     {
         name = "Birdo",
         description =
-        "A very feminine dinosuar who has fought against Mario during his dreams! How she came into reality is anyone's guess. It is said she was once a boy before she learned more about herself in life and eventually became a girl!",
+        "A very feminine dinosaur who has fought against Mario during his dreams! How she came into reality is anyone's guess. It is said she was once a boy before she learned more about herself in life and eventually became a girl!",
         credits = "Coop Team / VA: LuUvvUCY 'Lucy'",
         color = { r = 254, g = 77, b = 127 },
         model = smlua_model_util_get_id("ec_birdo_geo"),
@@ -757,25 +757,25 @@ extraCharacters = {
         offset = 0,
         meter = {
             label = {
-                left    = get_texture_info("char-select-ec-birdo-meter-left"),
-                right   = get_texture_info("char-select-ec-birdo-meter-right"),
+                left  = get_texture_info("char-select-ec-birdo-meter-left"),
+                right = get_texture_info("char-select-ec-birdo-meter-right"),
             },
             pie = {
-                [1] = get_texture_info("char_select_custom_meter_pie1"),
-                [2] = get_texture_info("char_select_custom_meter_pie2"),
-                [3] = get_texture_info("char_select_custom_meter_pie3"),
-                [4] = get_texture_info("char_select_custom_meter_pie4"),
-                [5] = get_texture_info("char_select_custom_meter_pie5"),
-                [6] = get_texture_info("char_select_custom_meter_pie6"),
-                [7] = get_texture_info("char_select_custom_meter_pie7"),
-                [8] = get_texture_info("char_select_custom_meter_pie8"),
+                get_texture_info("char_select_custom_meter_pie1"),
+                get_texture_info("char_select_custom_meter_pie2"),
+                get_texture_info("char_select_custom_meter_pie3"),
+                get_texture_info("char_select_custom_meter_pie4"),
+                get_texture_info("char_select_custom_meter_pie5"),
+                get_texture_info("char_select_custom_meter_pie6"),
+                get_texture_info("char_select_custom_meter_pie7"),
+                get_texture_info("char_select_custom_meter_pie8"),
             }
         },
         caps = {
-            normal      = smlua_model_util_get_id("ec_birdo_cap_geo"),
-            wing        = smlua_model_util_get_id("ec_birdo_wing_cap_geo"),
-            metal       = smlua_model_util_get_id("ec_birdo_metal_cap_geo"),
-            metalWing   = smlua_model_util_get_id("ec_birdo_metal_wing_cap_geo")
+            normal    = smlua_model_util_get_id("ec_birdo_cap_geo"),
+            wing      = smlua_model_util_get_id("ec_birdo_wing_cap_geo"),
+            metal     = smlua_model_util_get_id("ec_birdo_metal_cap_geo"),
+            metalWing = smlua_model_util_get_id("ec_birdo_metal_wing_cap_geo")
         },
         palettes = {
             {
@@ -903,25 +903,25 @@ extraCharacters = {
         offset = 0,
         meter = {
             label = {
-                left    = get_texture_info("char-select-ec-foremanspike-meter-left"),
-                right   = get_texture_info("char-select-ec-foremanspike-meter-right"),
+                left  = get_texture_info("char-select-ec-foremanspike-meter-left"),
+                right = get_texture_info("char-select-ec-foremanspike-meter-right"),
             },
             pie = {
-                [1] = get_texture_info("char_select_custom_meter_pie1"),
-                [2] = get_texture_info("char_select_custom_meter_pie2"),
-                [3] = get_texture_info("char_select_custom_meter_pie3"),
-                [4] = get_texture_info("char_select_custom_meter_pie4"),
-                [5] = get_texture_info("char_select_custom_meter_pie5"),
-                [6] = get_texture_info("char_select_custom_meter_pie6"),
-                [7] = get_texture_info("char_select_custom_meter_pie7"),
-                [8] = get_texture_info("char_select_custom_meter_pie8"),
+                get_texture_info("char_select_custom_meter_pie1"),
+                get_texture_info("char_select_custom_meter_pie2"),
+                get_texture_info("char_select_custom_meter_pie3"),
+                get_texture_info("char_select_custom_meter_pie4"),
+                get_texture_info("char_select_custom_meter_pie5"),
+                get_texture_info("char_select_custom_meter_pie6"),
+                get_texture_info("char_select_custom_meter_pie7"),
+                get_texture_info("char_select_custom_meter_pie8"),
             }
         },
         caps = {
-            normal      = smlua_model_util_get_id("ec_foreman_spike_cap_geo"),
-            wing        = smlua_model_util_get_id("ec_foreman_spike_wing_cap_geo"),
-            metal       = smlua_model_util_get_id("ec_foreman_spike_metal_cap_geo"),
-            metalWing   = smlua_model_util_get_id("ec_foreman_spike_metal_wing_cap_geo")
+            normal    = smlua_model_util_get_id("ec_foreman_spike_cap_geo"),
+            wing      = smlua_model_util_get_id("ec_foreman_spike_wing_cap_geo"),
+            metal     = smlua_model_util_get_id("ec_foreman_spike_metal_cap_geo"),
+            metalWing = smlua_model_util_get_id("ec_foreman_spike_metal_wing_cap_geo")
         },
         palettes = {
             {
@@ -1044,25 +1044,25 @@ extraCharacters = {
         offset = 0,
         meter = {
             label = {
-                left    = get_texture_info("char-select-ec-pauline-meter-left"),
-                right   = get_texture_info("char-select-ec-pauline-meter-right"),
+                left  = get_texture_info("char-select-ec-pauline-meter-left"),
+                right = get_texture_info("char-select-ec-pauline-meter-right"),
             },
             pie = {
-                [1] = get_texture_info("char_select_custom_meter_pie1"),
-                [2] = get_texture_info("char_select_custom_meter_pie2"),
-                [3] = get_texture_info("char_select_custom_meter_pie3"),
-                [4] = get_texture_info("char_select_custom_meter_pie4"),
-                [5] = get_texture_info("char_select_custom_meter_pie5"),
-                [6] = get_texture_info("char_select_custom_meter_pie6"),
-                [7] = get_texture_info("char_select_custom_meter_pie7"),
-                [8] = get_texture_info("char_select_custom_meter_pie8"),
+                get_texture_info("char_select_custom_meter_pie1"),
+                get_texture_info("char_select_custom_meter_pie2"),
+                get_texture_info("char_select_custom_meter_pie3"),
+                get_texture_info("char_select_custom_meter_pie4"),
+                get_texture_info("char_select_custom_meter_pie5"),
+                get_texture_info("char_select_custom_meter_pie6"),
+                get_texture_info("char_select_custom_meter_pie7"),
+                get_texture_info("char_select_custom_meter_pie8"),
             }
         },
         caps = {
-            normal      = smlua_model_util_get_id("ec_pauline_cap_geo"),
-            wing        = smlua_model_util_get_id("ec_pauline_wing_cap_geo"),
-            metal       = smlua_model_util_get_id("ec_pauline_metal_cap_geo"),
-            metalWing   = smlua_model_util_get_id("ec_pauline_metal_wing_cap_geo")
+            normal    = smlua_model_util_get_id("ec_pauline_cap_geo"),
+            wing      = smlua_model_util_get_id("ec_pauline_wing_cap_geo"),
+            metal     = smlua_model_util_get_id("ec_pauline_metal_cap_geo"),
+            metalWing = smlua_model_util_get_id("ec_pauline_metal_wing_cap_geo")
         },
         palettes = {
             {
@@ -1266,25 +1266,25 @@ extraCharacters = {
         offset = 0,
         meter = {
             label = {
-                left    = get_texture_info("char-select-ec-rosalina-meter-left"),
-                right   = get_texture_info("char-select-ec-rosalina-meter-right"),
+                left  = get_texture_info("char-select-ec-rosalina-meter-left"),
+                right = get_texture_info("char-select-ec-rosalina-meter-right"),
             },
             pie = {
-                [1] = get_texture_info("char_select_custom_meter_pie1"),
-                [2] = get_texture_info("char_select_custom_meter_pie2"),
-                [3] = get_texture_info("char_select_custom_meter_pie3"),
-                [4] = get_texture_info("char_select_custom_meter_pie4"),
-                [5] = get_texture_info("char_select_custom_meter_pie5"),
-                [6] = get_texture_info("char_select_custom_meter_pie6"),
-                [7] = get_texture_info("char_select_custom_meter_pie7"),
-                [8] = get_texture_info("char_select_custom_meter_pie8"),
+                get_texture_info("char_select_custom_meter_pie1"),
+                get_texture_info("char_select_custom_meter_pie2"),
+                get_texture_info("char_select_custom_meter_pie3"),
+                get_texture_info("char_select_custom_meter_pie4"),
+                get_texture_info("char_select_custom_meter_pie5"),
+                get_texture_info("char_select_custom_meter_pie6"),
+                get_texture_info("char_select_custom_meter_pie7"),
+                get_texture_info("char_select_custom_meter_pie8"),
             }
         },
         caps = {
-            normal      = smlua_model_util_get_id("ec_rosalina_cap_geo"),
-            wing        = smlua_model_util_get_id("ec_rosalina_wing_cap_geo"),
-            metal       = smlua_model_util_get_id("ec_rosalina_metal_cap_geo"),
-            metalWing   = smlua_model_util_get_id("ec_rosalina_metal_wing_cap_geo")
+            normal    = smlua_model_util_get_id("ec_rosalina_cap_geo"),
+            wing      = smlua_model_util_get_id("ec_rosalina_wing_cap_geo"),
+            metal     = smlua_model_util_get_id("ec_rosalina_metal_cap_geo"),
+            metalWing = smlua_model_util_get_id("ec_rosalina_metal_wing_cap_geo")
         },
         palettes = {
             {
@@ -1480,25 +1480,25 @@ extraCharacters = {
         offset      = 0,
         meter = {
             label = {
-                left    = get_texture_info("char-select-ec-wapeach-meter-left"),
-                right   = get_texture_info("char-select-ec-wapeach-meter-right"),
+                left  = get_texture_info("char-select-ec-wapeach-meter-left"),
+                right = get_texture_info("char-select-ec-wapeach-meter-right"),
             },
             pie = {
-                [1] = get_texture_info("char_select_custom_meter_pie1"),
-                [2] = get_texture_info("char_select_custom_meter_pie2"),
-                [3] = get_texture_info("char_select_custom_meter_pie3"),
-                [4] = get_texture_info("char_select_custom_meter_pie4"),
-                [5] = get_texture_info("char_select_custom_meter_pie5"),
-                [6] = get_texture_info("char_select_custom_meter_pie6"),
-                [7] = get_texture_info("char_select_custom_meter_pie7"),
-                [8] = get_texture_info("char_select_custom_meter_pie8"),
+                get_texture_info("char_select_custom_meter_pie1"),
+                get_texture_info("char_select_custom_meter_pie2"),
+                get_texture_info("char_select_custom_meter_pie3"),
+                get_texture_info("char_select_custom_meter_pie4"),
+                get_texture_info("char_select_custom_meter_pie5"),
+                get_texture_info("char_select_custom_meter_pie6"),
+                get_texture_info("char_select_custom_meter_pie7"),
+                get_texture_info("char_select_custom_meter_pie8"),
             }
         },
         caps = {
-            normal      = smlua_model_util_get_id("ec_wapeach_cap_geo"),
-            wing        = smlua_model_util_get_id("ec_wapeach_wing_cap_geo"),
-            metal       = smlua_model_util_get_id("ec_wapeach_metal_cap_geo"),
-            metalWing   = smlua_model_util_get_id("ec_wapeach_metal_wing_cap_geo")
+            normal    = smlua_model_util_get_id("ec_wapeach_cap_geo"),
+            wing      = smlua_model_util_get_id("ec_wapeach_wing_cap_geo"),
+            metal     = smlua_model_util_get_id("ec_wapeach_metal_cap_geo"),
+            metalWing = smlua_model_util_get_id("ec_wapeach_metal_wing_cap_geo")
         },
         palettes = {
             {
@@ -1613,25 +1613,25 @@ extraCharacters = {
         offset = 0,
         meter = {
             label = {
-                left    = get_texture_info("char-select-ec-donkeykong-meter-left"),
-                right   = get_texture_info("char-select-ec-donkeykong-meter-right"),
+                left  = get_texture_info("char-select-ec-donkeykong-meter-left"),
+                right = get_texture_info("char-select-ec-donkeykong-meter-right"),
             },
             pie = {
-                [1] = get_texture_info("char_select_custom_meter_pie1"),
-                [2] = get_texture_info("char_select_custom_meter_pie2"),
-                [3] = get_texture_info("char_select_custom_meter_pie3"),
-                [4] = get_texture_info("char_select_custom_meter_pie4"),
-                [5] = get_texture_info("char_select_custom_meter_pie5"),
-                [6] = get_texture_info("char_select_custom_meter_pie6"),
-                [7] = get_texture_info("char_select_custom_meter_pie7"),
-                [8] = get_texture_info("char_select_custom_meter_pie8"),
+                get_texture_info("char_select_custom_meter_pie1"),
+                get_texture_info("char_select_custom_meter_pie2"),
+                get_texture_info("char_select_custom_meter_pie3"),
+                get_texture_info("char_select_custom_meter_pie4"),
+                get_texture_info("char_select_custom_meter_pie5"),
+                get_texture_info("char_select_custom_meter_pie6"),
+                get_texture_info("char_select_custom_meter_pie7"),
+                get_texture_info("char_select_custom_meter_pie8"),
             }
         },
         caps = {
-            normal      = smlua_model_util_get_id("ec_donkeykong_cap_geo"),
-            wing        = smlua_model_util_get_id("ec_donkeykong_wing_cap_geo"),
-            metal       = smlua_model_util_get_id("ec_donkeykong_metal_cap_geo"),
-            metalWing   = smlua_model_util_get_id("ec_donkeykong_metal_wing_cap_geo")
+            normal    = smlua_model_util_get_id("ec_donkeykong_cap_geo"),
+            wing      = smlua_model_util_get_id("ec_donkeykong_wing_cap_geo"),
+            metal     = smlua_model_util_get_id("ec_donkeykong_metal_cap_geo"),
+            metalWing = smlua_model_util_get_id("ec_donkeykong_metal_wing_cap_geo")
         },
         palettes = {
             {
@@ -1824,10 +1824,10 @@ extraCharacters = {
         offset = 0,
         meter = require "movesets/Sonic" .meter,
         caps = {
-            normal =     smlua_model_util_get_id("ec_segasonic_cap_geo"),
-            wing =       smlua_model_util_get_id("ec_segasonic_wing_cap_geo"),
-            metal =      smlua_model_util_get_id("ec_segasonic_metal_cap_geo"),
-            metalWing =  smlua_model_util_get_id("ec_segasonic_metal_wing_cap_geo")
+            normal    = smlua_model_util_get_id("ec_segasonic_cap_geo"),
+            wing      = smlua_model_util_get_id("ec_segasonic_wing_cap_geo"),
+            metal     = smlua_model_util_get_id("ec_segasonic_metal_cap_geo"),
+            metalWing = smlua_model_util_get_id("ec_segasonic_metal_wing_cap_geo")
         },
         palettes = {
             {

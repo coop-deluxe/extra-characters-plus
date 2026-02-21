@@ -1,14 +1,14 @@
 local colObjLists = { OBJ_LIST_GENACTOR, OBJ_LIST_PUSHABLE, OBJ_LIST_SURFACE, OBJ_LIST_DESTRUCTIVE }
 
-local bhvBlacklist = {
-    [id_bhvBowser] = true,
-    [id_bhvDoor] = true,
-    [id_bhvDoorWarp] = true,
-    [id_bhvStarDoor] = true,
-    [id_bhvUnlockDoorStar] = true,
-    [id_bhvToadMessage] = true,
-    [id_bhvFireSpitter] = true,
-    [id_bhvExplosion] = true
+local bhvBlacklist = T{
+    id_bhvBowser,
+    id_bhvDoor,
+    id_bhvDoorWarp,
+    id_bhvStarDoor,
+    id_bhvUnlockDoorStar,
+    id_bhvToadMessage,
+    id_bhvFireSpitter,
+    id_bhvExplosion
 }
 
 ---@param o Object

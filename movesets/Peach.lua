@@ -1,19 +1,13 @@
--------------------
--- Peach Moveset --
--------------------
-
-if not charSelect then return end
-
 require "anims/peach"
 
-local floatActs = {
-    [ACT_JUMP]          = true,
-    [ACT_DOUBLE_JUMP]   = true,
-    [ACT_TRIPLE_JUMP]   = true,
-    [ACT_LONG_JUMP]     = true,
-    [ACT_BACKFLIP]      = true,
-    [ACT_SIDE_FLIP]     = true,
-    [ACT_WALL_KICK_AIR] = true,
+local floatActs = T{
+    ACT_JUMP,
+    ACT_DOUBLE_JUMP,
+    ACT_TRIPLE_JUMP,
+    ACT_LONG_JUMP,
+    ACT_BACKFLIP,
+    ACT_SIDE_FLIP,
+    ACT_WALL_KICK_AIR,
 }
 
 _G.ACT_FLOAT = allocate_mario_action(ACT_GROUP_AIRBORNE | ACT_FLAG_ALLOW_VERTICAL_WIND_ACTION | ACT_FLAG_MOVING)
