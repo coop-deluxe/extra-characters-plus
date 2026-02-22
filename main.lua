@@ -1264,22 +1264,7 @@ extraCharacters = {
         graffiti = get_texture_info("char-select-ec-graffiti-rosalina"),
         camScale = 1.5,
         offset = 0,
-        meter = {
-            label = {
-                left    = get_texture_info("char-select-ec-rosalina-meter-left"),
-                right   = get_texture_info("char-select-ec-rosalina-meter-right"),
-            },
-            pie = {
-                [1] = get_texture_info("char_select_custom_meter_pie1"),
-                [2] = get_texture_info("char_select_custom_meter_pie2"),
-                [3] = get_texture_info("char_select_custom_meter_pie3"),
-                [4] = get_texture_info("char_select_custom_meter_pie4"),
-                [5] = get_texture_info("char_select_custom_meter_pie5"),
-                [6] = get_texture_info("char_select_custom_meter_pie6"),
-                [7] = get_texture_info("char_select_custom_meter_pie7"),
-                [8] = get_texture_info("char_select_custom_meter_pie8"),
-            }
-        },
+        meter = require "movesets/Rosalina" .meter,
         caps = {
             normal      = smlua_model_util_get_id("ec_rosalina_cap_geo"),
             wing        = smlua_model_util_get_id("ec_rosalina_wing_cap_geo"),
