@@ -222,6 +222,14 @@ local meter = {
     }
 }
 
+local TEX_LIFE_LABEL = get_texture_info("char-select-ec-rosa-meter-life")
+local specialMeter = {}
+local specialMeterNum = {}
+for i = 0, 6 do
+    specialMeter[i] = get_texture_info("char-select-ec-rosa-meter-"..i)
+    specialMeterNum[i] = get_texture_info("char-select-ec-rosa-meter-num-"..i)
+end
+
 local function render_rect(prevX, prevY, prevSize, x, y, size)
     djui_hud_render_rect_interpolated(prevX-prevSize/2,prevY-prevSize/2,prevSize,prevSize, x-size/2,y-size/2,size,size)
 end
@@ -230,31 +238,34 @@ local function render_text_centered_interpolated(t, px, py, pz, x, y, z)
                                          x - djui_hud_measure_text(t) *  z/2,  y - 32* z,  z)
 end
 
-function rosalina_health_meter(localIndex, health, prevX, prevY, prevScaleW, prevScaleH, x, y, scaleW, scaleH)
+function rosalina_health_meter(localIndex, health, prevX, prevY, prevW, prevH, x, y, w, h)
     local m = gMarioStates[localIndex]
     local e = gCharacterStates[m.playerIndex].rosalina
+
     if gCSPlayers[m.playerIndex].movesetToggle then
-        local djuiFont, djuiColor = djui_hud_get_font(), djui_hud_get_color()
+        local djuiColor = djui_hud_get_color()
 
         local timer = e.meterTimer
-        local scale, prevScale = scaleW/64, prevScaleW/64
-        local lifeX, prevLifeX = x + scale*24, prevX + prevScale*24
-        local lifeY, prevLifeY = y + scale*36, prevY + prevScale*36
+        w, prevW = w/64, prevW/64
+        h, prevH = h/64, prevH/64
+        local x2, prevX2, y2, prevY2
+            = x , prevX , y , prevY
         if e.meterState == METER_STATE_IDLE then
             local fac = math.pi*((3-e.hp)/6)
-            local pulse = (math.cos(timer*fac))/2+.5
-            local pulsePrev = (math.cos((timer-1)*fac))/2+.5
-            scale, prevScale = 1 + pulse*.1, 1 + pulsePrev*.1
+            local pulse = 1 + (math.sin(timer*fac))*.1
+            local pulsePrev = 1 + (math.sin((timer-1)*fac))*.1
+            w, prevW = w * pulse, prevW * pulsePrev
+            h, prevH = h * pulse, prevH * pulsePrev
 
         elseif e.meterState == METER_STATE_HIT then
             local fac = math.pi/12
-            local mag = math.sin(fac*math.min(12, timer))
-            local timerPrev = timer-1; local magPrev = math.sin(fac*math.min(12, timerPrev))
-            local timerPrev2 = timer-2; local magPrev2 = math.sin(fac*math.min(12, timerPrev2))
-            x, prevX = x + sins(timer*0x4000) * mag, prevX + sins(timerPrev*0x4000) * magPrev
-            y, prevY = y + coss(timer*0x4000) * mag, prevY + coss(timerPrev*0x4000) * magPrev
-            lifeX, prevLifeX = prevX + scale*24, prevX + prevScale*24 + sins(timerPrev2*0x4000) * magPrev2
-            lifeY, prevLifeY = prevY + scale*36, prevY + prevScale*36 + coss(timerPrev2*0x4000) * magPrev2
+            local mag = math.sin(fac*math.min(12, timer))*3
+            local magPrev = math.sin(fac*math.min(12, timer-1))*3
+            local magPrev2 = math.sin(fac*math.min(12, timer-2))*3
+            x, prevX = x + sins(timer*0x4000) * mag, prevX + sins((timer-1)*0x4000) * magPrev
+            y, prevY = y + coss(timer*0x4000) * mag, prevY + coss((timer-1)*0x4000) * magPrev
+            x2, prevX2 = prevX, prevX + sins((timer-2)*0x4000) * magPrev2
+            y2, prevY2 = prevY, prevY + coss((timer-2)*0x4000) * magPrev2
 
             if timer > 13 then
                 e.meterState = e.hp > 0 and METER_STATE_IDLE or METER_STATE_BREAK
@@ -264,20 +275,28 @@ function rosalina_health_meter(localIndex, health, prevX, prevY, prevScaleW, pre
 
         e.meterTimer = timer + 1
 
-        -- prototype meter - find real assets!
-        djui_hud_set_color(148, 147, 146, 255)
-        render_rect(prevX + prevScaleW/2, prevY + prevScaleH/2, prevScale*64, x + scaleW/2, y + scaleH/2, scale*64)
+        djui_hud_set_color(255, 255, 255, 255)
 
-        djui_hud_set_font(FONT_MENU); djui_hud_set_color(235, 202, 103, 255)
-        render_text_centered_interpolated(""..e.hp, prevLifeX, prevLifeY, prevScale, lifeX, lifeY, scale)
+        local meter = specialMeter[math.min(e.hp, 3)]
+        local extraMeter = specialMeter[e.hp]
+        local num = specialMeterNum[e.hp]
+
+        local xOffset, xOffsetP = 32 * (1-w), 32 * (1-prevW)
+        local yOffset, yOffsetP = 32 * (1-h), 32 * (1-prevH)
+        djui_hud_render_texture_interpolated(meter, prevX + xOffsetP, prevY + yOffsetP, prevW, prevH, x + xOffset, y + yOffset, w, h)
+        djui_hud_render_texture_interpolated(TEX_LIFE_LABEL, prevX2 + xOffsetP, prevY2 + yOffsetP, prevW, prevH, x2 + xOffset, y2 + yOffset, w, h)
+        xOffset, xOffsetP = xOffset + w*19, xOffsetP + prevW*19
+        yOffset, yOffsetP = yOffset + h*22, yOffsetP + prevH*22
+        djui_hud_render_texture_interpolated(num, prevX2 + xOffsetP, prevY2 + yOffsetP, prevW, prevH, x2 + xOffset, y2 + yOffset, w, h)
 
         -- Clean up after we're done
-        djui_hud_set_font(djuiFont); djui_hud_set_color(djuiColor.r, djuiColor.g, djuiColor.b, djuiColor.a)
+        djui_hud_set_color(djuiColor.r, djuiColor.g, djuiColor.b, djuiColor.a)
+
     else
-        djui_hud_render_texture_interpolated(meter.label.left, prevX, prevY, prevScaleW, prevScaleH, x, y, scaleW, scaleH)
-        djui_hud_render_texture_interpolated(meter.label.right, prevX + 31*prevScaleW, prevY, prevScaleW, prevScaleH, x + 31*scaleW, y, scaleW, scaleH)
+        djui_hud_render_texture_interpolated(meter.label.left, prevX, prevY, prevW, prevH, x, y, w, h)
+        djui_hud_render_texture_interpolated(meter.label.right, prevX + 31*prevW, prevY, prevW, prevH, x + 31*w, y, w, h)
         if health > 0 then
-            djui_hud_render_texture_interpolated(meter.pie[health >> 8], prevX + 15*prevScaleW, prevY + 16*scaleH, prevScaleW, prevScaleH, x + 15*scaleW, y + 16*scaleH, scaleW, scaleH)
+            djui_hud_render_texture_interpolated(meter.pie[health >> 8], prevX + 15*prevW, prevY + 16*h, prevW, prevH, x + 15*w, y + 16*h, w, h)
         end
     end
 end
