@@ -5,7 +5,8 @@ local E_MODEL_TWIRL_EFFECT = smlua_model_util_get_id("spin_attack_geo")
 
 local METER_STATE_IDLE  = 0
 local METER_STATE_HIT   = 1
-local METER_STATE_BREAK = 2
+local METER_STATE_JOIN  = 2
+local METER_STATE_BREAK = 3
 
 ---@param o Object
 function bhv_spin_attack_init(o)
@@ -92,6 +93,7 @@ function act_jump_twirl(m)
     -- Increments the action timer
     m.actionTimer = m.actionTimer + 1
 end
+hook_mario_action(ACT_ROSA_JUMP_TWIRL, act_jump_twirl, INT_KICK)
 
 ---@param m MarioState
 ---@param o Object
@@ -182,6 +184,8 @@ function rosalina_update(m)
         end
     end
 
+    m.health = math.min(m.health, 0x780)
+
     if m.hurtCounter > e.lastHurtCounter then
         m.hurtCounter = e.hp > 2 and 10 or 15
         e.meterState = METER_STATE_HIT
@@ -197,9 +201,29 @@ function rosalina_update(m)
         e.hp = math.min(e.hp + m.healCounter // 10, 3)
     end
     e.lastHealCounter = m.healCounter
+
+    m.peakHeight = m.pos.y
 end
 
-local meter = {
+---@param m MarioState
+function rosalina_before_action(m, action)
+    if not action then return end
+
+    local e = gCharacterStates[m.playerIndex].rosalina
+
+    if spinOverrides[action] and m.controller.buttonDown & (Z_TRIG | A_BUTTON) == 0 and m.action ~= ACT_STEEP_JUMP then
+        return ACT_ROSA_JUMP_TWIRL
+    end
+
+    if action & ACT_FLAG_AIR == 0 and not e.canSpin then
+        play_sound_with_freq_scale(SOUND_GENERAL_COIN_SPURT_EU, m.marioObj.header.gfx.cameraToObject, 1.6)
+        spawn_non_sync_object(id_bhvSparkle, E_MODEL_SPARKLES_ANIMATION, m.pos.x, m.pos.y + 200, m.pos.z,
+            function(o) obj_scale(o, 0.75) end)
+        e.canSpin = true
+    end
+end
+
+local vanillaMeter = {
     label = {
         left  = get_texture_info("char-select-ec-rosalina-meter-left"),
         right = get_texture_info("char-select-ec-rosalina-meter-right"),
@@ -224,14 +248,6 @@ for i = 0, 6 do
     specialMeterNum[i] = get_texture_info("char-select-ec-rosa-meter-num-"..i)
 end
 
-local function render_rect(prevX, prevY, prevSize, x, y, size)
-    djui_hud_render_rect_interpolated(prevX-prevSize/2,prevY-prevSize/2,prevSize,prevSize, x-size/2,y-size/2,size,size)
-end
-local function render_text_centered_interpolated(t, px, py, pz, x, y, z)
-    djui_hud_print_text_interpolated(t, px - djui_hud_measure_text(t) * pz/2, py - 32*pz, pz,
-                                         x - djui_hud_measure_text(t) *  z/2,  y - 32* z,  z)
-end
-
 function rosalina_health_meter(localIndex, health, prevX, prevY, prevW, prevH, x, y, w, h)
     local m = gMarioStates[localIndex]
     local e = gCharacterStates[m.playerIndex].rosalina
@@ -244,12 +260,15 @@ function rosalina_health_meter(localIndex, health, prevX, prevY, prevW, prevH, x
         h, prevH = h/64, prevH/64
         local x2, prevX2, y2, prevY2
             = x , prevX , y , prevY
+
         if e.meterState == METER_STATE_IDLE then
-            local fac = math.pi*((3-e.hp)/6)
-            local pulse = 1 + (math.sin(timer*fac))*.1
-            local pulsePrev = 1 + (math.sin((timer-1)*fac))*.1
-            w, prevW = w * pulse, prevW * pulsePrev
-            h, prevH = h * pulse, prevH * pulsePrev
+            if e.hp < 3 then
+                local fac = math.pi*((3-e.hp)/6)
+                local pulse = 1 + (math.sin(timer*fac))*.1
+                local pulsePrev = 1 + (math.sin((timer-1)*fac))*.1
+                w, prevW = w * pulse, prevW * pulsePrev
+                h, prevH = h * pulse, prevH * pulsePrev
+            end
 
         elseif e.meterState == METER_STATE_HIT then
             local fac = math.pi/12
@@ -265,14 +284,31 @@ function rosalina_health_meter(localIndex, health, prevX, prevY, prevW, prevH, x
                 e.meterState = e.hp > 0 and METER_STATE_IDLE or METER_STATE_BREAK
                 e.meterTimer = -1
             end
+
+        elseif e.meterState == METER_STATE_JOIN then
+            -- (60hz)
+            -- empty meter appear       (0)
+            -- 5 frames- first slice    (5)
+            -- 4 frames- second         (9)
+            -- 5 frames- third          (14)
+            e.hp = 3 + math.min(timer // 2, 3)
+            -- begin moving after 43    (57)
+
+            -- 25 frames to reach meter (69)
+            if timer == 35 then
+                disable_time_stop_including_mario()
+            end
+            -- 12 frames to settle      (81)
+            if timer > 40 then e.meterState = METER_STATE_IDLE end
         end
 
         e.meterTimer = timer + 1
 
         djui_hud_set_color(255, 255, 255, 255)
 
-        local meter = specialMeter[math.min(e.hp, 3)]
-        local extraMeter = specialMeter[e.hp]
+        -- local meter = specialMeter[math.min(e.hp, 3)]
+        local meter = specialMeter[e.hp]
+        local extraMeter = e.hp > 3 and specialMeter[e.hp] or specialMeter[0]
         local num = specialMeterNum[e.hp]
 
         local xOffset, xOffsetP = 32 * (1-w), 32 * (1-prevW)
@@ -287,38 +323,58 @@ function rosalina_health_meter(localIndex, health, prevX, prevY, prevW, prevH, x
         djui_hud_set_color(djuiColor.r, djuiColor.g, djuiColor.b, djuiColor.a)
 
     else
-        djui_hud_render_texture_interpolated(meter.label.left, prevX, prevY, prevW, prevH, x, y, w, h)
-        djui_hud_render_texture_interpolated(meter.label.right, prevX + 31*prevW, prevY, prevW, prevH, x + 31*w, y, w, h)
+        djui_hud_render_texture_interpolated(vanillaMeter.label.left, prevX, prevY, prevW, prevH, x, y, w, h)
+        djui_hud_render_texture_interpolated(vanillaMeter.label.right, prevX + 31*prevW, prevY, prevW, prevH, x + 31*w, y, w, h)
         if health > 0 then
-            djui_hud_render_texture_interpolated(meter.pie[health >> 8], prevX + 15*prevW, prevY + 16*h, prevW, prevH, x + 15*w, y + 16*h, w, h)
+            djui_hud_render_texture_interpolated(vanillaMeter.pie[health >> 8], prevX + 15*prevW, prevY + 16*h, prevW, prevH, x + 15*w, y + 16*h, w, h)
         end
     end
 end
 
----@param m MarioState
-function rosalina_before_action(m, action)
-    if not action then return end
-
-    local e = gCharacterStates[m.playerIndex].rosalina
-
-    if spinOverrides[action] and m.controller.buttonDown & (Z_TRIG | A_BUTTON) == 0 and m.action ~= ACT_STEEP_JUMP then
-        return ACT_ROSA_JUMP_TWIRL
-    end
-
-    if action & ACT_FLAG_AIR == 0 and not e.canSpin then
-        play_sound_with_freq_scale(SOUND_GENERAL_COIN_SPURT_EU, m.marioObj.header.gfx.cameraToObject, 1.6)
-        spawn_non_sync_object(id_bhvSparkle, E_MODEL_SPARKLES_ANIMATION, m.pos.x, m.pos.y + 200, m.pos.z,
-            function(o) obj_scale(o, 0.75) end)
-        e.canSpin = true
+local lifeMushroomObjs = {}
+local E_MODEL_LIFE_MUSHROOM = smlua_model_util_get_id("life_mushroom_geo")
+-- Life Mushroom
+function create_life_mushroom(o)
+    if obj_is_mushroom_1up(o) then
+        djui_chat_message_create("a mushroom ?")
+        -- if math.random(5) == 5 then
+            lifeMushroomObjs[o] = 1
+            djui_chat_message_create("mushroom was turned!")
+        -- end
     end
 end
 
-hook_mario_action(ACT_ROSA_JUMP_TWIRL, act_jump_twirl, INT_KICK)
+function replace_life_mushroom_model(o, _, model)
+    if lifeMushroomObjs[o] and model == E_MODEL_1UP then
+        lifeMushroomObjs[o] = 2
+        obj_set_model_extended(o, E_MODEL_LIFE_MUSHROOM)
+    end
+end
+
+function collect_life_mushroom(o)
+    if lifeMushroomObjs[o] == 2 then
+        local m = nearest_mario_state_to_object(o)
+        if m then
+            local i = m.playerIndex
+            if obj_check_if_collided_with_object(o, m.marioObj) ~= 0
+            and charSelect.character_get_current_number(i) == CT_ROSALINA then
+                local e = gCharacterStates[i].rosalina
+                e.meterTimer = 0
+                e.meterState = METER_STATE_JOIN
+                if i == 0 then enable_time_stop_including_mario() end
+            end
+        end
+    end
+    lifeMushroomObjs[o] = nil
+end
 
 return {
     { HOOK_MARIO_UPDATE, rosalina_update },
  -- { HOOK_ON_PVP_ATTACK, rosalina_on_pvp_attack },
     { HOOK_ALLOW_INTERACT, rosalina_allow_interact },
     { HOOK_BEFORE_SET_MARIO_ACTION, rosalina_before_action },
+    { HOOK_ON_OBJECT_LOAD, create_life_mushroom, global = true },
+    { HOOK_OBJECT_SET_MODEL, replace_life_mushroom_model, global = true },
+    { HOOK_ON_OBJECT_UNLOAD, collect_life_mushroom, global = true },
     meter = rosalina_health_meter
 }
