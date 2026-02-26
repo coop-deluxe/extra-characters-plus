@@ -303,13 +303,18 @@ function rosalina_health_meter(localIndex, health, prevX, prevY, prevW, prevH, x
         elseif e.meterState == METER_STATE_JOIN then
             -- (60hz)
             -- empty meter appear       (0)
+
             -- 5 frames- first slice    (5)
             -- 4 frames- second         (9)
             -- 5 frames- third          (14)
-            if timer % 2 == 0 then
+            if timer % 2 == 1 then
                 e.hp = math.min(e.hp + 1, 6)
             end
+
             -- begin moving after 43    (57)
+            if timer > 29 then
+                -- ex
+            end
 
             -- 25 frames to reach meter (69)
             if timer == 35 then
@@ -370,11 +375,11 @@ local E_MODEL_LIFE_MUSHROOM = smlua_model_util_get_id("life_mushroom_geo")
 
 function create_life_mushroom(o)
     if obj_has_behavior_ids(o, mushroomBhvs) then
-        if math.random(5) == 5 then
+        -- if math.random(5) == 5 then
             lifeMushroomObjs[o] = 1
             djui_chat_message_create("life mushroom!")
-            else djui_chat_message_create("regular 1up ..")
-        end
+        --     else djui_chat_message_create("regular 1up ..")
+        -- end
     end
 end
 
@@ -393,10 +398,13 @@ function collect_life_mushroom(o)
             if obj_check_if_collided_with_object(o, m.marioObj) ~= 0
             and character_get_current_number(i) == CT_ROSALINA then
                 local e = gCharacterStates[i].rosalina
-                e.meterTimer = 0
-                e.meterState = METER_STATE_JOIN
-                m.numLives = m.numLives - 1
-                if i == 0 then enable_time_stop_including_mario() end
+                if e.hp < 6 then
+                    if e.hp > 3 then e.hp = 3 end
+                    e.meterTimer = 0
+                    e.meterState = METER_STATE_JOIN
+                    m.numLives = m.numLives - 1
+                    if i == 0 then enable_time_stop_including_mario() end
+                end
             end
         end
     end
