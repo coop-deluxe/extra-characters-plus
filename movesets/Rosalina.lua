@@ -14,8 +14,6 @@ local METER_STATE_HIT   = 1
 local METER_STATE_JOIN  = 2
 local METER_STATE_BREAK = 3
 
-local METER_STATE_HIT_X   = 4
-
 ---@param o Object
 function bhv_spin_attack_init(o)
     o.oFlags = OBJ_FLAG_UPDATE_GFX_POS_AND_ANGLE -- Allows you to change the position and angle
@@ -197,7 +195,7 @@ function rosalina_update(m)
     -- end
     if m.hurtCounter > 0 then
         m.hurtCounter = 0
-        e.meterState = e.hp > 3 and METER_STATE_HIT_X or METER_STATE_HIT
+        e.meterState = METER_STATE_HIT
         e.meterTimer = 1
         e.hp = math.max(e.hp - (m.squishTimer > 0 and 3 or 1), 0)
     end
@@ -231,6 +229,16 @@ function rosalina_before_action(m, action)
             function(o) obj_scale(o, 0.75) end)
         e.canSpin = true
     end
+end
+
+-- HUD stuff
+
+local particles = {}
+local function create_particle(type, x, y, scale)
+    
+end
+function rosalina_health_meter_particles()
+    
 end
 
 local vanillaMeter = {
@@ -295,9 +303,8 @@ function rosalina_health_meter(localIndex, health, xP, yP, wP, hP, x, y, w, h)
                 x2, x2P, y2, y2P = x3, x3P, y3, y3P
             end
 
-        elseif e.meterState == METER_STATE_HIT
-            or e.meterState == METER_STATE_HIT_X then
-            local extra = e.meterState == METER_STATE_HIT_X
+        elseif e.meterState == METER_STATE_HIT then
+            local extra = e.hp > 2
             local fac = 0x8000/12
             local mag = sins(fac*math.min(12, timer))*3
             local magP = sins(fac*math.min(12, timer-1))*3
@@ -459,5 +466,6 @@ return {
     { HOOK_ON_OBJECT_LOAD, create_life_mushroom, global = true },
     { HOOK_OBJECT_SET_MODEL, replace_life_mushroom_model, global = true },
     { HOOK_ON_OBJECT_UNLOAD, collect_life_mushroom, global = true },
+    { HOOK_ON_HUD_RENDER_BEHIND, rosalina_health_meter_particles, global = true },
     meter = rosalina_health_meter
 }
