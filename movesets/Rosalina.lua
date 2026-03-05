@@ -269,12 +269,15 @@ local function render_texture_shadow_interp(tex, xP, yP, wP, hP, x, y, w, h, xSP
 end
 
 local TEX_LIFE_LABEL = get_texture_info("char-select-ec-rosa-meter-life")
+local TEX_METER_CRACK = get_texture_info("char-select-ec-rosa-meter-crack")
+
 local specialMeter = {}
 local specialMeterNum = {}
 for i = 0, 6 do
     specialMeter[i] = get_texture_info("char-select-ec-rosa-meter-"..i)
     specialMeterNum[i] = get_texture_info("char-select-ec-rosa-meter-num-"..i)
 end
+
 function rosalina_health_meter(localIndex, health, xP, yP, wP, hP, x, y, w, h)
     local m = gMarioStates[localIndex]
     local e = gCharacterStates[m.playerIndex].rosalina
@@ -283,6 +286,8 @@ function rosalina_health_meter(localIndex, health, xP, yP, wP, hP, x, y, w, h)
 
     if gCSPlayers[m.playerIndex].movesetToggle then
         local timer = e.meterTimer
+        local state = e.meterState
+        local crack
         local s, sP = 1, 1
         local x2, x2P, y2, y2P
             = x , xP , y , yP
@@ -290,7 +295,7 @@ function rosalina_health_meter(localIndex, health, xP, yP, wP, hP, x, y, w, h)
         local extraOffset = 16 * w
         local x3, x3P, y3, y3P
 
-        if e.meterState == METER_STATE_IDLE then
+        if state == METER_STATE_IDLE then
             if e.hp < 3 then
                 local fac = 0x8000*((3-e.hp)/6)
                 s, sP = 1.05 - .05*coss(timer*fac), 1.05 - .05*coss((timer-1)*fac)
@@ -303,7 +308,7 @@ function rosalina_health_meter(localIndex, health, xP, yP, wP, hP, x, y, w, h)
                 x2, x2P, y2, y2P = x3, x3P, y3, y3P
             end
 
-        elseif e.meterState == METER_STATE_HIT then
+        elseif state == METER_STATE_HIT then
             local extra = e.hp > 2
             local fac = 0x8000/12
             local mag = sins(fac*math.min(12, timer))*3
@@ -326,7 +331,7 @@ function rosalina_health_meter(localIndex, health, xP, yP, wP, hP, x, y, w, h)
                 e.meterTimer = 1
             end
 
-        elseif e.meterState == METER_STATE_JOIN then
+        elseif state == METER_STATE_JOIN then
             -- (60hz)
             -- empty meter appears (0)
             x3, x3P = x - extraOffset, xP - extraOffset
@@ -357,6 +362,14 @@ function rosalina_health_meter(localIndex, health, xP, yP, wP, hP, x, y, w, h)
             end
             -- 12 frames to settle      (81)
             if timer > 40 then e.meterState = METER_STATE_IDLE end
+
+        elseif state == METER_STATE_BREAK then
+            if timer > 10 then
+                crack = 1
+                if timer == 11 then
+                    -- particles!
+                end
+            end
         end
 
         e.meterTimer = timer + 1
@@ -375,6 +388,13 @@ function rosalina_health_meter(localIndex, health, xP, yP, wP, hP, x, y, w, h)
             xP, yP, wsP, hsP,
             x,  y,  ws,  hs,
             3*wsP, 2*hsP, 3*ws, 2*hs)
+        
+        if crack == 1 then
+            -- x=12, y=17
+            djui_hud_render_texture_interpolated(TEX_METER_CRACK,
+                xP + 12*wsP, yP + 17*hsP, wsP, hsP,
+                x  + 12*ws,  y  + 17*hs,  ws,  hs)
+        end
 
         -- Extra Meter
         if x3 then
@@ -390,10 +410,12 @@ function rosalina_health_meter(localIndex, health, xP, yP, wP, hP, x, y, w, h)
             x2,  y2,  ws,  hs)
 
         -- Number
-        render_texture_shadow_interp(num,
-            x2P + 19*wsP, y2P + 22*hsP, wsP, hsP,
-            x2  + 19*ws,  y2  + 22*hs,  ws,  hs,
-            2*wsP, 2*hsP, 2*ws, 2*hs)
+        if crack ~= 1 then
+            render_texture_shadow_interp(num,
+                x2P + 19*wsP, y2P + 22*hsP, wsP, hsP,
+                x2  + 19*ws,  y2  + 22*hs,  ws,  hs,
+                2*wsP, 2*hsP, 2*ws, 2*hs)
+        end
 
     else
         djui_hud_render_texture_interpolated(vanillaMeter.label.left, xP, yP, wP, hP, x, y, w, h)
