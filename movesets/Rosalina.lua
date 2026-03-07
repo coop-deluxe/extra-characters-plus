@@ -1,7 +1,7 @@
 require "anims/rosalina"
 
 -- misc locals
-local asin, pi = math.asin, math.pi
+local asin, pi, max = math.asin, math.pi, math.max
 local IN_SINE, OUT_SINE, INV_OUT_SINE = IN_SINE, OUT_SINE, function (x) return 2 * asin(x) / pi end
 local djui_hud_set_color, djui_hud_render_texture_interpolated = djui_hud_set_color, djui_hud_render_texture_interpolated
 local sins, coss = sins, coss
@@ -251,11 +251,21 @@ local Particle = function ()
         t = 0
     }
 end
+
+local particles = {}
+local function create_particle(type, x, y, scale)
+    local p = type(x, y, scale)
+
+    particles[#particles+1] = p
+end
+
 -- cur_obj_scale(o.header.gfx.scale.x - (1 - o.header.gfx.scale.x)*.6)
 -- line of interest
 local glassTex = {}
-function glass_update()
-    
+function glass_update(p)
+    p.z = max(0, p.z - 0.06)
+
+    if p.z == 0 then p.dead = 1 end
 end
 local ParticleGlass = function (x, y, s)
     local p = Particle()
@@ -263,21 +273,15 @@ local ParticleGlass = function (x, y, s)
     p.z = (0.8 + math.random() * 0.4) * s
     -- p.tex = 
 end
-local P_SHATTER_SMALL = function (x, y, s)
+local EMIT_SHATTER_S = function (x, y, s)
     for i = 1, 10, 1 do
-        
+        create_particle(ParticleGlass)
     end
 end
-local P_SHATTER_LARGE = function (x, y, s)
+local EMIT_SHATTER_L = function (x, y, s)
     
 end
 
-local particles = {}
-local function create_particle(type, x, y, scale)
-    local p = {}
-
-    particles[#particles+1] = p
-end
 
 local function emit_particles()
     --
@@ -291,7 +295,7 @@ function rosalina_health_meter_particles()
             particles[i] = particles[#particles]
             particles[#particles] = nil
         else
-            p.update()
+            p:update()
 
             local nx, ny, nz = p.x + p.vx, p.y + p.vy, p.z + p.vz
             djui_hud_render_texture_interpolated(p.tex,
