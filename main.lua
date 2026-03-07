@@ -40,22 +40,7 @@ extraCharacters = {
         graffiti = get_texture_info("char-select-ec-graffiti-toadette"),
         camScale = 0.8,
         offset = 0,
-        meter = {
-            label = {
-                left  = get_texture_info("char-select-ec-toadette-meter-left"),
-                right = get_texture_info("char-select-ec-toadette-meter-right"),
-            },
-            pie = {
-                get_texture_info("char_select_custom_meter_pie1"),
-                get_texture_info("char_select_custom_meter_pie2"),
-                get_texture_info("char_select_custom_meter_pie3"),
-                get_texture_info("char_select_custom_meter_pie4"),
-                get_texture_info("char_select_custom_meter_pie5"),
-                get_texture_info("char_select_custom_meter_pie6"),
-                get_texture_info("char_select_custom_meter_pie7"),
-                get_texture_info("char_select_custom_meter_pie8"),
-            }
-        },
+        meter = load_meter("toadette"),
         caps = {
             normal    = smlua_model_util_get_id("ec_toadette_cap_geo"),
             wing      = smlua_model_util_get_id("ec_toadette_wing_cap_geo"),
@@ -182,22 +167,7 @@ extraCharacters = {
         graffiti = get_texture_info("char-select-ec-graffiti-peach"),
         camScale = 1,
         offset = 0,
-        meter = {
-            label = {
-                left  = get_texture_info("char-select-ec-peach-meter-left"),
-                right = get_texture_info("char-select-ec-peach-meter-right"),
-            },
-            pie = {
-                get_texture_info("char_select_custom_meter_pie1"),
-                get_texture_info("char_select_custom_meter_pie2"),
-                get_texture_info("char_select_custom_meter_pie3"),
-                get_texture_info("char_select_custom_meter_pie4"),
-                get_texture_info("char_select_custom_meter_pie5"),
-                get_texture_info("char_select_custom_meter_pie6"),
-                get_texture_info("char_select_custom_meter_pie7"),
-                get_texture_info("char_select_custom_meter_pie8"),
-            }
-        },
+        meter = load_meter("peach"),
         caps = {
             normal    = smlua_model_util_get_id("ec_peach_player_cap_geo"),
             wing      = smlua_model_util_get_id("ec_peach_player_wing_cap_geo"),
@@ -391,22 +361,7 @@ extraCharacters = {
         graffiti = get_texture_info("char-select-ec-graffiti-daisy"),
         camScale = 1,
         offset = 0,
-        meter = {
-            label = {
-                left  = get_texture_info("char-select-ec-daisy-meter-left"),
-                right = get_texture_info("char-select-ec-daisy-meter-right"),
-            },
-            pie = {
-                get_texture_info("char_select_custom_meter_pie1"),
-                get_texture_info("char_select_custom_meter_pie2"),
-                get_texture_info("char_select_custom_meter_pie3"),
-                get_texture_info("char_select_custom_meter_pie4"),
-                get_texture_info("char_select_custom_meter_pie5"),
-                get_texture_info("char_select_custom_meter_pie6"),
-                get_texture_info("char_select_custom_meter_pie7"),
-                get_texture_info("char_select_custom_meter_pie8"),
-            }
-        },
+        meter = load_meter("daisy"),
         caps = {
             normal    = smlua_model_util_get_id("ec_daisy_cap_geo"),
             wing      = smlua_model_util_get_id("ec_daisy_wing_cap_geo"),
@@ -612,22 +567,7 @@ extraCharacters = {
         graffiti = get_texture_info("char-select-ec-graffiti-yoshi"),
         camScale = 1.1,
         offset = 0,
-        meter = {
-            label = {
-                left  = get_texture_info("char-select-ec-yoshi-meter-left"),
-                right = get_texture_info("char-select-ec-yoshi-meter-right"),
-            },
-            pie = {
-                get_texture_info("char_select_custom_meter_pie1"),
-                get_texture_info("char_select_custom_meter_pie2"),
-                get_texture_info("char_select_custom_meter_pie3"),
-                get_texture_info("char_select_custom_meter_pie4"),
-                get_texture_info("char_select_custom_meter_pie5"),
-                get_texture_info("char_select_custom_meter_pie6"),
-                get_texture_info("char_select_custom_meter_pie7"),
-                get_texture_info("char_select_custom_meter_pie8"),
-            }
-        },
+        meter = load_meter("yoshi"),
         caps = {
             normal    = smlua_model_util_get_id("ec_yoshi_player_cap_geo"),
             wing      = smlua_model_util_get_id("ec_yoshi_player_wing_cap_geo"),
@@ -755,22 +695,7 @@ extraCharacters = {
         graffiti = get_texture_info("char-select-ec-graffiti-birdo"),
         camScale = 1.1,
         offset = 0,
-        meter = {
-            label = {
-                left  = get_texture_info("char-select-ec-birdo-meter-left"),
-                right = get_texture_info("char-select-ec-birdo-meter-right"),
-            },
-            pie = {
-                get_texture_info("char_select_custom_meter_pie1"),
-                get_texture_info("char_select_custom_meter_pie2"),
-                get_texture_info("char_select_custom_meter_pie3"),
-                get_texture_info("char_select_custom_meter_pie4"),
-                get_texture_info("char_select_custom_meter_pie5"),
-                get_texture_info("char_select_custom_meter_pie6"),
-                get_texture_info("char_select_custom_meter_pie7"),
-                get_texture_info("char_select_custom_meter_pie8"),
-            }
-        },
+        meter = load_meter("birdo"),
         caps = {
             normal    = smlua_model_util_get_id("ec_birdo_cap_geo"),
             wing      = smlua_model_util_get_id("ec_birdo_wing_cap_geo"),
@@ -901,22 +826,7 @@ extraCharacters = {
         graffiti = get_texture_info("char-select-ec-graffiti-foremanspike"),
         camScale = 1.1,
         offset = 0,
-        meter = {
-            label = {
-                left  = get_texture_info("char-select-ec-foremanspike-meter-left"),
-                right = get_texture_info("char-select-ec-foremanspike-meter-right"),
-            },
-            pie = {
-                get_texture_info("char_select_custom_meter_pie1"),
-                get_texture_info("char_select_custom_meter_pie2"),
-                get_texture_info("char_select_custom_meter_pie3"),
-                get_texture_info("char_select_custom_meter_pie4"),
-                get_texture_info("char_select_custom_meter_pie5"),
-                get_texture_info("char_select_custom_meter_pie6"),
-                get_texture_info("char_select_custom_meter_pie7"),
-                get_texture_info("char_select_custom_meter_pie8"),
-            }
-        },
+        meter = load_meter("foremanspike"),
         caps = {
             normal    = smlua_model_util_get_id("ec_foreman_spike_cap_geo"),
             wing      = smlua_model_util_get_id("ec_foreman_spike_wing_cap_geo"),
@@ -1042,22 +952,7 @@ extraCharacters = {
         graffiti = get_texture_info("char-select-ec-graffiti-pauline"),
         camScale = 1.1,
         offset = 0,
-        meter = {
-            label = {
-                left  = get_texture_info("char-select-ec-pauline-meter-left"),
-                right = get_texture_info("char-select-ec-pauline-meter-right"),
-            },
-            pie = {
-                get_texture_info("char_select_custom_meter_pie1"),
-                get_texture_info("char_select_custom_meter_pie2"),
-                get_texture_info("char_select_custom_meter_pie3"),
-                get_texture_info("char_select_custom_meter_pie4"),
-                get_texture_info("char_select_custom_meter_pie5"),
-                get_texture_info("char_select_custom_meter_pie6"),
-                get_texture_info("char_select_custom_meter_pie7"),
-                get_texture_info("char_select_custom_meter_pie8"),
-            }
-        },
+        meter = load_meter("pauline"),
         caps = {
             normal    = smlua_model_util_get_id("ec_pauline_cap_geo"),
             wing      = smlua_model_util_get_id("ec_pauline_wing_cap_geo"),
@@ -1264,22 +1159,7 @@ extraCharacters = {
         graffiti = get_texture_info("char-select-ec-graffiti-rosalina"),
         camScale = 1.5,
         offset = 0,
-        meter = {
-            label = {
-                left  = get_texture_info("char-select-ec-rosalina-meter-left"),
-                right = get_texture_info("char-select-ec-rosalina-meter-right"),
-            },
-            pie = {
-                get_texture_info("char_select_custom_meter_pie1"),
-                get_texture_info("char_select_custom_meter_pie2"),
-                get_texture_info("char_select_custom_meter_pie3"),
-                get_texture_info("char_select_custom_meter_pie4"),
-                get_texture_info("char_select_custom_meter_pie5"),
-                get_texture_info("char_select_custom_meter_pie6"),
-                get_texture_info("char_select_custom_meter_pie7"),
-                get_texture_info("char_select_custom_meter_pie8"),
-            }
-        },
+        meter = load_meter("rosalina"),
         caps = {
             normal    = smlua_model_util_get_id("ec_rosalina_cap_geo"),
             wing      = smlua_model_util_get_id("ec_rosalina_wing_cap_geo"),
@@ -1478,22 +1358,7 @@ extraCharacters = {
         graffiti    = get_texture_info("char-select-ec-graffiti-wapeach"),
         camScale    = 1,
         offset      = 0,
-        meter = {
-            label = {
-                left  = get_texture_info("char-select-ec-wapeach-meter-left"),
-                right = get_texture_info("char-select-ec-wapeach-meter-right"),
-            },
-            pie = {
-                get_texture_info("char_select_custom_meter_pie1"),
-                get_texture_info("char_select_custom_meter_pie2"),
-                get_texture_info("char_select_custom_meter_pie3"),
-                get_texture_info("char_select_custom_meter_pie4"),
-                get_texture_info("char_select_custom_meter_pie5"),
-                get_texture_info("char_select_custom_meter_pie6"),
-                get_texture_info("char_select_custom_meter_pie7"),
-                get_texture_info("char_select_custom_meter_pie8"),
-            }
-        },
+        meter = load_meter("wapeach"),
         caps = {
             normal    = smlua_model_util_get_id("ec_wapeach_cap_geo"),
             wing      = smlua_model_util_get_id("ec_wapeach_wing_cap_geo"),
@@ -1611,22 +1476,7 @@ extraCharacters = {
         graffiti = get_texture_info("char-select-ec-graffiti-donkeykong"),
         camScale = 1.5,
         offset = 0,
-        meter = {
-            label = {
-                left  = get_texture_info("char-select-ec-donkeykong-meter-left"),
-                right = get_texture_info("char-select-ec-donkeykong-meter-right"),
-            },
-            pie = {
-                get_texture_info("char_select_custom_meter_pie1"),
-                get_texture_info("char_select_custom_meter_pie2"),
-                get_texture_info("char_select_custom_meter_pie3"),
-                get_texture_info("char_select_custom_meter_pie4"),
-                get_texture_info("char_select_custom_meter_pie5"),
-                get_texture_info("char_select_custom_meter_pie6"),
-                get_texture_info("char_select_custom_meter_pie7"),
-                get_texture_info("char_select_custom_meter_pie8"),
-            }
-        },
+        meter = load_meter("donkeykong"),
         caps = {
             normal    = smlua_model_util_get_id("ec_donkeykong_cap_geo"),
             wing      = smlua_model_util_get_id("ec_donkeykong_wing_cap_geo"),

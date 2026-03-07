@@ -1874,22 +1874,8 @@ function sonic_homing_hud()
     end
 end
 
-sonicVanillaMeter = {
-    label = {
-        left = get_texture_info("char-select-ec-sonic-meter-left"),
-        right = get_texture_info("char-select-ec-sonic-meter-right"),
-    },
-    pie = {
-        get_texture_info("char_select_custom_meter_pie1"),
-        get_texture_info("char_select_custom_meter_pie2"),
-        get_texture_info("char_select_custom_meter_pie3"),
-        get_texture_info("char_select_custom_meter_pie4"),
-        get_texture_info("char_select_custom_meter_pie5"),
-        get_texture_info("char_select_custom_meter_pie6"),
-        get_texture_info("char_select_custom_meter_pie7"),
-        get_texture_info("char_select_custom_meter_pie8"),
-    }
-}
+local sonicVanillaMeter = load_meter("sonic")
+sonicVanillaMeter.pie = load_textures("char_select_custom_meter_pie", 1, 8)
 
 function sonic_health_meter(localIndex, health, prevX, prevY, prevScaleW, prevScaleH, x, y, scaleW, scaleH)
     local m = gMarioStates[localIndex]
