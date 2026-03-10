@@ -201,8 +201,12 @@ function rosalina_update(m)
     end
 
     if m.healCounter > 0 then
+        local prevHP = e.hp
         e.hp = math.min(e.hp + (m.healCounter + 1) // 4, e.hp > 3 and 6 or 3)
         m.healCounter = 0
+        if e.hp == 3 and e.hp > prevHP and e.meterState == METER_STATE_IDLE then
+            e.meterTimer = 1
+        end
     end
     if e.meterState == METER_STATE_BREAK and e.hp > 0 then
         e.meterState = METER_STATE_IDLE
