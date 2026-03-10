@@ -1,18 +1,12 @@
--------------------
--- Yoshi Moveset --
--------------------
-
-if not charSelect then return end
-
 require "anims/yoshi"
 
 -- Flutterable actions, these don't match the DS flutterable actions
-local flutterActs = {
-    [ACT_JUMP]        = true,
-    [ACT_DOUBLE_JUMP] = true,
-    [ACT_TRIPLE_JUMP] = true,
-    [ACT_LONG_JUMP]   = true,
-    [ACT_FREEFALL]    = true
+local flutterActs = T{
+    ACT_JUMP,
+    ACT_DOUBLE_JUMP,
+    ACT_TRIPLE_JUMP,
+    ACT_LONG_JUMP,
+    ACT_FREEFALL
 }
 
 _G.ACT_FLUTTER = allocate_mario_action(ACT_FLAG_AIR | ACT_FLAG_ALLOW_VERTICAL_WIND_ACTION | ACT_GROUP_AIRBORNE)
