@@ -35,14 +35,48 @@ end
 --- @return boolean
 function in_between(x, min, max, inclusive)
     if inclusive then
-        if x >= min and x <= max then
-            return true
-        end
+        return min <= x and x <= max
+    else
+        return min < x and x < max
     end
+end
 
-    if x > min and x < max then
-        return true
+-- Generates a truth table
+function T(t)
+    local t2 = {}
+    for _, v in ipairs(t) do
+        t2[v] = 1
     end
+    return t2
+end
 
-    return false
+--- Returns a table populated with all textures starting at `name .. i` and continuing until `name .. j`.
+--- Starts at `insert` and stops at `j`.
+--- 
+--- Given textures "my_texture_1", "my_texture_2", and "my_texture_3":
+--- ```lua
+--- texTable = load_textures("my_texture_", 1, 3)
+--- ```
+--- 
+--- @param name string
+--- @param i integer
+--- @param j integer
+--- @return TextureInfo[]
+function load_textures(name, i, j)
+    print("loaded " .. name)
+    local t = {}
+    for i = i, j do
+        t[i] = get_texture_info(name .. i)
+    end
+    return t
+end
+
+function load_meter(name)
+    return {
+        label = {
+            left  = get_texture_info("char-select-ec-"..name.."-meter-left"),
+            right = get_texture_info("char-select-ec-"..name.."-meter-right"),
+        },
+        pie = {}
+    }
 end

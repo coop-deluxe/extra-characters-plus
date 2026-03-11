@@ -1,9 +1,3 @@
--------------------------
--- Wapeach Axe Attacks --
--------------------------
-
-if not charSelect then return end
-
 require "anims/wapeach"
 
 _G.ACT_AXE_CHOP       = allocate_mario_action(ACT_GROUP_STATIONARY | ACT_FLAG_STATIONARY)

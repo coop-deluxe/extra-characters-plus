@@ -1,9 +1,3 @@
--------------------
--- Birdo Moveset --
--------------------
-
-if not charSelect then return end
-
 require "anims/birdo"
 
 local SOUND_SPIT = audio_sample_load("z_sfx_birdo_spit.ogg") -- Load audio sample
