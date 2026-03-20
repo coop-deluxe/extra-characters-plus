@@ -78,10 +78,10 @@ extraCharacters = {
                 name     = "Retro",
                 [PANTS]  = 'ffffff',
                 [SHIRT]  = 'f1318f',
-                [GLOVES] = 'FFFFFF',
+                [GLOVES] = 'ffffff',
                 [SHOES]  = 'f1318f',
                 [HAIR]   = 'f1318f',
-                [SKIN]   = 'f7c37f',
+                [SKIN]   = 'ea9e22',
                 [CAP]    = 'f1318f',
                 [EMBLEM] = 'f1318f'
             },
@@ -96,7 +96,6 @@ extraCharacters = {
                 [CAP]    = '666977',
                 [EMBLEM] = 'ff98dd'
             },
-
             {
                 name     = "Chanterelle",
                 [PANTS]  = '7342a5',
@@ -426,17 +425,6 @@ extraCharacters = {
                 [EMBLEM] = '00FFFF'
             },
             {
-                name     = "LCD",
-                [PANTS]  = 'A8A8A8',
-                [SHIRT]  = '505050',
-                [GLOVES] = '505050',
-                [SHOES]  = 'A8A8A8',
-                [HAIR]   = '161616',
-                [SKIN]   = 'A8A8A8',
-                [CAP]    = '505050',
-                [EMBLEM] = 'A8A8A8'
-            },
-            {
                 name     = "Retro",
                 [PANTS]  = '944e13',
                 [SHIRT]  = 'd5d5d5',
@@ -457,6 +445,17 @@ extraCharacters = {
                 [SKIN]   = 'FDAE82',
                 [CAP]    = 'E4A349',
                 [EMBLEM] = '25BD8C'
+            },
+            {
+                name     = "LCD",
+                [PANTS]  = 'A8A8A8',
+                [SHIRT]  = '505050',
+                [GLOVES] = '505050',
+                [SHOES]  = 'A8A8A8',
+                [HAIR]   = '161616',
+                [SKIN]   = 'A8A8A8',
+                [CAP]    = '505050',
+                [EMBLEM] = 'A8A8A8'
             },
             {
                 name     = "Chai",
@@ -936,17 +935,6 @@ extraCharacters = {
                 [EMBLEM] = 'FFFF00'
             },
             {
-                name     = "Classic",
-                [PANTS]  = 'c39e4e',
-                [SHIRT]  = 'f0f1dd',
-                [GLOVES] = 'ffffff',
-                [SHOES]  = '721c0e',
-                [HAIR]   = '000000',
-                [SKIN]   = 'e9d9b0',
-                [CAP]    = 'c39e4e',
-                [EMBLEM] = '721c0e'
-            },
-            {
                 name     = "Retro",
                 [PANTS]  = 'c84c0c',
                 [SHIRT]  = 'c84c0c',
@@ -956,6 +944,17 @@ extraCharacters = {
                 [SKIN]   = 'fcbcb0',
                 [CAP]    = 'c84c0c',
                 [EMBLEM] = '0000a8'
+            },
+            {
+                name     = "Classic",
+                [PANTS]  = 'c39e4e',
+                [SHIRT]  = 'f0f1dd',
+                [GLOVES] = 'ffffff',
+                [SHOES]  = '721c0e',
+                [HAIR]   = '000000',
+                [SKIN]   = 'e9d9b0',
+                [CAP]    = 'c39e4e',
+                [EMBLEM] = '721c0e'
             },
             {
                 name     = "1998",
@@ -1077,17 +1076,6 @@ extraCharacters = {
                 [EMBLEM] = 'FFFF00'
             },
             {
-                name     = "Classic",
-                [PANTS]  = 'ff9fd5',
-                [SHIRT]  = 'ff9fd5',
-                [GLOVES] = 'ff9fd5',
-                [SHOES]  = 'ff0000',
-                [HAIR]   = 'fbe34b',
-                [SKIN]   = 'f6e9b7',
-                [CAP]    = 'ff9fd5',
-                [EMBLEM] = 'ffffff'
-            },
-            {
                 name     = "Retro",
                 [PANTS]  = 'f057e8',
                 [SHIRT]  = 'f057e8',
@@ -1097,6 +1085,17 @@ extraCharacters = {
                 [SKIN]   = 'fefcff',
                 [CAP]    = 'f057e8',
                 [EMBLEM] = 'f057e8'
+            },
+            {
+                name     = "Classic",
+                [PANTS]  = 'ff9fd5',
+                [SHIRT]  = 'ff9fd5',
+                [GLOVES] = 'ff9fd5',
+                [SHOES]  = 'ff0000',
+                [HAIR]   = 'fbe34b',
+                [SKIN]   = 'f6e9b7',
+                [CAP]    = 'ff9fd5',
+                [EMBLEM] = 'ffffff'
             },
             {
                 name     = "Odd Rock",
@@ -1513,17 +1512,6 @@ extraCharacters = {
                 [EMBLEM] = 'FF0000'
             },
             {
-                name     = "Classic",
-                [PANTS]  = '151010',
-                [SHIRT]  = '151010',
-                [GLOVES] = '151010',
-                [SHOES]  = '151010',
-                [HAIR]   = 'FEC431',
-                [SKIN]   = 'BF9468',
-                [CAP]    = 'FFC836',
-                [EMBLEM] = 'FF258C'
-            },
-            {
                 name     = "Retro",
                 [PANTS]  = '743b89',
                 [SHIRT]  = '743b89',
@@ -1533,6 +1521,17 @@ extraCharacters = {
                 [SKIN]   = 'dc9d38',
                 [CAP]    = 'dc9d38',
                 [EMBLEM] = 'dc9d38'
+            },
+            {
+                name     = "Classic",
+                [PANTS]  = '151010',
+                [SHIRT]  = '151010',
+                [GLOVES] = '151010',
+                [SHOES]  = '151010',
+                [HAIR]   = 'FEC431',
+                [SKIN]   = 'BF9468',
+                [CAP]    = 'FFC836',
+                [EMBLEM] = 'FF258C'
             },
             {
                 name     = "Scene",
@@ -1669,14 +1668,14 @@ extraCharacters = {
             },
             {
                 name     = "Yeti",
-                [PANTS]  = 'FF0000',
+                [PANTS]  = '6b85b8',
                 [SHIRT]  = 'ffffff',
-                [GLOVES] = 'fec179',
-                [SHOES]  = 'fec179',
+                [GLOVES] = 'd6bea2',
+                [SHOES]  = 'd6bea2',
                 [HAIR]   = 'ffffff',
-                [SKIN]   = 'fec179',
+                [SKIN]   = 'd6bea2',
                 [CAP]    = 'ffffff',
-                [EMBLEM] = 'FFE900',
+                [EMBLEM] = 'cecdd2',
             },
         },
         voices = {
@@ -1864,7 +1863,7 @@ extraCharacters = {
                 [EMBLEM] = '000000'
             },
             {
-                name     = "Ashura",
+                name     = "Glitch",
                 [PANTS]  = '000000',
                 [SHIRT]  = 'ffb493',
                 [GLOVES] = 'FFFFFF',
@@ -2010,7 +2009,7 @@ local ultraBrosCredits = {
         "FunkyLion",
         "VioletArts",
         "SullyBoy",
-        "Heylee"
+        "Heylee2010"
     },
     {
         name = TEXT_PACK_NAME .. " Pixel Artists",
