@@ -64,7 +64,8 @@ for i = 0, (MAX_PLAYERS - 1) do
             lastforwardPos = gVec3fZero(),
             realFVel = 0,
             wallSpam = 0,
-            prevWallAngle = -1
+            prevWallAngle = -1,
+            waterTimer = 0
         }
     }
     for j = 1, ANGLE_QUEUE_SIZE do gCharacterStates[i].wario.angleDeltaQueue[j] = 0 end
