@@ -302,7 +302,7 @@ local function sonic_anim_and_audio_for_walk(m, walkCap, jogCap, runCap)
         val14 = 4
     end
 
-    if m.forwardVel > 2 then
+    if math.abs(m.forwardVel) > 2 then
         val04 = math.abs(m.forwardVel)
     else
         val04 = 5
@@ -371,6 +371,14 @@ local function sonic_anim_and_audio_for_walk(m, walkCap, jogCap, runCap)
                         play_step_sound(m, 26, 58)
                         set_mario_anim_with_accel(m, MARIO_ANIM_RUNNING, m.forwardVel/2.0 * 0x8000)
                     end
+                    local marioAnimInfo = m.marioObj.header.gfx.animInfo
+
+                    -- Handle manually the loop points of the animation if moving backwards
+                    if marioAnimInfo.animAccel < 0 and marioAnimInfo.animFrame <= marioAnimInfo.curAnim.loopStart then
+                        marioAnimInfo.animFrame = marioAnimInfo.curAnim.loopEnd
+                        marioAnimInfo.animFrameAccelAssist = marioAnimInfo.animFrame << 16
+                    end
+
                     if jogCap - val04 <= 30 and math.sign(jogCap - val04) == 1 then
                         m.marioBodyState.allowPartRotation = true
                         m.marioBodyState.torsoAngle.x = degrees_to_sm64(30 - (jogCap - val04))
@@ -453,12 +461,19 @@ function sonic_air_action_step(m, landAction, animation, stepArg, bonking)
         if (check_fall_damage_or_get_stuck(m, ACT_HARD_BACKWARD_GROUND_KB) == 0) then
             if math.abs(m.forwardVel) > 1 or steepness ~= 0 then
                 m.faceAngle.y = atan2s(m.vel.z, m.vel.x)
-                mario_set_forward_vel(m, math.sqrt(m.vel.x ^ 2 + m.vel.z ^ 2))
+                m.forwardVel = math.abs(m.forwardVel)
+
                 if steepness ~= 0 then
                     mario_set_forward_vel(m, m.forwardVel + math.abs(m.vel.y) * steepness * coss(floorDYaw))
                 end
 
-                return set_mario_action(m, ACT_SONIC_RUNNING, 0)
+                if math.abs(intendedDYaw) > 0x4000 then 
+                    m.faceAngle.y = m.faceAngle.y + 0x8000
+                    m.forwardVel = -math.abs(m.forwardVel)
+                end
+
+
+                set_mario_action(m, ACT_SONIC_RUNNING, 0)
             else
                 m.faceAngle.y = m.faceAngle.y
                 set_mario_action(m, landAction, 0)
@@ -686,8 +701,12 @@ local function act_spin_jump(m)
 
     if (m.controller.buttonDown & Z_TRIG) ~= 0 then
         if stepResult == AIR_STEP_LANDED then
-            audio_sample_play(SOUND_ROLL, m.pos, 1)
-            set_mario_action(m, ACT_SONIC_SPIN_DASH, 0)
+            if m.forwardVel ~= 0 then
+                audio_sample_play(SOUND_ROLL, m.pos, 1)
+                set_mario_action(m, ACT_SONIC_SPIN_DASH, 0)
+            else
+                set_mario_action(m, ACT_CROUCHING, 0)
+            end
         end
     end
 
@@ -791,8 +810,12 @@ local function act_air_spin(m)
 
     if (m.controller.buttonDown & Z_TRIG) ~= 0 then
         if stepResult == AIR_STEP_LANDED then
-            audio_sample_play(SOUND_ROLL, m.pos, 1)
-            set_mario_action(m, ACT_SONIC_SPIN_DASH, 0)
+            if m.forwardVel ~= 0 then
+                audio_sample_play(SOUND_ROLL, m.pos, 1)
+                set_mario_action(m, ACT_SONIC_SPIN_DASH, 0)
+            else
+                set_mario_action(m, ACT_CROUCHING, 0)
+            end
         end
     end
 
@@ -905,7 +928,7 @@ end
 ---@param m MarioState
 local function act_spin_dash_charge(m)
     local e = gCharacterStates[m.playerIndex].sonic
-    local MINDASH = 4
+    local MINDASH = 16
     local MAXDASH = HEDGEHOG_SPEED
     local decel = e.spinCharge / 32
 
@@ -1022,8 +1045,15 @@ local function act_sonic_running(m)
 
     if (m.input & INPUT_ZERO_MOVEMENT) ~= 0 then
         mario_set_forward_vel(m, approach_f32_symmetric(m.forwardVel, 0, 1))
-        if m.forwardVel <= 0 then
+        if math.abs(m.forwardVel) <= 1 then
             set_mario_action(m, ACT_IDLE, 0)
+        end
+    end
+
+    if (m.input & INPUT_NONZERO_ANALOG) ~= 0 then
+        if m.forwardVel < 0 then
+            m.faceAngle.y = atan2s(m.vel.z, m.vel.x)
+            mario_set_forward_vel(m, math.abs(m.forwardVel))
         end
     end
 
@@ -1108,8 +1138,12 @@ function act_sonic_fall(m)
 
     if (m.controller.buttonDown & Z_TRIG) ~= 0 then
         if stepResult == AIR_STEP_LANDED then
-            audio_sample_play(SOUND_ROLL, m.pos, 1)
-            set_mario_action(m, ACT_SONIC_SPIN_DASH, 0)
+            if m.forwardVel ~= 0 then
+                audio_sample_play(SOUND_ROLL, m.pos, 1)
+                set_mario_action(m, ACT_SONIC_SPIN_DASH, 0)
+            else
+                set_mario_action(m, ACT_CROUCHING, 0)
+            end
         end
     end
 
@@ -1269,12 +1303,25 @@ function sonic_update(m)
             play_sound(SOUND_ACTION_UNKNOWN430, m.marioObj.header.gfx.cameraToObject)
         elseif math.abs(m.vel.y) > 0 then
             m.particleFlags = m.particleFlags + PARTICLE_SHALLOW_WATER_SPLASH
+            play_sound(SOUND_ACTION_UNKNOWN431, m.marioObj.header.gfx.cameraToObject)
         end
     end
 
     -- Fall damage delay.
     if e.peakHeight - m.pos.y < 2000 then m.peakHeight = m.pos.y end
     if m.vel.y >= 0 or m.pos.y == m.floorHeight then e.peakHeight = m.pos.y end
+    
+    if m.pos.y + 30 < m.waterLevel then
+        if e.waterTimer <= 0 and e.peakHeight - m.pos.y >= 150 then
+            m.peakHeight = m.pos.y
+            m.vel.x = m.vel.x / 2
+            m.vel.z = m.vel.z / 2
+            if m.vel.y < 0 then m.vel.y = math.min(0, m.vel.y / 4) end
+        end
+        e.waterTimer = e.waterTimer + 1
+    else
+        e.waterTimer = 0
+    end
 
     sonic_instashield_interactions(m, e)
 
