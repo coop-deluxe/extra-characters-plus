@@ -666,8 +666,6 @@ local function perform_sonic_b_action(m)
         if e.bounceCooldown > 0 then return end
         set_mario_action(m, ACT_GROUND_POUND, 0)
         e.bounceCooldown = 36
-    elseif (m.forwardVel > 28) then
-        set_mario_action(m, ACT_DIVE, 0)
     else
         set_mario_action(m, ACT_JUMP_KICK, 0)
     end
@@ -1036,8 +1034,8 @@ local function act_sonic_running(m)
         return set_jump_from_landing(m)
     end
 
-    if (check_ground_dive_or_punch(m)) ~= 0 then
-        return 1
+    if (m.input & INPUT_B_PRESSED) ~= 0 then
+        return set_mario_action(m, ACT_MOVE_PUNCHING, 0)
     end
 
     if (m.input & INPUT_ZERO_MOVEMENT) ~= 0 then
