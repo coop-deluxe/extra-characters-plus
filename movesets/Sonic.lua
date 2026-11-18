@@ -2,6 +2,7 @@ require "anims/sonic"
 
 -- Sonic variables for the local player only
 local sPrevRings = 0
+local sBurned = false
 local sRingTimeBetweenDamages = 0
 local sRingFlingFactor = 0
 local sPrevNonSonicHealth = nil
@@ -1236,9 +1237,14 @@ function sonic_update(m)
         ACT_BUTT_SLIDE
     }
 
-    if m.playerIndex == 0 and m.action == ACT_BURNING_JUMP and m.actionArg == 1 then
-        local p = gPlayerSyncTable[m.playerIndex]
-        sPrevRings = p.rings
+    if m.playerIndex == 0 then
+        if m.action == ACT_BURNING_JUMP and m.actionArg == 1 and sBurned == false then
+            local p = gPlayerSyncTable[m.playerIndex]
+            sPrevRings = p.rings
+            sBurned = true
+        elseif sBurned and (m.action ~= ACT_BURNING_JUMP or m.actionArg ~= 1) then
+            sBurned = false
+        end
     end
 
     if groundMovingActions[m.action] then
@@ -1553,7 +1559,6 @@ function sonic_ring_health(m, e)
         end
 
         if m.action == ACT_BURNING_JUMP and m.actionArg == 1 then
-            djui_chat_message_create(tostring(m.actionArg))
             if sPrevRings == 0 then
                 sonic_set_dead(m)
             else
